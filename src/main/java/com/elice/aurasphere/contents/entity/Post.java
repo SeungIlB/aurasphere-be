@@ -3,9 +3,11 @@ package com.elice.aurasphere.contents.entity;
 import com.elice.aurasphere.audit.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,13 +32,22 @@ public class Post extends BaseEntity {
     private String content;
 
     @Column
-    private Long likes;
+    private Long likeCnt;
 
     @Column
     private LocalDateTime deletedDate;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<Comment> Comments = new ArrayList<>();
+
+    @Builder
+    public Post(
+            String content,
+            Long likeCnt
+    ) {
+        this.content = content;
+        this.likeCnt = likeCnt;
+    }
 
 }
 
