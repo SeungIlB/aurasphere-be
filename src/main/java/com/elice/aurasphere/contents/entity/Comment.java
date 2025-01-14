@@ -1,6 +1,6 @@
 package com.elice.aurasphere.contents.entity;
 
-import com.elice.aurasphere.audit.BaseEntity;
+import com.elice.aurasphere.global.audit.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

@@ -18,33 +18,32 @@ public class PostResDTO {
     private String content;
 
     @Schema(description = "게시글 좋아요 수")
-    private Long likes;
+    private Long likeCnt;
 
     @Schema(description = "게시글의 총 댓글 수")
     private Long commentCnt;
 
     @Schema(description = "게시글 최초 작성 시간")
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     @Schema(description = "게시글 최종 수정 시간")
-    private LocalDateTime updateAt;
+    private LocalDateTime updatedAt;
 
 
     @Builder
     public PostResDTO(
             Long id,
             String content,
-            Long likes,
+            Long likeCnt,
             Long commentCnt,
-            LocalDateTime createAt,
-            LocalDateTime updateAt) {
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
 
         this.id = id;
         this.content = content;
-        this.likes = likes;
+        this.likeCnt = likeCnt;
         this.commentCnt = commentCnt;
-        this.createAt = createAt;
-        this.updateAt = updateAt;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
-
 }

@@ -1,13 +1,12 @@
 package com.elice.aurasphere.contents.entity;
 
-import com.elice.aurasphere.audit.BaseEntity;
+import com.elice.aurasphere.global.audit.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +47,8 @@ public class Post extends BaseEntity {
         this.content = content;
         this.likeCnt = likeCnt;
     }
+
+    public void updatePost(String content) { this.content = content; }
 
 }
 
