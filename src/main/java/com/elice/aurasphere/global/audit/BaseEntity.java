@@ -1,4 +1,4 @@
-package com.elice.aurasphere.audit;
+package com.elice.aurasphere.global.audit;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
