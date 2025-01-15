@@ -1,6 +1,6 @@
 package com.elice.aurasphere.config;
 
-import com.elice.aurasphere.user.dto.TokenResponse;
+import com.elice.aurasphere.user.dto.TokenInfo;
 import com.elice.aurasphere.user.entity.RefreshToken;
 import com.elice.aurasphere.user.repository.RefreshTokenRepository;
 import io.jsonwebtoken.*;
@@ -21,17 +21,17 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class JwtTokenProvider {
-    @Value("${jwt.secret}")
-    private String secretKey;
-
     private final RefreshTokenRepository refreshTokenRepository;
     private final CustomUserDetailsService userDetailsService;
+
+    @Value("${jwt.secret}")
+    private String secretKey;
 
     @Value("${jwt.access-token-validity-in-seconds}")
     public long ACCESS_TOKEN_VALIDITY;// 30분
 
     @Value("${jwt.refresh-token-validity-in-seconds}")
-    private long REFRESH_TOKEN_VALIDITY;    // 7일
+    public long REFRESH_TOKEN_VALIDITY;    // 7일
 
     @PostConstruct
     protected void init() {
@@ -114,7 +114,7 @@ public class JwtTokenProvider {
     }
 
     //토큰 재발급
-    public TokenResponse reIssueAccessToken(String refreshToken) {
+    public TokenInfo reIssueAccessToken(String refreshToken) {
         if (!validateToken(refreshToken)) {
             throw new RuntimeException("Invalid refresh token");
         }
@@ -129,7 +129,7 @@ public class JwtTokenProvider {
         String newAccessToken = createAccessToken(userEmail, role);
         String newRefreshToken = createRefreshToken(userEmail);
 
-        return new TokenResponse(
+        return new TokenInfo(
             "Bearer",
             newAccessToken,
             newRefreshToken,

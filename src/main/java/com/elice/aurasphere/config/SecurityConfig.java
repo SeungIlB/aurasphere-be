@@ -1,6 +1,5 @@
 package com.elice.aurasphere.config;
 
-import com.elice.aurasphere.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +21,7 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
-    private final CustomUserDetailsService userDetailsService;
+    private final CookieUtil cookieUtil;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -30,6 +29,7 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)  // csrf 비활성화
             .formLogin(AbstractHttpConfigurer::disable)  // formLogin 비활성화
             .httpBasic(AbstractHttpConfigurer::disable)  // httpBasic 비활성화
+            .logout(AbstractHttpConfigurer::disable)
             .sessionManagement(sessionManagement ->
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
@@ -40,16 +40,14 @@ public class SecurityConfig {
                     .accessDeniedHandler(accessDeniedHandler);
             })
 
-            .userDetailsService(userDetailsService)
-
             .authorizeHttpRequests(authorize -> {
                 authorize
-                    .requestMatchers("/login", "/").permitAll()
+                    .requestMatchers("/login", "/signup").permitAll()
                     .requestMatchers("/admin").hasRole("ADMIN")
                     .anyRequest().authenticated();
             })
 
-            .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
+            .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, cookieUtil),
                 UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(new JwtExceptionFilter(),
                 JwtAuthenticationFilter.class);
