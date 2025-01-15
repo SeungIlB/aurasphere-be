@@ -15,7 +15,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,7 +37,6 @@ public class PostController {
                     content = {@Content(schema = @Schema(implementation = PostResDTO.class))}),
             @ApiResponse(responseCode = "400", description = "게시글 조회 실패"),
     })
-    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/{postId}")
     public ApiRes<PostResDTO> readPostByPostId(
             @PathVariable("postId") Long postId
@@ -58,7 +56,6 @@ public class PostController {
                     content = {@Content(schema = @Schema(implementation = PostResDTO.class))}),
             @ApiResponse(responseCode = "400", description = "게시글 등록 실패"),
     })
-    @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping
     public ApiRes<PostResDTO> createPost(
             @Valid @RequestBody PostCreateDTO postCreateDTO

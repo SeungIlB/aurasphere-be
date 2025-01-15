@@ -25,7 +25,7 @@ public class PostService {
         this.mapper = mapper;
     }
 
-    //게시글 조회
+    //상세 게시글 조회
     public PostResDTO getPost(Long postId) {
 
         Post post = postRepository.findById(postId)

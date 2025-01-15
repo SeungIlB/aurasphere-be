@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
-@Schema(description = "게시글 PUT 요청 DTO")
+@Schema(description = "게시글 PATCH 요청 DTO")
 @Getter
 public class PostUpdateDTO {
 
