@@ -39,4 +39,9 @@ public class User extends BaseEntity {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Profile profile;
+
+    public void addProfile(Profile profile) {
+        this.profile = profile;
+        profile.initUser(this);  // Profile 쪽에도 연관관계 설정
+    }
 }
