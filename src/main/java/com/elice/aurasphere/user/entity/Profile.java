@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,4 +36,27 @@ public class Profile extends BaseEntity {
 
     @Column(name = "profile_url", nullable = false)
     private String profileUrl;
+
+    @Column(name = "profile_url_expiry_date")
+    private LocalDateTime profileUrlExpiryDate;
+
+    public void initUser(User user) {
+        this.user = user;
+    }
+
+    // 프로필 업데이트를 위한 메서드
+    public void updateProfile(String nickname, String profileUrl) {
+        this.nickname = nickname;
+        this.profileUrl = profileUrl;
+    }
+
+    public void updateProfileUrl(String profileUrl) {
+        this.profileUrl = profileUrl;
+        this.profileUrlExpiryDate = null;
+    }
+
+    public void updateProfileUrlWithExpiry(String profileUrl, LocalDateTime expiryDate) {
+        this.profileUrl = profileUrl;
+        this.profileUrlExpiryDate = expiryDate;
+    }
 }

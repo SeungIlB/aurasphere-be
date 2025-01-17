@@ -1,8 +1,6 @@
 package com.elice.aurasphere.config;
 
-
-import com.elice.aurasphere.config.CookieUtil;
-import com.elice.aurasphere.user.dto.ErrorResponse;
+import com.elice.aurasphere.global.common.ApiRes;
 import com.elice.aurasphere.user.dto.TokenInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -19,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -33,7 +30,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // 인증(로그인)없어도 접근 가능한 리소스
     private final List<String> EXCLUDED_URLS = Arrays.asList(
         "/login",
-        "/signup"
+        "/signup",
+        "/swagger-ui",  // Swagger UI 경로
+        "/v3/api-docs", // OpenAPI 문서 경로
+        "/swagger-ui.html"
     );
 
     @Override
@@ -114,22 +114,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return null;
     }
 
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
-    }
-
     @Override
-    protected  boolean shouldNotFilter(HttpServletRequest request) {
-        String requestURI = request.getRequestURI();
-        boolean shouldNotFilter = EXCLUDED_URLS.stream()
-            .anyMatch(exclude -> request.getRequestURI().equals(exclude) ||
-                request.getRequestURI().startsWith(exclude));
-        log.info("URI: {} shouldNotFilter: {}", requestURI, shouldNotFilter);
-        return shouldNotFilter;
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return path.startsWith("/login") ||
+            path.startsWith("/signup") ||
+            path.startsWith("/oauth2") ||
+            path.startsWith("/user/checkEmail") ||
+            path.startsWith("/user/checkNickname");
     }
 
     private void setErrorResponse(HttpServletResponse response, HttpStatus status, String message)
@@ -137,7 +129,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         response.setStatus(status.value());
         response.setContentType("application/json;charset=UTF-8");
 
-        ErrorResponse errorResponse = new ErrorResponse(message);
+        ApiRes<Void> errorResponse = ApiRes.failureRes(
+            status,
+            message,
+            null
+        );
+
         new ObjectMapper().writeValue(response.getOutputStream(), errorResponse);
     }
+
+//    private String resolveToken(HttpServletRequest request) {
+//        String bearerToken = request.getHeader("Authorization");
+//        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+//            return bearerToken.substring(7);
+//        }
+//        return null;
+//    }
 }
