@@ -33,7 +33,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // 인증(로그인)없어도 접근 가능한 리소스
     private final List<String> EXCLUDED_URLS = Arrays.asList(
         "/login",
-        "/signup"
+        "/signup",
+        "/swagger-ui",  // Swagger UI 경로
+        "/v3/api-docs", // OpenAPI 문서 경로
+        "/swagger-ui.html"
     );
 
     @Override
@@ -114,16 +117,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return null;
     }
 
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
-    }
-
     @Override
-    protected  boolean shouldNotFilter(HttpServletRequest request) {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         boolean shouldNotFilter = EXCLUDED_URLS.stream()
             .anyMatch(exclude -> request.getRequestURI().equals(exclude) ||
@@ -140,4 +135,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         ErrorResponse errorResponse = new ErrorResponse(message);
         new ObjectMapper().writeValue(response.getOutputStream(), errorResponse);
     }
+
+//    private String resolveToken(HttpServletRequest request) {
+//        String bearerToken = request.getHeader("Authorization");
+//        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+//            return bearerToken.substring(7);
+//        }
+//        return null;
+//    }
 }

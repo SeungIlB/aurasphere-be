@@ -42,6 +42,12 @@ dependencies {
 
 	// For bean validation
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// OAuth2 Client
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+	// Springdoc OpenAPI UI(Swagger)
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 }
 
 tasks.named('test') {

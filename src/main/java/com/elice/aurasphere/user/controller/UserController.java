@@ -8,6 +8,12 @@ import com.elice.aurasphere.user.dto.TokenInfo;
 import com.elice.aurasphere.user.service.UserService;
 import com.elice.aurasphere.user.entity.User;
 import com.elice.aurasphere.config.CookieUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -20,12 +26,22 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "User", description = "사용자 관련 API")
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 public class UserController {
     private final UserService userService;
 
+    @Operation(summary = "로그인", description = "이메일과 비밀번호를 통해 로그인을 진행합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "로그인 성공 - 쿠키에 토큰 저장됨",
+            content = @Content(schema = @Schema(implementation = TokenInfo.class))),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(responseCode = "401", description = "인증 실패",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping("/login")
     public ResponseEntity<TokenInfo> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         log.info("Login request received for email: {}", loginRequest.getEmail());
@@ -43,6 +59,12 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "회원가입", description = "새로운 사용자를 등록합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "회원가입 성공"),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@Valid @RequestBody SignupRequest signupRequest) {
         try {
