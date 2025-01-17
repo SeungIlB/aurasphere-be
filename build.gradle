@@ -44,7 +44,11 @@ dependencies {
 	//validator
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+	//S3 업로드 관련
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+	//liveReload 소스코드 자동반영
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
 }
 
