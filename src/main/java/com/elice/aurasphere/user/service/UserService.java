@@ -99,4 +99,8 @@ public class UserService {
     public boolean checkEmailDuplication(String email) {
         return userRepository.findByEmail(email).isPresent();
     }
+
+    public boolean checkNicknameDuplication(String nickname) {
+        return profileRepository.existsByNickname(nickname);
+    }
 }
