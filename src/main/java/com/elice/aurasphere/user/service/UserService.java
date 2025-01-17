@@ -70,7 +70,7 @@ public class UserService {
             .name(signupRequest.getName())
             .email(signupRequest.getEmail())
             .password(passwordEncoder.encode(signupRequest.getPassword()))
-            .role("ROLE_USER") // 기본 역할 설정
+            .role("USER") // 기본 역할 설정
             .build();
 
         // 프로필 생성
@@ -98,5 +98,9 @@ public class UserService {
 
     public boolean checkEmailDuplication(String email) {
         return userRepository.findByEmail(email).isPresent();
+    }
+
+    public boolean checkNicknameDuplication(String nickname) {
+        return profileRepository.existsByNickname(nickname);
     }
 }
