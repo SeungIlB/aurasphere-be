@@ -1,6 +1,6 @@
 package com.elice.aurasphere.user.entity;
 
-import com.elice.aurasphere.baseEntity.BaseEntity;
+import com.elice.aurasphere.global.audit.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

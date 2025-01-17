@@ -121,7 +121,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             path.startsWith("/signup") ||
             path.startsWith("/oauth2") ||
             path.startsWith("/user/checkEmail") ||
-            path.startsWith("/user/checkNickname");
+            path.startsWith("/user/checkNickname")||
+            path.startsWith("/swagger-ui")||
+            path.startsWith("/v3/api-docs")||
+            path.startsWith("/swagger-ui.html");
+
     }
 
     private void setErrorResponse(HttpServletResponse response, HttpStatus status, String message)
