@@ -1,8 +1,6 @@
 package com.elice.aurasphere.config;
 
-
-import com.elice.aurasphere.config.CookieUtil;
-import com.elice.aurasphere.user.dto.ErrorResponse;
+import com.elice.aurasphere.global.common.ApiRes;
 import com.elice.aurasphere.user.dto.TokenInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -19,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -119,12 +116,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String requestURI = request.getRequestURI();
-        boolean shouldNotFilter = EXCLUDED_URLS.stream()
-            .anyMatch(exclude -> request.getRequestURI().equals(exclude) ||
-                request.getRequestURI().startsWith(exclude));
-        log.info("URI: {} shouldNotFilter: {}", requestURI, shouldNotFilter);
-        return shouldNotFilter;
+        String path = request.getServletPath();
+        return path.startsWith("/login") ||
+            path.startsWith("/signup") ||
+            path.startsWith("/oauth2") ||
+            path.startsWith("/user/checkEmail") ||
+            path.startsWith("/user/checkNickname");
     }
 
     private void setErrorResponse(HttpServletResponse response, HttpStatus status, String message)
@@ -132,7 +129,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         response.setStatus(status.value());
         response.setContentType("application/json;charset=UTF-8");
 
-        ErrorResponse errorResponse = new ErrorResponse(message);
+        ApiRes<Void> errorResponse = ApiRes.failureRes(
+            status,
+            message,
+            null
+        );
+
         new ObjectMapper().writeValue(response.getOutputStream(), errorResponse);
     }
 
