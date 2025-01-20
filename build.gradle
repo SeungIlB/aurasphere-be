@@ -29,11 +29,38 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	compileOnly 'org.projectlombok:lombok'
+	implementation "org.mapstruct:mapstruct:1.5.2.Final" //mapstruct
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
+	annotationProcessor "org.mapstruct:mapstruct-processor:1.5.2.Final" //mapstruct processor
+	annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0' //롬복과 mapstruct 충돌 해결
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	//Jwt
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	// For bean validation
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// OAuth2 Client
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+	// Springdoc OpenAPI UI(Swagger)
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+
+	//S3 업로드 관련
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+	//liveReload 소스코드 자동반영
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// 이메일 전송을 위한 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 }
 
 tasks.named('test') {
