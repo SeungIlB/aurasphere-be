@@ -55,11 +55,6 @@ public class UserService {
     }
 
     public User signup(SignupRequest signupRequest) {
-        // 이메일 중복 체크
-        if (userRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
-            throw new RuntimeException("이미 존재하는 이메일입니다.");
-        }
-
         // 닉네임 중복 체크
         if (profileRepository.existsByNickname(signupRequest.getNickname())) {
             throw new RuntimeException("이미 존재하는 닉네임입니다.");
