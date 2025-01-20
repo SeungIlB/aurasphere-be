@@ -6,6 +6,8 @@ import com.elice.aurasphere.user.dto.ErrorResponse;
 import com.elice.aurasphere.user.dto.LoginRequest;
 import com.elice.aurasphere.user.dto.NicknameCheckRequest;
 import com.elice.aurasphere.user.dto.SignupRequest;
+import com.elice.aurasphere.user.dto.VerificationRequest;
+import com.elice.aurasphere.user.service.EmailService;
 import org.springframework.validation.BindingResult;
 import com.elice.aurasphere.user.service.UserService;
 import com.elice.aurasphere.user.entity.User;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class UserController {
     private final UserService userService;
+    private final EmailService emailService;
 
     @Operation(summary = "로그인 API", description = "이메일과 비밀번호로 로그인하는 API입니다.")
     @ApiResponses(value = {
@@ -64,8 +67,14 @@ public class UserController {
     })
     @PostMapping("/signup")
     public ResponseEntity<ApiRes<Void>> signup(@Valid @RequestBody SignupRequest signupRequest) {
+        // 이메일 인증 여부 확인
+        if (!emailService.isEmailVerified(signupRequest.getEmail())) {
+            return ResponseEntity.badRequest()
+                .body(ApiRes.failureRes(HttpStatus.BAD_REQUEST, "이메일 인증이 완료되지 않았습니다.", null));
+        }
+
         try {
-            User user = userService.signup(signupRequest);
+            userService.signup(signupRequest);
             return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiRes.successRes(HttpStatus.CREATED, null));
         } catch (RuntimeException e) {
@@ -87,25 +96,16 @@ public class UserController {
         return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, null));
     }
 
-//    // 인증이 필요한 엔드포인트 예시
-//    @GetMapping("/user/protected")
-//    public ResponseEntity<String> protectedEndpoint() {
-//        log.info("Protected endpoint accessed");  // 여기에 로그 추가
-//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//        log.info("Current authentication: {}", auth != null ? auth.getName() : "null");
-//        return ResponseEntity.ok("인증된 사용자만 접근 가능한 엔드포인트");
+//    @Operation(summary = "이메일 중복 확인 API", description = "회원가입 시 이메일 중복을 확인하는 API입니다.")
+//    @ApiResponses(value = {
+//        @ApiResponse(responseCode = "200", description = "True or False",
+//            content = {@Content(schema = @Schema(implementation = ApiRes.class))})
+//    })
+//    @GetMapping("/user/checkEmail")
+//    public ResponseEntity<ApiRes<Boolean>> checkEmailDuplication(@RequestBody EmailCheckRequest request) {
+//        boolean isDuplicate = userService.checkEmailDuplication(request.getEmail());
+//        return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, isDuplicate));
 //    }
-
-    @Operation(summary = "이메일 중복 확인 API", description = "회원가입 시 이메일 중복을 확인하는 API입니다.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "True or False",
-            content = {@Content(schema = @Schema(implementation = ApiRes.class))})
-    })
-    @GetMapping("/user/checkEmail")
-    public ResponseEntity<ApiRes<Boolean>> checkEmailDuplication(@RequestBody EmailCheckRequest request) {
-        boolean isDuplicate = userService.checkEmailDuplication(request.getEmail());
-        return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, isDuplicate));
-    }
 
     @Operation(summary = "닉네임 중복 확인 API", description = "회원가입 시 닉네임 중복을 확인하는 API입니다.")
     @ApiResponses(value = {
@@ -118,28 +118,48 @@ public class UserController {
         return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, isDuplicate));
     }
 
-//    @PostMapping("/reissue")
-//    public ResponseEntity<TokenResponse> reissue(@RequestBody TokenRequest request) {
-//        if (!jwtTokenProvider.validateToken(request.getRefreshToken())) {
-//            throw new RuntimeException("Invalid refresh token");
-//        }
-//
-//        String userEmail = jwtTokenProvider.getUserEmail(request.getRefreshToken());
-//        Authentication authentication = jwtTokenProvider.getAuthentication(request.getRefreshToken());
-//
-//        List<String> roles = authentication.getAuthorities().stream()
-//            .map(GrantedAuthority::getAuthority)
-//            .collect(Collectors.toList());
-//
-//        String newAccessToken = jwtTokenProvider.createAccessToken(userEmail, roles);
-//        String newRefreshToken = jwtTokenProvider.createRefreshToken(userEmail);
-//
-//        return ResponseEntity.ok(new TokenResponse(
-//            "Bearer",
-//            newAccessToken,
-//            newRefreshToken,
-//            jwtTokenProvider.ACCESS_TOKEN_VALIDITY
-//        ));
-//    }
+    @Operation(summary = "이메일 인증 코드 발송",
+        description = "회원가입을 위한 이메일 인증 코드를 발송합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200",
+            description = "인증 코드 발송 성공",
+            content = @Content(schema = @Schema(implementation = ApiRes.class))),
+        @ApiResponse(responseCode = "400",
+            description = "이미 존재하는 이메일",
+            content = @Content(schema = @Schema(implementation = ApiRes.class))),
+        @ApiResponse(responseCode = "500",
+            description = "이메일 발송 실패",
+            content = @Content(schema = @Schema(implementation = ApiRes.class)))
+    })
+    @PostMapping("/email/verifyCode/send")
+    public ResponseEntity<ApiRes<Void>> sendVerificationEmail(@RequestBody EmailCheckRequest request) {
+        if (userService.checkEmailDuplication(request.getEmail())) {
+            return ResponseEntity.badRequest()
+                .body(ApiRes.failureRes(HttpStatus.BAD_REQUEST, "이미 존재하는 이메일입니다.", null));
+        }
+
+        emailService.createAndSendVerification(request.getEmail());
+        return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, null));
+    }
+
+    @Operation(summary = "이메일 인증 코드 확인",
+        description = "발송된 이메일 인증 코드의 유효성을 확인합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200",
+            description = "인증 코드 확인 성공",
+            content = @Content(schema = @Schema(implementation = ApiRes.class))),
+        @ApiResponse(responseCode = "400",
+            description = "잘못된 인증 코드 또는 만료된 인증 코드",
+            content = @Content(schema = @Schema(implementation = ApiRes.class)))
+    })
+    @PostMapping("/email/verify")
+    public ResponseEntity<ApiRes<Void>> verifyEmail(@RequestBody VerificationRequest request) {
+        boolean isVerified = emailService.verifyEmail(request.getEmail(), request.getCode());
+        if (!isVerified) {
+            return ResponseEntity.badRequest()
+                .body(ApiRes.failureRes(HttpStatus.BAD_REQUEST, "인증에 실패했습니다.", null));
+        }
+        return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, null));
+    }
 }
 

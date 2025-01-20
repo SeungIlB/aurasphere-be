@@ -58,6 +58,9 @@ dependencies {
 	//liveReload 소스코드 자동반영
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
+	// 이메일 전송을 위한 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 }
 
 tasks.named('test') {
