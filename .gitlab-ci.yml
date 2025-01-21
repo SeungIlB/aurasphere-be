@@ -78,11 +78,12 @@ deploy:
     - echo "배포 서버로 SSH 연결하여 배포 시작"
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - cat ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan -H $REMOTE_HOST >> ~/.ssh/known_hosts
     - |
-      ssh -i ~/.ssh/id_rsa $REMOTE_USER@$REMOTE_HOST <<'EOF'
-      cd ~/aurasphere-backend
+      ssh -i ~/.ssh/id_rsa $REMOTE_USER@$REMOTE_HOST <<EOF
+      cd ~/aurasphere-backend/
       docker-compose down
       docker-compose pull
       docker-compose up -d
