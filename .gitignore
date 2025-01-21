@@ -16,7 +16,8 @@ build/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
-*.properties
+.dev.properties
+.application.properties
 # Created by https://www.toptal.com/developers/gitignore/api/windows,linux,macos,intellij,java,git,gradle,groovy,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,linux,macos,intellij,java,git,gradle,groovy,visualstudiocode
 
