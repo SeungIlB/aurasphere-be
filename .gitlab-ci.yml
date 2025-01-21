@@ -82,7 +82,7 @@ deploy:
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan -H $REMOTE_HOST >> ~/.ssh/known_hosts
     - |
-    - ssh -i "$SSH_PRIVATE_KEY" $REMOTE_USER@$REMOTE_HOST <<EOF
+      ssh -i ~/.ssh/id_rsa $REMOTE_USER@$REMOTE_HOST <<EOF
       cd ~/aurasphere-backend
       docker-compose down
       docker-compose pull
