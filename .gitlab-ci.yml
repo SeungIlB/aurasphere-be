@@ -81,8 +81,8 @@ deploy:
     - cat ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan -H $REMOTE_HOST >> ~/.ssh/known_hosts
-    - |
-      ssh -i ~/.ssh/id_rsa $REMOTE_USER@$REMOTE_HOST <<EOF
+      - echo "SSH 연결 테스트"
+      - ssh -v -i ~/.ssh/id_rsa $REMOTE_USER@$REMOTE_HOST <<EOF
       cd ~/aurasphere-backend/
       docker-compose down
       docker-compose pull
@@ -95,4 +95,3 @@ deploy:
     - echo [INFO] docker deploy end!
   only:
     - feature/notification
-
