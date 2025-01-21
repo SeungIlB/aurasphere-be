@@ -23,6 +23,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: aurasphere-backend_server:latest
     environment:
       DB_URL: ${DB_URL}
       DB_USERNAME: ${DB_USERNAME}
