@@ -84,6 +84,7 @@ deploy:
     - |
       ssh -i "$SSH_PRIVATE_KEY" $REMOTE_USER@$REMOTE_HOST <<EOF
       cd ~/distribute-test/
+      echo "$DOTENV_FILE" > .env
       docker-compose down
       docker-compose pull
       docker-compose up -d
