@@ -23,7 +23,7 @@ build: # JOB 이름
       - build/libs/*.jar
     expire_in: 1 days
   only:
-    - master
+    - feature/notification
 
 package:
   image: docker:latest
@@ -53,7 +53,7 @@ package:
   after_script:
     - docker logout
   only:
-    - master
+    - feature/notification
   tags:
     - package
 
