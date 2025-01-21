@@ -19,14 +19,18 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
-@Tag(name = "Post", description = "게시글 API")
+
+@Tag(name = "Post", description = "게시글 API \n 모든 api Access Token 필요")
 @Slf4j
 @RequestMapping("/post")
 @RestController
@@ -50,7 +54,30 @@ public class PostController {
     /*
     내가 작성한 게시글만 조회하는 api
      */
+    @Operation(
+            summary = "내가 작성한 게시글 조회 API",
+            description = "현재 로그인되어 있는 유저가 작성한 게시글(내 게시글)들을 조회하는 API"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "S000",
+                    description = "게시글 조회 성공"),
+            @ApiResponse(
+                    responseCode = "P001",
+                    description = "게시글을 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ResponseDto.class)))
+    })
+    @GetMapping("/my")
+    public ApiResponseDto<List<PostResDTO>> readPostsByUserId(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PageableDefault(size = 10, page = 0) Pageable pageable,
+            @RequestParam(value = "cursor", defaultValue = "0") Long cursor
+            ){
 
+        List<PostResDTO> postResDTO = postService.getMyPosts(userDetails.getUsername(), pageable, cursor);
+
+        return ApiResponseDto.from(postResDTO);
+    }
 
 
 
@@ -82,7 +109,9 @@ public class PostController {
     @Operation(summary = "게시글 작성 API", description = "게시글을 작성하는 API입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "S000",
-                    description = "게시글 등록 성공")
+                    description = "게시글 등록 성공"),
+            @ApiResponse(responseCode = "U001",
+                    description = "유저를 찾을 수 없는 경우")
     })
     @PostMapping
     public ApiResponseDto<PostResDTO> createPost(
@@ -117,15 +146,22 @@ public class PostController {
     @Operation(summary = "게시글 수정 API", description = "게시글을 수정하는 API입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "S000",
-                    description = "게시글 수정 성공")
+                    description = "게시글 수정 성공"),
+            @ApiResponse(responseCode = "P001",
+                    description = "게시글을 찾을 수 없는 경우"),
+            @ApiResponse(responseCode = "U001",
+                    description = "유저를 찾을 수 없는 경우"),
+            @ApiResponse(responseCode = "U002",
+                    description = "로그인된 유저가 게시글 작성자가 아닌 경우")
     })
     @PatchMapping("/{postId}")
     public ApiResponseDto<PostResDTO> updatePost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("postId") Long postId,
             @Valid @RequestBody PostUpdateDTO postUpdateDTO
     ){
 
-        PostResDTO postResDTO = postService.editPost(postId, postUpdateDTO);
+        PostResDTO postResDTO = postService.editPost(userDetails.getUsername(), postId, postUpdateDTO);
 
         return ApiResponseDto.from(postResDTO);
     }

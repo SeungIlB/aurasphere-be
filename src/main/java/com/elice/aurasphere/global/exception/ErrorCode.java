@@ -15,10 +15,11 @@ public enum ErrorCode {
     OK("S000", HttpStatus.OK, "OK"),
 
     //공통 서버에러
-    INTERNAL_ERROR("S001", HttpStatus.INTERNAL_SERVER_ERROR, "서버에 오류가 발생했습니다."),
-    METHOD_NOT_ALLOWED("S002", HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP Method 요청입니다."),
+    INTERNAL_ERROR("E001", HttpStatus.INTERNAL_SERVER_ERROR, "서버에 오류가 발생했습니다."),
+    METHOD_NOT_ALLOWED("E002", HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP Method 요청입니다."),
 
-    USER_NOT_FOUND("P001", HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."),
+    USER_NOT_FOUND("U001", HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."),
+    USER_NOT_MATCH("U002", HttpStatus.FORBIDDEN, "유저가 일치하지 않습니다."),
 
     POST_NOT_FOUND("P001", HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
     POST_INVALID_ID("P002", HttpStatus.BAD_REQUEST, "잘못된 게시글 ID입니다."),

@@ -16,6 +16,8 @@ import com.elice.aurasphere.global.exception.ErrorCode;
 import com.elice.aurasphere.user.entity.User;
 import com.elice.aurasphere.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,6 +55,21 @@ public class PostService {
 
     }
 
+
+
+
+    public List<PostResDTO> getMyPosts(String username, Pageable pageable, Long cursor){
+
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        List<Post> postList = postRepository.findMyPosts(user.getId(), pageable, cursor);
+
+        log.info("postList : {}", postList.stream().toArray());
+
+        return null;
+    }
+
     //상세 게시글 조회
     public PostResDTO getPost(String username, Long postId) {
 
@@ -62,12 +79,17 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        PostResDTO postResDTO = mapper.postToPostResDto(post);
+        List<String> image = imageRepository.findImagesByPostId(post.getId());
 
-        //아직 좋아요를 누르기 전이라면 false, 눌렀으면 true 반환
-        postResDTO.setLiked(!likeService.isNotAlreadyLike(user, post));
-
-        return mapper.postToPostResDto(post);
+        return PostResDTO.builder()
+                .id(post.getId())
+                .content(post.getContent())
+                .likeCnt(post.getLikeCnt())
+                .isLiked(!likeService.isNotAlreadyLike(user,post))
+                .imgUrls(image)
+                .createdAt(post.getCreatedAt())
+                .updatedAt(post.getUpdatedAt())
+                .build();
     }
 
 
@@ -114,10 +136,19 @@ public class PostService {
     }
 
     //게시글 수정
-    public PostResDTO editPost(Long postId, PostUpdateDTO postUpdateDTO) {
+    public PostResDTO editPost(String username, Long postId, PostUpdateDTO postUpdateDTO) {
 
+        //유저를 찾을 수 없는 경우
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        //Post를 찾을 수 없는 경우
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        //User와 Post 작성자가 일치하지 않는 경우
+        if(!post.getUser().getEmail().equals(user.getEmail()))
+            throw new CustomException(ErrorCode.USER_NOT_MATCH);
 
         return postRepository.findById(postId)
                 .map(existingPost -> {
