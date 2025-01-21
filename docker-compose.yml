@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: aurasphere
+      MYSQL_USER: elice-user
+      MYSQL_PASSWORD: 'Qwer1234!@'
+    ports:
+      - "3307:3306"
+    networks:
+      - app-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      retries: 5
+      timeout: 20s
+
+  aurasphere:
+    build:
+      context: .
+      dockerfile: Dockerfile    # Dockerfile 경로가 맞는지 확인
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/aurasphere
+      DB_USERNAME: elice-user
+      DB_PASSWORD: 'Qwer1234!@'
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"  # 외부 접근 포트를 80으로 설정
+    depends_on:
+      - aurasphere
+
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
