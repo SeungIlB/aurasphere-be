@@ -1,14 +1,12 @@
 package com.elice.aurasphere.contents.controller;
 
 
-import com.elice.aurasphere.config.CustomUserDetails;
+import com.elice.aurasphere.user.entity.CustomUserDetails;
 import com.elice.aurasphere.contents.dto.PostCreateDTO;
 import com.elice.aurasphere.contents.dto.PostResDTO;
 import com.elice.aurasphere.contents.dto.PostUpdateDTO;
 import com.elice.aurasphere.contents.service.LikeService;
 import com.elice.aurasphere.contents.service.PostService;
-import com.elice.aurasphere.contents.service.S3Service;
-import com.elice.aurasphere.global.common.ApiRes;
 import com.elice.aurasphere.global.common.ApiResponseDto;
 import com.elice.aurasphere.global.common.ResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,10 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 

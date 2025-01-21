@@ -1,6 +1,7 @@
-package com.elice.aurasphere.config;
+package com.elice.aurasphere.config.oauth2;
 
-import com.elice.aurasphere.config.CustomUserDetails;
+import com.elice.aurasphere.config.KakaoOAuth2UserInfo;
+import com.elice.aurasphere.config.NaverOAuth2UserInfo;
 import com.elice.aurasphere.user.entity.Profile;
 import com.elice.aurasphere.user.entity.User;
 import com.elice.aurasphere.user.repository.ProfileRepository;

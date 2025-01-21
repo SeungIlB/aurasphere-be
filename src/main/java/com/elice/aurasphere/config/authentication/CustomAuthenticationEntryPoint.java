@@ -1,4 +1,4 @@
-package com.elice.aurasphere.config;
+package com.elice.aurasphere.config.authentication;
 
 import com.elice.aurasphere.global.common.ApiRes;
 import com.fasterxml.jackson.databind.ObjectMapper;

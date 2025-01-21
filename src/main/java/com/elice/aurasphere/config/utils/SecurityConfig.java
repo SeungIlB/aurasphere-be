@@ -1,5 +1,13 @@
-package com.elice.aurasphere.config;
+package com.elice.aurasphere.config.utils;
 
+import com.elice.aurasphere.config.oauth2.OAuth2AuthenticationFailureHandler;
+import com.elice.aurasphere.config.oauth2.OAuth2AuthenticationSuccessHandler;
+import com.elice.aurasphere.config.authentication.CustomAccessDeniedHandler;
+import com.elice.aurasphere.config.authentication.CustomAuthenticationEntryPoint;
+import com.elice.aurasphere.config.authentication.JwtTokenProvider;
+import com.elice.aurasphere.config.filter.JwtAuthenticationFilter;
+import com.elice.aurasphere.config.filter.JwtExceptionFilter;
+import com.elice.aurasphere.config.oauth2.CustomOAuth2UserService;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

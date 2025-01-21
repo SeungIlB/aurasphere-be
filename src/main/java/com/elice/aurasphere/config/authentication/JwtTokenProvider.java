@@ -1,5 +1,6 @@
-package com.elice.aurasphere.config;
+package com.elice.aurasphere.config.authentication;
 
+import com.elice.aurasphere.user.service.CustomUserDetailsService;
 import com.elice.aurasphere.user.dto.TokenInfo;
 import com.elice.aurasphere.user.entity.RefreshToken;
 import com.elice.aurasphere.user.repository.RefreshTokenRepository;

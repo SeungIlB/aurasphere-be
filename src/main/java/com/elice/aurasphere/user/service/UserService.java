@@ -1,18 +1,16 @@
 package com.elice.aurasphere.user.service;
 
-import com.elice.aurasphere.config.CookieUtil;
-import com.elice.aurasphere.config.JwtTokenProvider;
+import com.elice.aurasphere.config.utils.CookieUtil;
+import com.elice.aurasphere.config.authentication.JwtTokenProvider;
 import com.elice.aurasphere.global.exception.CustomException;
 import com.elice.aurasphere.global.exception.ErrorCode;
 import com.elice.aurasphere.user.dto.LoginRequest;
 import com.elice.aurasphere.user.dto.SignupRequest;
-import com.elice.aurasphere.user.dto.TokenInfo;
 import com.elice.aurasphere.user.entity.Profile;
 import com.elice.aurasphere.user.entity.User;
 import com.elice.aurasphere.user.repository.ProfileRepository;
 import com.elice.aurasphere.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -77,7 +75,7 @@ public class UserService {
         Profile profile = Profile.builder()
             .user(user)
             .nickname(signupRequest.getNickname())
-            .profileUrl("/default_profile.png") // 기본 프로필 이미지 경로
+            .profileUrl("DEFAULT") // 기본 프로필 이미지 경로
             .build();
 
         // 사용자 저장
