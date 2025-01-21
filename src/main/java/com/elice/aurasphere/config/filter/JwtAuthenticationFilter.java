@@ -1,5 +1,7 @@
-package com.elice.aurasphere.config;
+package com.elice.aurasphere.config.filter;
 
+import com.elice.aurasphere.config.utils.CookieUtil;
+import com.elice.aurasphere.config.authentication.JwtTokenProvider;
 import com.elice.aurasphere.global.common.ApiRes;
 import com.elice.aurasphere.user.dto.TokenInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;

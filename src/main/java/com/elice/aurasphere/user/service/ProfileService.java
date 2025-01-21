@@ -1,5 +1,10 @@
 package com.elice.aurasphere.user.service;
 
+import com.elice.aurasphere.contents.service.S3Service;
+import com.elice.aurasphere.global.exception.CustomException;
+import com.elice.aurasphere.global.exception.ErrorCode;
+import com.elice.aurasphere.user.dto.ProfileRequest;
+import com.elice.aurasphere.user.dto.ProfileResponse;
 import com.elice.aurasphere.user.entity.Profile;
 import com.elice.aurasphere.user.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +21,43 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class ProfileService {
     private final ProfileRepository profileRepository;
-    private static final String DEFAULT_PROFILE_URL = "/default_profile.png";
+    private final S3Service s3Service;
+    private static final String DEFAULT_PROFILE_URL = "DEFAULT";
+
+    public ProfileResponse getProfile(Long userId) {
+        Profile profile = profileRepository.findByUserId(userId)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return ProfileResponse.builder()
+            .nickname(profile.getNickname())
+            .profileUrl(profile.getProfileUrl())
+            .build();
+    }
+
+    @Transactional
+    public ProfileResponse updateProfile(Long userId, ProfileRequest request) {
+        Profile profile = profileRepository.findByUserId(userId)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (request.getNickname() != null) {
+            if (profileRepository.existsByNicknameAndUserIdNot(request.getNickname(), userId)) {
+                throw new CustomException(ErrorCode.NICKNAME_ALREADY_EXISTS);
+            }
+            profile.updateProfile(request.getNickname(), profile.getProfileUrl());
+        }
+
+        if (request.getImageKey() != null) {
+            String imageUrl = s3Service.getGetS3Url(request.getImageKey());
+            profile.updateProfileUrl(imageUrl);
+        }
+
+        profileRepository.save(profile);
+
+        return ProfileResponse.builder()
+            .nickname(profile.getNickname())
+            .profileUrl(profile.getProfileUrl()) // "DEFAULT" 또는 실제 S3 URL
+            .build();
+    }
 
     @Transactional
     public void updateProfileImageUrl(Long userId, String newImageUrl) {
