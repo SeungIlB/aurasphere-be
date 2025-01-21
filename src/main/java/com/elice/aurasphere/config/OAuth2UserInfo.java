@@ -1,6 +1,7 @@
 package com.elice.aurasphere.config;
 
 import java.util.Map;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 
 public abstract class OAuth2UserInfo {
     protected Map<String, Object> attributes;
@@ -12,9 +13,7 @@ public abstract class OAuth2UserInfo {
     }
 
     public abstract String getId();
-    public abstract String getName();
     public abstract String getEmail();
-
     // 기본값을 포함한 닉네임 getter
     public String getNickname() {
         String nickname = getRawNickname();
@@ -33,6 +32,7 @@ public abstract class OAuth2UserInfo {
     // 각 Provider별 실제 이미지 URL을 가져오는 추상 메서드
     protected abstract String getRawImageUrl();
 
+
     // 기본 닉네임 생성
     protected String generateDefaultNickname() {
         return provider + "User" + getId().substring(0, Math.min(getId().length(), 8));
@@ -46,17 +46,12 @@ public abstract class OAuth2UserInfo {
 
 class NaverOAuth2UserInfo extends OAuth2UserInfo {
     public NaverOAuth2UserInfo(Map<String, Object> attributes) {
-        super((Map<String, Object>) attributes.get("response"), "NAVER");
+        super(safeGetResponse(attributes), "NAVER");
     }
 
     @Override
     public String getId() {
         return (String) attributes.get("id");
-    }
-
-    @Override
-    public String getName() {
-        return (String) attributes.get("name");
     }
 
     @Override
@@ -73,6 +68,18 @@ class NaverOAuth2UserInfo extends OAuth2UserInfo {
     protected String getRawImageUrl() {
         return (String) attributes.get("profile_image");
     }
+
+    private static Map<String, Object> safeGetResponse(Map<String, Object> attributes) {
+        try {
+            Object response = attributes.get("response");
+            if (response == null) {
+                throw new OAuth2AuthenticationException("Naver response is null");
+            }
+            return (Map<String, Object>) response;
+        } catch (ClassCastException e) {
+            throw new OAuth2AuthenticationException("Invalid Naver response format");
+        }
+    }
 }
 
 class KakaoOAuth2UserInfo extends OAuth2UserInfo {
@@ -83,15 +90,6 @@ class KakaoOAuth2UserInfo extends OAuth2UserInfo {
     @Override
     public String getId() {
         return String.valueOf(attributes.get("id"));
-    }
-
-    @Override
-    public String getName() {
-        Map<String, Object> properties = (Map<String, Object>) attributes.get("properties");
-        if (properties == null) {
-            return null;
-        }
-        return (String) properties.get("name");
     }
 
     @Override

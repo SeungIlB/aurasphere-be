@@ -2,6 +2,8 @@ package com.elice.aurasphere.user.service;
 
 import com.elice.aurasphere.config.CookieUtil;
 import com.elice.aurasphere.config.JwtTokenProvider;
+import com.elice.aurasphere.global.exception.CustomException;
+import com.elice.aurasphere.global.exception.ErrorCode;
 import com.elice.aurasphere.user.dto.LoginRequest;
 import com.elice.aurasphere.user.dto.SignupRequest;
 import com.elice.aurasphere.user.dto.TokenInfo;
@@ -33,7 +35,6 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final CookieUtil cookieUtil;
 
-    @Transactional
     public void login(LoginRequest loginRequest, HttpServletResponse response) {
         // 인증
         Authentication authentication = authenticationManager.authenticate(
@@ -55,14 +56,18 @@ public class UserService {
     }
 
     public User signup(SignupRequest signupRequest) {
+        // 이메일 중복 체크
+        if (userRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
+            throw new CustomException(ErrorCode.EMAIL_ALREADY_EXISTS);
+        }
+
         // 닉네임 중복 체크
         if (profileRepository.existsByNickname(signupRequest.getNickname())) {
-            throw new RuntimeException("이미 존재하는 닉네임입니다.");
+            throw new CustomException(ErrorCode.NICKNAME_ALREADY_EXISTS);
         }
 
         // 사용자 생성
         User user = User.builder()
-            .name(signupRequest.getName())
             .email(signupRequest.getEmail())
             .password(passwordEncoder.encode(signupRequest.getPassword()))
             .role("USER") // 기본 역할 설정
