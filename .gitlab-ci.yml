@@ -33,23 +33,13 @@ package:
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
-    MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    MYSQL_DATABASE: ${MYSQL_DATABASE}
-    DB_URL: ${DB_URL}
-    DB_USERNAME: ${DB_USERNAME}
-    DB_PASSWORD: ${DB_PASSWORD}
-    NAVER_CLIENT_ID: ${NAVER_CLIENT_ID}
-    NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET}
-    KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
-    KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
-    AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
-    AWS_SECRET_KEY: ${AWS_SECRET_KEY}
-    JWT_SECRET: ${JWT_SECRET}
   before_script:
     - if [ -z "$DOCKER_HUB_NAME" ] || [ -z "$DOCKER_HUB_PW" ]; then echo "Docker Hub credentials are missing"; exit 1; fi
     - echo "$DOCKER_HUB_PW" | docker login --username "$DOCKER_HUB_NAME" --password-stdin
     - echo "Docker Hub 로그인 성공"
   script:
+    - echo "$DOTENV_FILE" > .env
+    - cat .env
     - docker-compose up
     - echo "docker-compose 실행 성공"
     - IMAGE_ID=$(docker images -q aurasphere-backend_server:latest)
