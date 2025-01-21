@@ -1,5 +1,7 @@
-package com.elice.aurasphere.config;
+package com.elice.aurasphere.config.oauth2;
 
+import com.elice.aurasphere.config.utils.CookieUtil;
+import com.elice.aurasphere.config.authentication.JwtTokenProvider;
 import com.elice.aurasphere.user.dto.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
