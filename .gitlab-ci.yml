@@ -40,7 +40,7 @@ package:
   script:
     - echo "$DOTENV_FILE" > .env
     - cat .env
-    - docker-compose up
+    - docker-compose up -d
     - echo "docker-compose 실행 성공"
     - IMAGE_ID=$(docker images -q aurasphere-backend_server:latest)
     - >
@@ -48,7 +48,7 @@ package:
         echo "Error: Image aurasphere-backend_server:latest not found";
         exit 1;
       fi
-    - docker tag aurasphere-backend_server:latest "$DOCKER_HUB_NAME/hello-server:latest"
+    - docker tag aurasphere-backend_server:latest "$DOCKER_HUB_NAME/aurasphere-server:latest"
     - docker push "$DOCKER_HUB_NAME/aurasphere-server:latest"
     - echo "이미지 푸시 성공"
   after_script:
