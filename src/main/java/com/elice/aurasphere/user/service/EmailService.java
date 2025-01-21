@@ -1,10 +1,13 @@
 package com.elice.aurasphere.user.service;
 
+import com.elice.aurasphere.global.exception.CustomException;
+import com.elice.aurasphere.global.exception.ErrorCode;
 import com.elice.aurasphere.user.entity.EmailVerification;
 import com.elice.aurasphere.user.repository.EmailVerificationRepository;
 import java.time.LocalDateTime;
 import java.util.Random;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.saml2.Saml2RelyingPartyProperties.AssertingParty.Verification;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 public class EmailService {
     private final JavaMailSender emailSender;
     private final EmailVerificationRepository verificationRepository;
+    private final UserService userService;
 
     public void sendEmail(String to, String verificationCode) {
         SimpleMailMessage message = new SimpleMailMessage();
@@ -25,6 +29,11 @@ public class EmailService {
     }
 
     public void createAndSendVerification(String email) {
+        // 이메일 중복 체크
+        if (userService.checkEmailDuplication(email)) {
+            throw new CustomException(ErrorCode.EMAIL_ALREADY_EXISTS);
+        }
+
         String verificationCode = generateVerificationCode();
         LocalDateTime expiryDate = LocalDateTime.now().plusMinutes(30);
 
@@ -40,14 +49,21 @@ public class EmailService {
         sendEmail(email, verificationCode);
     }
 
-    public boolean verifyEmail(String email, String code) {
-        return verificationRepository.findByEmailAndVerificationCode(email, code)
-            .filter(verification -> !verification.isExpired())
-            .map(verification -> {
-                verification.verify();
-                return true;
-            })
-            .orElse(false);
+    public void  verifyEmail(String email, String code) {
+        EmailVerification verification = verificationRepository
+            .findByEmailAndVerificationCode(email, code)
+            .orElseThrow(() -> new CustomException(ErrorCode.VERIFICATION_CODE_NOT_FOUND));
+
+        if (verification.isExpired()) {
+            throw new CustomException(ErrorCode.VERIFICATION_CODE_EXPIRED);
+        }
+
+        if (verification.isVerified()) {
+            throw new CustomException(ErrorCode.VERIFICATION_ALREADY_VERIFIED);
+        }
+
+        verification.verify();
+        verificationRepository.save(verification);
     }
 
     private String generateVerificationCode() {

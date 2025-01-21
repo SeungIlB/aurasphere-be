@@ -77,7 +77,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
 
         User user = User.builder()
-            .name(oauth2UserInfo.getName() != null ? oauth2UserInfo.getName() : "Unknown")
             .email(email)
             .role("USER")
             .password("")

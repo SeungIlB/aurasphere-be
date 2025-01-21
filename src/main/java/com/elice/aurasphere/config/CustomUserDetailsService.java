@@ -1,5 +1,7 @@
 package com.elice.aurasphere.config;
 
+import com.elice.aurasphere.global.exception.CustomException;
+import com.elice.aurasphere.global.exception.ErrorCode;
 import com.elice.aurasphere.user.entity.Profile;
 import com.elice.aurasphere.user.entity.User;
 import com.elice.aurasphere.user.repository.ProfileRepository;
@@ -26,8 +28,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         log.info("Attempting to load user: {}", email);
 
         User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new UsernameNotFoundException(HttpStatus.NOT_FOUND.toString()));
-//            .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         log.info("User found: {}", user.getEmail());
         log.info("User found: {}", user.getId());
