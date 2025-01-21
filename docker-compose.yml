@@ -19,7 +19,7 @@ services:
       retries: 5
       timeout: 20s
 
-  aurasphere:
+  server:
     build:
       context: .
       dockerfile: Dockerfile
@@ -27,6 +27,12 @@ services:
       DB_URL: ${DB_URL}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
+      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID}
+      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET}
+      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
+      KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
     ports:
       - "8080:8080"
     depends_on:
@@ -39,7 +45,7 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - aurasphere
+      - server
     networks:
       - app-network
 
