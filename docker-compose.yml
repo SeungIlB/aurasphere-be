@@ -4,10 +4,10 @@ services:
   mysql:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: aurasphere
-      MYSQL_USER: elice-user
-      MYSQL_PASSWORD: 'Qwer1234!@'
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
       - "3307:3306"
     networks:
@@ -22,24 +22,24 @@ services:
   aurasphere:
     build:
       context: .
-      dockerfile: Dockerfile    # Dockerfile 경로가 맞는지 확인
+      dockerfile: Dockerfile
     environment:
-      DB_URL: jdbc:mysql://mysql:3306/aurasphere
-      DB_USERNAME: elice-user
-      DB_PASSWORD: 'Qwer1234!@'
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
     ports:
       - "8080:8080"
     depends_on:
       - mysql
     networks:
       - app-network
+
   nginx:
     image: nginx:latest
     ports:
-      - "80:80"  # 외부 접근 포트를 80으로 설정
+      - "80:80"
     depends_on:
       - aurasphere
-
     networks:
       - app-network
 
