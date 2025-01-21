@@ -93,5 +93,5 @@ deploy:
     - docker logout
     - echo [INFO] docker deploy end!
   only:
-    - master
+    - feature/notification
 
