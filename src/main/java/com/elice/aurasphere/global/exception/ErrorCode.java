@@ -15,8 +15,8 @@ public enum ErrorCode {
     OK("S000", HttpStatus.OK, "OK"),
 
     //공통 서버에러
-    INTERNAL_ERROR("S001", HttpStatus.INTERNAL_SERVER_ERROR, "서버에 오류가 발생했습니다."),
-    METHOD_NOT_ALLOWED("S002", HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP Method 요청입니다."),
+    INTERNAL_ERROR("E001", HttpStatus.INTERNAL_SERVER_ERROR, "서버에 오류가 발생했습니다."),
+    METHOD_NOT_ALLOWED("E002", HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP Method 요청입니다."),
 
     // 인증 관련 에러
     TOKEN_EXPIRED("A001", HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
@@ -32,6 +32,7 @@ public enum ErrorCode {
     NICKNAME_ALREADY_EXISTS("U003", HttpStatus.CONFLICT, "이미 존재하는 닉네임입니다."),
     INVALID_PASSWORD("U004", HttpStatus.BAD_REQUEST, "잘못된 비밀번호입니다."),
     INVALID_USER_REQUEST("U005", HttpStatus.BAD_REQUEST, "잘못된 사용자 요청입니다."),
+    USER_NOT_MATCH("U006", HttpStatus.FORBIDDEN, "유저가 일치하지 않습니다."),
 
     // 이메일 인증 관련 에러
     VERIFICATION_CODE_NOT_FOUND("V001", HttpStatus.BAD_REQUEST, "유효하지 않은 인증 코드입니다."),
