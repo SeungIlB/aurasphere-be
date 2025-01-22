@@ -1,12 +1,15 @@
 package com.elice.aurasphere.contents.controller;
 
 
+import com.elice.aurasphere.contents.dto.PostListResDTO;
+import com.elice.aurasphere.user.entity.CustomUserDetails;
 import com.elice.aurasphere.contents.dto.PostCreateDTO;
 import com.elice.aurasphere.contents.dto.PostResDTO;
 import com.elice.aurasphere.contents.dto.PostUpdateDTO;
+import com.elice.aurasphere.contents.service.LikeService;
 import com.elice.aurasphere.contents.service.PostService;
-import com.elice.aurasphere.contents.service.S3Service;
-import com.elice.aurasphere.global.common.ApiRes;
+import com.elice.aurasphere.global.common.ApiResponseDto;
+import com.elice.aurasphere.global.common.ResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,77 +18,151 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
-@Tag(name = "Post", description = "게시글 API")
+
+@Tag(name = "Post", description = "게시글 API \n 모든 api Access Token 필요")
 @Slf4j
-@RequestMapping("/post")
 @RestController
 public class PostController {
 
     private final PostService postService;
-    private final S3Service s3Service;
+    private final LikeService likeService;
 
-    public PostController(PostService postService, S3Service s3Service) {
+    public PostController(PostService postService, LikeService likeService) {
         this.postService = postService;
-        this.s3Service = s3Service;
+        this.likeService = likeService;
+    }
+
+    /*
+    게시글 필터별로 조회하는 api
+    필터링 없이 그냥 조회했을 경우(모든 글 최신순), 좋아요 수 기준, 조회수 기준, 내가 팔로우한 사람만
+    */
+
+
+    /*
+    내가 작성한 게시글 List 조회하는 api
+     */
+    @Operation(
+            summary = "내가 작성한 게시글 조회 API",
+            description = "현재 로그인되어 있는 유저가 작성한 게시글(내 게시글)들을 조회하는 API"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "S000",
+                    description = "게시글 조회 성공"),
+            @ApiResponse(
+                    responseCode = "P001",
+                    description = "게시글을 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ResponseDto.class)))
+    })
+    @GetMapping("/posts/me")
+    public ApiResponseDto<PostListResDTO> readPostsByUserId(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            @RequestParam(value = "cursor", defaultValue = "0") Long cursor
+            ){
+
+        PostListResDTO postListResDTO = postService.getMyPosts(userDetails.getUsername(), size, cursor);
+
+        return ApiResponseDto.from(postListResDTO);
     }
 
 
-    //게시글 조회 api
+
+    /*
+    특정 게시글 1개만 조회하는 api
+    */
     @Operation(summary = "게시글 조회 API", description = "상세 게시글(1개)을 조회하는 API입니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "게시글 조회 성공"),
-            @ApiResponse(responseCode = "400", description = "게시글 조회 실패"),
+            @ApiResponse(responseCode = "S000",
+                    description = "게시글 조회 성공"),
+            @ApiResponse(responseCode = "P001",
+                    description = "게시글을 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ResponseDto.class)))
     })
-    @GetMapping("/{postId}")
-    public ApiRes<PostResDTO> readPostByPostId(
+    @GetMapping("/posts/{postId}")
+    public ApiResponseDto<PostResDTO> readPostByPostId(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("postId") Long postId
     ){
 
-//        PostResDTO post = postService.getPost(userDetails.getUsername(), postCreateDTO);
+        PostResDTO postResDTO = postService.getPost(userDetails.getUsername(), postId);
 
-        PostResDTO postResDTO = postService.getPost(postId);
-
-        return ApiRes.successRes(HttpStatus.OK, postResDTO);
+        return ApiResponseDto.from(postResDTO);
     }
 
-    //글 작성 api
+    /*
+    게시글 작성하는 api
+    */
     @Operation(summary = "게시글 작성 API", description = "게시글을 작성하는 API입니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "게시글 등록 성공"),
-            @ApiResponse(responseCode = "400", description = "게시글 등록 실패"),
+            @ApiResponse(responseCode = "S000",
+                    description = "게시글 등록 성공"),
+            @ApiResponse(responseCode = "U001",
+                    description = "유저를 찾을 수 없는 경우")
     })
-    @PostMapping
-    public ApiRes<PostResDTO> createPost(
+    @PostMapping("/post")
+    public ApiResponseDto<PostResDTO> createPost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody PostCreateDTO postCreateDTO
     ){
 
-//        PostResDTO post = postService.processPost(userDetails.getUsername(), postCreateDTO);
+        PostResDTO postResDTO = postService.registerPost(userDetails.getUsername(), postCreateDTO);
 
-        PostResDTO postResDTO = postService.registerPost(postCreateDTO);
+        return ApiResponseDto.from(postResDTO);
+    }
 
-        return ApiRes.successRes(HttpStatus.CREATED, postResDTO);
+    /*
+    좋아요 누르기 / 취소 api
+    */
+    @PostMapping("/posts/{postId}/like")
+    public ApiResponseDto<Boolean> likePost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable("postId") Long postId) {
+
+
+        boolean result = likeService.toggleLike(userDetails.getUsername(), postId);
+
+        return ApiResponseDto.from(result);
     }
 
 
-    //글 수정 api
+    /*
+    게시글 수정하는 api
+    글 내용만 수정 가능
+    */
     @Operation(summary = "게시글 수정 API", description = "게시글을 수정하는 API입니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "게시글 수정 성공"),
-            @ApiResponse(responseCode = "400", description = "게시글 등록 실패"),
+            @ApiResponse(responseCode = "S000",
+                    description = "게시글 수정 성공"),
+            @ApiResponse(responseCode = "P001",
+                    description = "게시글을 찾을 수 없는 경우"),
+            @ApiResponse(responseCode = "U001",
+                    description = "유저를 찾을 수 없는 경우"),
+            @ApiResponse(responseCode = "U002",
+                    description = "로그인된 유저가 게시글 작성자가 아닌 경우")
     })
-    @PatchMapping("/{postId}")
-    public ApiRes<PostResDTO> updatePost(
+    @PatchMapping("/posts/{postId}")
+    public ApiResponseDto<PostResDTO> updatePost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("postId") Long postId,
             @Valid @RequestBody PostUpdateDTO postUpdateDTO
     ){
 
-        PostResDTO postResDTO = postService.editPost(postId, postUpdateDTO);
+        PostResDTO postResDTO = postService.editPost(userDetails.getUsername(), postId, postUpdateDTO);
 
-        return ApiRes.successRes(HttpStatus.OK, postResDTO);
+        return ApiResponseDto.from(postResDTO);
     }
+
+
+    /*
+    게시글 삭제하는 api (soft delete)
+    */
+
+
 
 }

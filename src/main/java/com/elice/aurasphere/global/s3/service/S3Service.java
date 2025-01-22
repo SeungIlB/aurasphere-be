@@ -1,11 +1,13 @@
-package com.elice.aurasphere.contents.service;
+package com.elice.aurasphere.global.s3.service;
 
 
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
-import com.elice.aurasphere.contents.dto.S3UploadReqDTO;
-import com.elice.aurasphere.contents.dto.S3UrlDTO;
+import com.elice.aurasphere.global.exception.CustomException;
+import com.elice.aurasphere.global.exception.ErrorCode;
+import com.elice.aurasphere.global.s3.dto.S3UploadReqDTO;
+import com.elice.aurasphere.global.s3.dto.S3UrlDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -87,10 +89,12 @@ public class S3Service {
         return generatePresignedUrlRequest;
     }
 
-    /* get URL 생성하는 메소드 */
+    /* get 용 URL 생성하는 메소드 */
     public GeneratePresignedUrlRequest getGetGeneratePresignedUrlRequest(
             String key
     ) {
+        if( !amazonS3.doesObjectExist(bucket, key)) throw new CustomException(ErrorCode.IMAGE_NOT_FOUND);
+
         return new GeneratePresignedUrlRequest(bucket, key)
                 .withMethod(HttpMethod.GET);
     }

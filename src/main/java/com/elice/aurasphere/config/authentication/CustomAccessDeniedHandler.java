@@ -1,8 +1,7 @@
-package com.elice.aurasphere.config;
+package com.elice.aurasphere.config.authentication;
 
 
 import com.elice.aurasphere.global.common.ApiRes;
-import com.elice.aurasphere.user.dto.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

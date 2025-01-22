@@ -1,6 +1,5 @@
-package com.elice.aurasphere.config;
+package com.elice.aurasphere.config.oauth2;
 
-import com.elice.aurasphere.config.CustomUserDetails;
 import com.elice.aurasphere.user.entity.Profile;
 import com.elice.aurasphere.user.entity.User;
 import com.elice.aurasphere.user.repository.ProfileRepository;
@@ -54,7 +53,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
 
         return new DefaultOAuth2User(
-            Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole())),
+            Collections.singleton(new SimpleGrantedAuthority(user.getRole())),
             oauth2User.getAttributes(),
             "email"  // 또는 provider별 nameAttributeKey 설정
         );
@@ -77,7 +76,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
 
         User user = User.builder()
-            .name(oauth2UserInfo.getName() != null ? oauth2UserInfo.getName() : "Unknown")
             .email(email)
             .role("USER")
             .password("")
