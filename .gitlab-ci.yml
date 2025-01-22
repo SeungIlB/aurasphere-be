@@ -9,7 +9,7 @@ build: # JOB 이름
   script:
     - echo [INFO] spring-boot project build
     - echo "$DOTENV_FILE" > .env
-    - cd ../../..
+    - cd $CI_PROJECT_DIR # GitLab에서 자동으로 제공하는 프로젝트 디렉토리로 이동
     - chmod +x gradlew
     - ./gradlew clean
     - ./gradlew bootjar
@@ -21,6 +21,7 @@ build: # JOB 이름
     expire_in: 1 days
   only:
     - feature/notification
+
 
 package:
   image: docker:latest
