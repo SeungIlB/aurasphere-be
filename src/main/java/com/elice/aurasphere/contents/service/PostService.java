@@ -1,8 +1,8 @@
 package com.elice.aurasphere.contents.service;
 
 
-import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.elice.aurasphere.contents.dto.PostCreateDTO;
+import com.elice.aurasphere.contents.dto.PostListResDTO;
 import com.elice.aurasphere.contents.dto.PostResDTO;
 import com.elice.aurasphere.contents.dto.PostUpdateDTO;
 import com.elice.aurasphere.contents.entity.Image;
@@ -10,11 +10,15 @@ import com.elice.aurasphere.contents.entity.Post;
 import com.elice.aurasphere.contents.mapper.PostMapper;
 import com.elice.aurasphere.contents.repository.ImageRepository;
 import com.elice.aurasphere.contents.repository.PostRepository;
+import com.elice.aurasphere.global.exception.CustomException;
+import com.elice.aurasphere.global.exception.ErrorCode;
+import com.elice.aurasphere.global.s3.service.S3Service;
+import com.elice.aurasphere.user.entity.User;
+import com.elice.aurasphere.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,8 +26,10 @@ import java.util.List;
 @Service
 public class PostService {
 
+    private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final ImageRepository imageRepository;
+    private final LikeService likeService;
     private final S3Service s3Service;
 
 
@@ -31,39 +37,98 @@ public class PostService {
 
 
     public PostService(
+            UserRepository userRepository,
             PostRepository postRepository,
             ImageRepository imageRepository,
+            LikeService likeService,
             S3Service s3Service,
             PostMapper mapper) {
 
+        this.userRepository = userRepository;
         this.postRepository = postRepository;
+        this.likeService = likeService;
         this.imageRepository = imageRepository;
         this.s3Service = s3Service;
         this.mapper = mapper;
 
     }
 
+
+
+
+    public PostListResDTO getMyPosts(String username, int size, Long cursor){
+
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        List<Post> postList = postRepository.findMyPosts(user.getId(), size, cursor);
+
+        //리스트가 비어있는 경우 hasNext를 false로 반환하고 리턴
+        if(postList.isEmpty())
+            return PostListResDTO.builder().hasNext(false).build();
+
+        List<PostResDTO> posts = postList.stream().map(post -> {
+
+            List<String> image = imageRepository.findImagesByPostId(post.getId());
+
+            return PostResDTO.builder()
+                    .id(post.getId())
+                    .content(post.getContent())
+                    .likeCnt(post.getLikeCnt())
+                    .isLiked(!likeService.isNotAlreadyLike(user,post))
+                    .imgUrls(image)
+                    .createdAt(post.getCreatedAt())
+                    .updatedAt(post.getUpdatedAt())
+                    .build();
+        }).toList();
+
+        Long lastCursor = postList.get(postList.size() - 1).getId();
+        boolean hasNext = postList.size() >= size;
+
+
+        return PostListResDTO.builder()
+                .postList(posts)
+                .cursor(lastCursor)
+                .hasNext(hasNext)
+                .build();
+    }
+
     //상세 게시글 조회
-    public PostResDTO getPost(Long postId) {
+    public PostResDTO getPost(String username, Long postId) {
+
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new NullPointerException("게시글이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        PostResDTO postResDTO = mapper.postToPostResDto(post);
+        List<String> image = imageRepository.findImagesByPostId(post.getId());
 
-        return mapper.postToPostResDto(post);
+        return PostResDTO.builder()
+                .id(post.getId())
+                .content(post.getContent())
+                .likeCnt(post.getLikeCnt())
+                .isLiked(!likeService.isNotAlreadyLike(user,post))
+                .imgUrls(image)
+                .createdAt(post.getCreatedAt())
+                .updatedAt(post.getUpdatedAt())
+                .build();
     }
 
 
     @Transactional
     //게시글 생성
-    public PostResDTO registerPost(PostCreateDTO postCreateDTO) {
+    public PostResDTO registerPost(String username, PostCreateDTO postCreateDTO) {
+
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Post registeredPost = postRepository.save(
                 Post.builder()
-                .content(postCreateDTO.getContent())
-                .likeCnt(0L)
-                .build()
+                        .user(user)
+                        .content(postCreateDTO.getContent())
+                        .likeCnt(0L)
+                        .build()
         );
 
         List<String> imgUrls = new ArrayList<>();
@@ -94,10 +159,19 @@ public class PostService {
     }
 
     //게시글 수정
-    public PostResDTO editPost(Long postId, PostUpdateDTO postUpdateDTO) {
+    public PostResDTO editPost(String username, Long postId, PostUpdateDTO postUpdateDTO) {
 
+        //유저를 찾을 수 없는 경우
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        //Post를 찾을 수 없는 경우
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new NullPointerException("게시글이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        //User와 Post 작성자가 일치하지 않는 경우
+        if(!post.getUser().getEmail().equals(user.getEmail()))
+            throw new CustomException(ErrorCode.USER_NOT_MATCH);
 
         return postRepository.findById(postId)
                 .map(existingPost -> {
@@ -108,6 +182,6 @@ public class PostService {
 
                     return mapper.postToPostResDto(updatedPost);
                 })
-                .orElseThrow();
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_UPDATE_FAILED));
     }
 }

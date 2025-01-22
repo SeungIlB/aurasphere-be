@@ -26,9 +26,6 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(nullable = false, length = 10)
-    private String name;
-
     @Column(nullable = false, length = 25, unique = true)
     private String email;
 

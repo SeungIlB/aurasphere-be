@@ -1,4 +1,4 @@
-package com.elice.aurasphere.config;
+package com.elice.aurasphere.config.filter;
 
 import com.elice.aurasphere.user.dto.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
