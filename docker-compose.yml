@@ -25,7 +25,7 @@ services:
       dockerfile: Dockerfile
     image: aurasphere-backend_server:latest
     environment:
-      DB_URL: ${DB_URL}
+      DATASOURCE_URL: ${DATASOURCE_URL}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       NAVER_CLIENT_ID: ${NAVER_CLIENT_ID}
