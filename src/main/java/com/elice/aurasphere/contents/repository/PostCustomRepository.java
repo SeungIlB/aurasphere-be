@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface PostCustomRepository {
 
-    List<Post> findMyPosts(Long userId, Pageable pageable, Long cursor);
+    List<Post> findMyPosts(Long userId, int size, Long cursor);
 
 }

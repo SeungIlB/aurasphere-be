@@ -1,6 +1,6 @@
 package com.elice.aurasphere.user.service;
 
-import com.elice.aurasphere.contents.service.S3Service;
+import com.elice.aurasphere.global.s3.service.S3Service;
 import com.elice.aurasphere.global.exception.CustomException;
 import com.elice.aurasphere.global.exception.ErrorCode;
 import com.elice.aurasphere.user.dto.ProfileRequest;
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service

@@ -1,6 +1,7 @@
 package com.elice.aurasphere.contents.controller;
 
 
+import com.elice.aurasphere.contents.dto.PostListResDTO;
 import com.elice.aurasphere.user.entity.CustomUserDetails;
 import com.elice.aurasphere.contents.dto.PostCreateDTO;
 import com.elice.aurasphere.contents.dto.PostResDTO;
@@ -41,13 +42,12 @@ public class PostController {
 
     /*
     게시글 필터별로 조회하는 api
-    좋아요 수, 조회수, 내가 팔로우한 사람만
+    필터링 없이 그냥 조회했을 경우(모든 글 최신순), 좋아요 수 기준, 조회수 기준, 내가 팔로우한 사람만
     */
 
 
-
     /*
-    내가 작성한 게시글만 조회하는 api
+    내가 작성한 게시글 List 조회하는 api
      */
     @Operation(
             summary = "내가 작성한 게시글 조회 API",
@@ -63,15 +63,15 @@ public class PostController {
                     content = @Content(schema = @Schema(implementation = ResponseDto.class)))
     })
     @GetMapping("/my")
-    public ApiResponseDto<List<PostResDTO>> readPostsByUserId(
+    public ApiResponseDto<PostListResDTO> readPostsByUserId(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PageableDefault(size = 10, page = 0) Pageable pageable,
+            @RequestParam(value = "size", defaultValue = "5") int size,
             @RequestParam(value = "cursor", defaultValue = "0") Long cursor
             ){
 
-        List<PostResDTO> postResDTO = postService.getMyPosts(userDetails.getUsername(), pageable, cursor);
+        PostListResDTO postListResDTO = postService.getMyPosts(userDetails.getUsername(), size, cursor);
 
-        return ApiResponseDto.from(postResDTO);
+        return ApiResponseDto.from(postListResDTO);
     }
 
 

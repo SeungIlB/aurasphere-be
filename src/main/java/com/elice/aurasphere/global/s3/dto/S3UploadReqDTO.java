@@ -1,4 +1,4 @@
-package com.elice.aurasphere.contents.dto;
+package com.elice.aurasphere.global.s3.dto;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;

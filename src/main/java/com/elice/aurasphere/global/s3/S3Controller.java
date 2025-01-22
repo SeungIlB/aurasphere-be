@@ -1,11 +1,11 @@
-package com.elice.aurasphere.contents.controller;
+package com.elice.aurasphere.global.s3;
 
 
 import com.elice.aurasphere.contents.dto.PostResDTO;
-import com.elice.aurasphere.contents.dto.S3UploadReqDTO;
-import com.elice.aurasphere.contents.dto.S3UrlDTO;
-import com.elice.aurasphere.contents.service.S3Service;
+import com.elice.aurasphere.global.s3.dto.S3UploadReqDTO;
+import com.elice.aurasphere.global.s3.dto.S3UrlDTO;
 import com.elice.aurasphere.global.common.ApiRes;
+import com.elice.aurasphere.global.s3.service.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

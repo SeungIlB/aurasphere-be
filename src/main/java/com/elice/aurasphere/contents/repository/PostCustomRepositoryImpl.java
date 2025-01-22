@@ -24,19 +24,17 @@ public class PostCustomRepositoryImpl implements PostCustomRepository{
 
 
     @Override
-    public List<Post> findMyPosts(Long userId, Pageable pageable, Long cursor) {
+    public List<Post> findMyPosts(Long userId, int size, Long cursor) {
 
-        List<Post> postList = queryFactory
+        return queryFactory
                 .selectFrom(post)
                 .where(post.user.id.eq(userId), checkCondition(cursor))
                 .orderBy(post.id.desc())
-                .limit(pageable.getPageSize())
+                .limit(size)
                 .fetch();
-
-        return postList;
     }
 
     private BooleanExpression checkCondition(Long cursor){
-        return cursor == null ? null : post.id.lt(cursor);
+        return cursor == 0 ? null : post.id.lt(cursor);
     }
 }

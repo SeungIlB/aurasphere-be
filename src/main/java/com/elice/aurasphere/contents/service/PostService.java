@@ -2,22 +2,20 @@ package com.elice.aurasphere.contents.service;
 
 
 import com.elice.aurasphere.contents.dto.PostCreateDTO;
+import com.elice.aurasphere.contents.dto.PostListResDTO;
 import com.elice.aurasphere.contents.dto.PostResDTO;
 import com.elice.aurasphere.contents.dto.PostUpdateDTO;
 import com.elice.aurasphere.contents.entity.Image;
-import com.elice.aurasphere.contents.entity.Like;
 import com.elice.aurasphere.contents.entity.Post;
 import com.elice.aurasphere.contents.mapper.PostMapper;
 import com.elice.aurasphere.contents.repository.ImageRepository;
-import com.elice.aurasphere.contents.repository.LikeRepository;
 import com.elice.aurasphere.contents.repository.PostRepository;
 import com.elice.aurasphere.global.exception.CustomException;
 import com.elice.aurasphere.global.exception.ErrorCode;
+import com.elice.aurasphere.global.s3.service.S3Service;
 import com.elice.aurasphere.user.entity.User;
 import com.elice.aurasphere.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,16 +56,41 @@ public class PostService {
 
 
 
-    public List<PostResDTO> getMyPosts(String username, Pageable pageable, Long cursor){
+    public PostListResDTO getMyPosts(String username, int size, Long cursor){
 
         User user = userRepository.findByEmail(username)
                 .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        List<Post> postList = postRepository.findMyPosts(user.getId(), pageable, cursor);
+        List<Post> postList = postRepository.findMyPosts(user.getId(), size, cursor);
 
-        log.info("postList : {}", postList.stream().toArray());
+        //리스트가 비어있는 경우 hasNext를 false로 반환하고 리턴
+        if(postList.isEmpty())
+            return PostListResDTO.builder().hasNext(false).build();
 
-        return null;
+        List<PostResDTO> posts = postList.stream().map(post -> {
+
+            List<String> image = imageRepository.findImagesByPostId(post.getId());
+
+            return PostResDTO.builder()
+                    .id(post.getId())
+                    .content(post.getContent())
+                    .likeCnt(post.getLikeCnt())
+                    .isLiked(!likeService.isNotAlreadyLike(user,post))
+                    .imgUrls(image)
+                    .createdAt(post.getCreatedAt())
+                    .updatedAt(post.getUpdatedAt())
+                    .build();
+        }).toList();
+
+        Long lastCursor = postList.get(postList.size() - 1).getId();
+        boolean hasNext = postList.size() >= size;
+
+
+        return PostListResDTO.builder()
+                .postList(posts)
+                .cursor(lastCursor)
+                .hasNext(hasNext)
+                .build();
     }
 
     //상세 게시글 조회
