@@ -18,8 +18,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +26,6 @@ import java.util.List;
 
 @Tag(name = "Post", description = "게시글 API \n 모든 api Access Token 필요")
 @Slf4j
-@RequestMapping("/post")
 @RestController
 public class PostController {
 
@@ -62,7 +59,7 @@ public class PostController {
                     description = "게시글을 찾을 수 없습니다.",
                     content = @Content(schema = @Schema(implementation = ResponseDto.class)))
     })
-    @GetMapping("/my")
+    @GetMapping("/posts/me")
     public ApiResponseDto<PostListResDTO> readPostsByUserId(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(value = "size", defaultValue = "5") int size,
@@ -87,7 +84,7 @@ public class PostController {
                     description = "게시글을 찾을 수 없습니다.",
                     content = @Content(schema = @Schema(implementation = ResponseDto.class)))
     })
-    @GetMapping("/{postId}")
+    @GetMapping("/posts/{postId}")
     public ApiResponseDto<PostResDTO> readPostByPostId(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("postId") Long postId
@@ -108,7 +105,7 @@ public class PostController {
             @ApiResponse(responseCode = "U001",
                     description = "유저를 찾을 수 없는 경우")
     })
-    @PostMapping
+    @PostMapping("/post")
     public ApiResponseDto<PostResDTO> createPost(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody PostCreateDTO postCreateDTO
@@ -122,7 +119,7 @@ public class PostController {
     /*
     좋아요 누르기 / 취소 api
     */
-    @PostMapping("/{postId}/like")
+    @PostMapping("/posts/{postId}/like")
     public ApiResponseDto<Boolean> likePost(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("postId") Long postId) {
@@ -149,7 +146,7 @@ public class PostController {
             @ApiResponse(responseCode = "U002",
                     description = "로그인된 유저가 게시글 작성자가 아닌 경우")
     })
-    @PatchMapping("/{postId}")
+    @PatchMapping("/posts/{postId}")
     public ApiResponseDto<PostResDTO> updatePost(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("postId") Long postId,
