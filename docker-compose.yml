@@ -4,6 +4,7 @@ services:
   mysql:
     image: mysql:8.0
     environment:
+      DATASOURCE_URL: ${DATASOURCE_URL}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${DB_USERNAME}
