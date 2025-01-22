@@ -1,4 +1,4 @@
-package com.elice.aurasphere.config;
+package com.elice.aurasphere.config.utils;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;

@@ -1,16 +1,16 @@
 package com.elice.aurasphere.user.service;
 
-import com.elice.aurasphere.config.CookieUtil;
-import com.elice.aurasphere.config.JwtTokenProvider;
+import com.elice.aurasphere.config.utils.CookieUtil;
+import com.elice.aurasphere.config.authentication.JwtTokenProvider;
+import com.elice.aurasphere.global.exception.CustomException;
+import com.elice.aurasphere.global.exception.ErrorCode;
 import com.elice.aurasphere.user.dto.LoginRequest;
 import com.elice.aurasphere.user.dto.SignupRequest;
-import com.elice.aurasphere.user.dto.TokenInfo;
 import com.elice.aurasphere.user.entity.Profile;
 import com.elice.aurasphere.user.entity.User;
 import com.elice.aurasphere.user.repository.ProfileRepository;
 import com.elice.aurasphere.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,6 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final CookieUtil cookieUtil;
 
-    @Transactional
     public void login(LoginRequest loginRequest, HttpServletResponse response) {
         // 인증
         Authentication authentication = authenticationManager.authenticate(
@@ -57,17 +56,16 @@ public class UserService {
     public User signup(SignupRequest signupRequest) {
         // 이메일 중복 체크
         if (userRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
-            throw new RuntimeException("이미 존재하는 이메일입니다.");
+            throw new CustomException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
         // 닉네임 중복 체크
         if (profileRepository.existsByNickname(signupRequest.getNickname())) {
-            throw new RuntimeException("이미 존재하는 닉네임입니다.");
+            throw new CustomException(ErrorCode.NICKNAME_ALREADY_EXISTS);
         }
 
         // 사용자 생성
         User user = User.builder()
-            .name(signupRequest.getName())
             .email(signupRequest.getEmail())
             .password(passwordEncoder.encode(signupRequest.getPassword()))
             .role("USER") // 기본 역할 설정
@@ -77,7 +75,7 @@ public class UserService {
         Profile profile = Profile.builder()
             .user(user)
             .nickname(signupRequest.getNickname())
-            .profileUrl("/default_profile.png") // 기본 프로필 이미지 경로
+            .profileUrl("DEFAULT") // 기본 프로필 이미지 경로
             .build();
 
         // 사용자 저장

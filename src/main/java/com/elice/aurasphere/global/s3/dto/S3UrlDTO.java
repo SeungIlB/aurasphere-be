@@ -1,4 +1,4 @@
-package com.elice.aurasphere.contents.dto;
+package com.elice.aurasphere.global.s3.dto;
 
 import lombok.*;
 
