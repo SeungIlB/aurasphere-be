@@ -45,9 +45,8 @@ public class Profile extends BaseEntity {
     }
 
     // 프로필 업데이트를 위한 메서드
-    public void updateProfile(String nickname, String profileUrl) {
+    public void updateProfileNickname(String nickname) {
         this.nickname = nickname;
-        this.profileUrl = profileUrl;
     }
 
     public void updateProfileUrl(String profileUrl) {

@@ -40,7 +40,7 @@ public abstract class OAuth2UserInfo {
 
     // 기본 프로필 이미지 URL
     protected String getDefaultProfileImage() {
-        return "/images/default_profile.png";
+        return "Default";
     }
 }
 
@@ -94,28 +94,40 @@ class KakaoOAuth2UserInfo extends OAuth2UserInfo {
 
     @Override
     public String getEmail() {
-        Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-        if (kakaoAccount == null) {
-            return null;
+        try {
+            Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+            if (kakaoAccount == null) {
+                return null;
+            }
+            return (String) kakaoAccount.get("email");
+        } catch (ClassCastException e) {
+            throw new OAuth2AuthenticationException("Invalid Kakao account format");
         }
-        return (String) kakaoAccount.get("email");
     }
 
     @Override
     protected String getRawNickname() {
-        Map<String, Object> properties = (Map<String, Object>) attributes.get("properties");
-        if (properties == null) {
-            return null;
+        try {
+            Map<String, Object> properties = (Map<String, Object>) attributes.get("properties");
+            if (properties == null) {
+                return null;
+            }
+            return (String) properties.get("nickname");
+        } catch (ClassCastException e) {
+            throw new OAuth2AuthenticationException("Invalid Kakao properties format");
         }
-        return (String) properties.get("nickname");
     }
 
     @Override
     protected String getRawImageUrl() {
-        Map<String, Object> properties = (Map<String, Object>) attributes.get("properties");
-        if (properties == null) {
-            return null;
+        try {
+            Map<String, Object> properties = (Map<String, Object>) attributes.get("properties");
+            if (properties == null) {
+                return null;
+            }
+            return (String) properties.get("profile_image");
+        } catch (ClassCastException e) {
+            throw new OAuth2AuthenticationException("Invalid Kakao properties format");
         }
-        return (String) properties.get("profile_image");
     }
 }

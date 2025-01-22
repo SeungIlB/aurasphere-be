@@ -1,7 +1,5 @@
 package com.elice.aurasphere.config.oauth2;
 
-import com.elice.aurasphere.config.KakaoOAuth2UserInfo;
-import com.elice.aurasphere.config.NaverOAuth2UserInfo;
 import com.elice.aurasphere.user.entity.Profile;
 import com.elice.aurasphere.user.entity.User;
 import com.elice.aurasphere.user.repository.ProfileRepository;
@@ -85,7 +83,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         user = userRepository.save(user);
 
-        // getNickname()과 getImageUrl()은 이제 null을 반환하지 않음 (기본값 사용)
         Profile profile = Profile.builder()
             .nickname(oauth2UserInfo.getNickname())
             .profileUrl(oauth2UserInfo.getImageUrl())
@@ -111,15 +108,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             // 프로필 이미지 업데이트 여부 확인
             String rawImageUrl = oauth2UserInfo.getRawImageUrl();
             boolean shouldUpdateImage = rawImageUrl != null &&
-                currentImageUrl.equals("/images/default_profile.png");
+                currentImageUrl.equals("Default");
 
-            // 업데이트가 필요한 경우에만 새 값 사용, 아니면 기존 값 유지
-            String newNickname = shouldUpdateNickname ? rawNickname : currentNickname;
-            String newImageUrl = shouldUpdateImage ? rawImageUrl : currentImageUrl;
-
-            // 어느 하나라도 업데이트가 필요한 경우에만 프로필 업데이트
-            if (shouldUpdateNickname || shouldUpdateImage) {
-                profile.updateProfile(newNickname, newImageUrl);
+            if (shouldUpdateNickname) {
+                profile.updateProfileNickname(rawNickname);
+            }
+            if (shouldUpdateImage) {
+                profile.updateProfileUrl(rawImageUrl);
             }
         } else {
             // 프로필이 없는 경우 (비정상 케이스) 새로 생성

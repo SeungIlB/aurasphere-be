@@ -1,5 +1,6 @@
 package com.elice.aurasphere.user.controller;
 
+import com.elice.aurasphere.global.exception.ErrorResponseDto;
 import com.elice.aurasphere.user.entity.CustomUserDetails;
 import com.elice.aurasphere.user.dto.ProfileResponse;
 import com.elice.aurasphere.user.dto.ProfileRequest;
@@ -34,7 +35,7 @@ public class ProfileController {
         @ApiResponse(responseCode = "S000", description = "프로필 조회 성공",
             content = @Content(schema = @Schema(implementation = ApiRes.class))),
         @ApiResponse(responseCode = "U001", description = "유저를 찾을 수 없습니다.",
-            content = @Content(schema = @Schema(implementation = ApiRes.class)))
+            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
     @GetMapping
     public ResponseEntity<ApiRes<ProfileResponse>> getProfile(
@@ -50,11 +51,11 @@ public class ProfileController {
         @ApiResponse(responseCode = "S000", description = "프로필 수정 성공",
             content = @Content(schema = @Schema(implementation = ApiRes.class))),
         @ApiResponse(responseCode = "U001", description = "유저를 찾을 수 없습니다.",
-            content = @Content(schema = @Schema(implementation = ApiRes.class))),
+            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
         @ApiResponse(responseCode = "U003", description = "이미 존재하는 닉네임입니다.",
-            content = @Content(schema = @Schema(implementation = ApiRes.class))),
+            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
         @ApiResponse(responseCode = "I001", description = "Key에 해당하는 이미지를 찾을 수 없습니다.",
-            content = @Content(schema = @Schema(implementation = ApiRes.class)))
+            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
     @PutMapping
     public ResponseEntity<ApiRes<ProfileResponse>> updateProfile(

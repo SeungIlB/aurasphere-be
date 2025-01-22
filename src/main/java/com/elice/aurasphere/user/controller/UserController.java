@@ -3,7 +3,6 @@ package com.elice.aurasphere.user.controller;
 import com.elice.aurasphere.global.common.ApiRes;
 import com.elice.aurasphere.global.exception.ErrorResponseDto;
 import com.elice.aurasphere.user.dto.EmailCheckRequest;
-import com.elice.aurasphere.user.dto.ErrorResponse;
 import com.elice.aurasphere.user.dto.LoginRequest;
 import com.elice.aurasphere.user.dto.NicknameCheckRequest;
 import com.elice.aurasphere.user.dto.SignupRequest;
@@ -11,7 +10,6 @@ import com.elice.aurasphere.user.dto.VerificationRequest;
 import com.elice.aurasphere.user.service.EmailService;
 import org.springframework.validation.BindingResult;
 import com.elice.aurasphere.user.service.UserService;
-import com.elice.aurasphere.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,8 +22,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "User", description = "사용자 관련 API")
@@ -41,7 +37,7 @@ public class UserController {
         @ApiResponse(responseCode = "S000", description = "로그인 성공",
             content = {@Content(schema = @Schema(implementation = ApiRes.class))}),
         @ApiResponse(responseCode = "U005", description = "잘못된 사용자 요청",
-            content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
+            content = {@Content(schema = @Schema(implementation = ErrorResponseDto.class))}),
         @ApiResponse(responseCode = "A004", description = "잘못된 인증 정보")
     })
     @PostMapping("/login")
@@ -56,11 +52,11 @@ public class UserController {
         @ApiResponse(responseCode = "S000", description = "회원가입 성공",
             content = {@Content(schema = @Schema(implementation = ApiRes.class))}),
         @ApiResponse(responseCode = "U005", description = "잘못된 사용자 요청",
-            content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
+            content = {@Content(schema = @Schema(implementation = ErrorResponseDto.class))}),
         @ApiResponse(responseCode = "U002", description = "이미 존재하는 이메일",
-            content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
+            content = {@Content(schema = @Schema(implementation = ErrorResponseDto.class))}),
         @ApiResponse(responseCode = "U003", description = "이미 존재하는 닉네임",
-            content = {@Content(schema = @Schema(implementation = ErrorResponse.class))})
+            content = {@Content(schema = @Schema(implementation = ErrorResponseDto.class))})
     })
     @PostMapping("/signup")
     public ResponseEntity<ApiRes<Void>> signup(@Valid @RequestBody SignupRequest signupRequest) {

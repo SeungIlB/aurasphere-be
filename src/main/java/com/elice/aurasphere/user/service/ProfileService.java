@@ -43,7 +43,7 @@ public class ProfileService {
             if (profileRepository.existsByNicknameAndUserIdNot(request.getNickname(), userId)) {
                 throw new CustomException(ErrorCode.NICKNAME_ALREADY_EXISTS);
             }
-            profile.updateProfile(request.getNickname(), profile.getProfileUrl());
+            profile.updateProfileNickname(request.getNickname());
         }
 
         if (request.getImageKey() != null) {
