@@ -8,7 +8,6 @@ build: # JOB 이름
   stage: build
   script:
     - echo [INFO] spring-boot project build
-    - cd ~/aurasphere-backend/
     - echo "$DOTENV_FILE" > .env
     - cd ../../..
     - chmod +x gradlew
