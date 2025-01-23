@@ -3,8 +3,8 @@ package com.elice.aurasphere.user.service;
 import com.elice.aurasphere.global.s3.service.S3Service;
 import com.elice.aurasphere.global.exception.CustomException;
 import com.elice.aurasphere.global.exception.ErrorCode;
-import com.elice.aurasphere.user.dto.ProfileRequest;
-import com.elice.aurasphere.user.dto.ProfileResponse;
+import com.elice.aurasphere.user.dto.ProfileRequestDTO;
+import com.elice.aurasphere.user.dto.ProfileResponseDTO;
 import com.elice.aurasphere.user.entity.Profile;
 import com.elice.aurasphere.user.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,18 +23,18 @@ public class ProfileService {
     private final S3Service s3Service;
     private static final String DEFAULT_PROFILE_URL = "DEFAULT";
 
-    public ProfileResponse getProfile(Long userId) {
+    public ProfileResponseDTO getProfile(Long userId) {
         Profile profile = profileRepository.findByUserId(userId)
             .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        return ProfileResponse.builder()
+        return ProfileResponseDTO.builder()
             .nickname(profile.getNickname())
             .profileUrl(profile.getProfileUrl())
             .build();
     }
 
     @Transactional
-    public ProfileResponse updateProfile(Long userId, ProfileRequest request) {
+    public ProfileResponseDTO updateProfile(Long userId, ProfileRequestDTO request) {
         Profile profile = profileRepository.findByUserId(userId)
             .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -42,7 +42,7 @@ public class ProfileService {
             if (profileRepository.existsByNicknameAndUserIdNot(request.getNickname(), userId)) {
                 throw new CustomException(ErrorCode.NICKNAME_ALREADY_EXISTS);
             }
-            profile.updateProfile(request.getNickname(), profile.getProfileUrl());
+            profile.updateProfileNickname(request.getNickname());
         }
 
         if (request.getImageKey() != null) {
@@ -52,7 +52,7 @@ public class ProfileService {
 
         profileRepository.save(profile);
 
-        return ProfileResponse.builder()
+        return ProfileResponseDTO.builder()
             .nickname(profile.getNickname())
             .profileUrl(profile.getProfileUrl()) // "DEFAULT" 또는 실제 S3 URL
             .build();

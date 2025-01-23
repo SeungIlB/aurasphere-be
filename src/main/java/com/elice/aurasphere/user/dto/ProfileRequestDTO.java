@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Schema(description = "프로필 수정 요청 DTO")
 @Getter
 @NoArgsConstructor
-public class ProfileRequest {
+public class ProfileRequestDTO {
     @Schema(description = "변경할 닉네임 (선택)")
     @Size(max = 20, message = "닉네임은 20자 이하여야 합니다")
     private String nickname;
