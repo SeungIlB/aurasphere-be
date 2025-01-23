@@ -82,19 +82,24 @@ deploy:
     - echo "배포 서버로 SSH 연결하여 배포 시작"
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-    - cat ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan -H $REMOTE_HOST >> ~/.ssh/known_hosts
     - |
       ssh -i "$SSH_PRIVATE_KEY" $REMOTE_USER@$REMOTE_HOST <<EOF
+      echo "1. 애플리케이션 설정 파일 디렉토리 생성 중..."
       cd ~/aurasphere-backend/
       mkdir -p src/main/resources
+      echo "2. application-prod.properties 파일 생성 중..."
       echo "$APPLICATION_PROPERTIES" > src/main/resources/application-prod.properties
+      echo "3. Docker Compose 서비스 중지 중..."
       docker-compose down
+      echo "4. Docker Compose 이미지 업데이트 중..."
       docker-compose pull
+      echo "5. Docker Compose 시작 중..."
       docker-compose up -d
       docker-compose ps
       docker-compose logs
+      echo "6. Docker Compose 로그 출력 중..."
       EOF
 
   after_script:
