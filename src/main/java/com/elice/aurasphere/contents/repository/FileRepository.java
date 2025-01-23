@@ -1,13 +1,11 @@
 package com.elice.aurasphere.contents.repository;
 
 
-import com.elice.aurasphere.contents.entity.Image;
+import com.elice.aurasphere.contents.entity.File;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
-public interface ImageRepository extends JpaRepository<Image, Long>, ImageCustomRepository {
+public interface FileRepository extends JpaRepository<File, Long>, FileCustomRepository {
 
 }

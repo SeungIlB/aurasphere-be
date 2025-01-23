@@ -50,6 +50,8 @@ public enum ErrorCode {
     POST_IMAGE_UPLOAD_FAILED("P009", HttpStatus.INTERNAL_SERVER_ERROR, "게시글 이미지 업로드에 실패했습니다."),
     POST_SERVER_ERROR("P010", HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류로 게시글을 작성할 수 없습니다."),
 
+    FILE_TYPE_NOT_SUPPORTED("F001", HttpStatus.BAD_REQUEST, "지원하지 않는 파일 타입입니다."),
+
     IMAGE_NOT_FOUND("I001", HttpStatus.NOT_FOUND, "Key에 해당하는 이미지를 찾을 수 없습니다.")
 
             ;

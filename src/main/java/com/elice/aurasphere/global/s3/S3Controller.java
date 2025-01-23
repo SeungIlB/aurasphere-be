@@ -32,8 +32,7 @@ public class S3Controller {
     //게시판 이미지 업로드용 presigned-url 요청 api
     @Operation(summary = "S3 업로드 url 요청 API", description = "S3 이미지 업로드 권한 요청하는 API입니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "S3 업로드 url 요청 성공",
-                    content = {@Content(schema = @Schema(implementation = PostResDTO.class))}),
+            @ApiResponse(responseCode = "201", description = "S3 업로드 url 요청 성공"),
             @ApiResponse(responseCode = "400", description = "S3 업로드 url 요청 실패"),
     })
     @PostMapping(value = "/url")

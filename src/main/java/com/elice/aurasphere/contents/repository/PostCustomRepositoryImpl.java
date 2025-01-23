@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static com.elice.aurasphere.contents.entity.QImage.image;
 import static com.elice.aurasphere.contents.entity.QPost.post;
 
 
@@ -22,6 +21,16 @@ public class PostCustomRepositoryImpl implements PostCustomRepository{
         this.queryFactory = queryFactory;
     }
 
+    @Override
+    public List<Post> findAllPostsByAsc(Long userId, int size, Long cursor) {
+
+        return queryFactory
+                .selectFrom(post)
+                .where(checkCondition(cursor))
+                .orderBy(post.id.desc())
+                .limit(size)
+                .fetch();
+    }
 
     @Override
     public List<Post> findMyPosts(Long userId, int size, Long cursor) {
@@ -30,6 +39,16 @@ public class PostCustomRepositoryImpl implements PostCustomRepository{
                 .selectFrom(post)
                 .where(post.user.id.eq(userId), checkCondition(cursor))
                 .orderBy(post.id.desc())
+                .limit(size)
+                .fetch();
+    }
+
+    @Override
+    public List<Post> findPostsByLikes(Long userId, int size, Long cursor) {
+
+        return queryFactory
+                .selectFrom(post)
+                .orderBy(post.likeCnt.desc(), post.id.asc())
                 .limit(size)
                 .fetch();
     }
