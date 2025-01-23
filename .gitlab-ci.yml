@@ -9,10 +9,6 @@ build: # JOB 이름
   script:
     - echo [INFO] spring-boot project build
     - cd $CI_PROJECT_DIR # GitLab에서 자동으로 제공하는 프로젝트 디렉토리로 이동
-    # application-prod.properties 파일 생성
-    - mkdir -p src/main/resources
-    - echo "$APPLICATION_PROPERTIES" > src/main/resources/application-prod.properties
-    - cat src/main/resources/application-prod.properties # 생성된 파일 확인
     - chmod +x gradlew
     - ./gradlew clean
     - ./gradlew bootjar
@@ -44,8 +40,6 @@ package:
     - echo "$DOCKER_HUB_PW" | docker login --username "$DOCKER_HUB_NAME" --password-stdin
     - echo "Docker Hub 로그인 성공"
   script:
-    - echo "$DOTENV_FILE" > .env
-    - cat .env
     - docker-compose up -d
     - echo "docker-compose 실행 성공"
     - IMAGE_ID=$(docker images -q aurasphere-backend_server:latest)
@@ -94,6 +88,8 @@ deploy:
     - |
       ssh -i "$SSH_PRIVATE_KEY" $REMOTE_USER@$REMOTE_HOST <<EOF
       cd ~/aurasphere-backend/
+      mkdir -p src/main/resources
+      echo "$APPLICATION_PROPERTIES" > src/main/resources/application-prod.properties
       docker-compose down
       docker-compose pull
       docker-compose up -d
