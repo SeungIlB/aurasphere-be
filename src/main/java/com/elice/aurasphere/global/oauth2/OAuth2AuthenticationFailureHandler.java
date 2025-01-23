@@ -1,4 +1,4 @@
-package com.elice.aurasphere.config.oauth2;
+package com.elice.aurasphere.global.oauth2;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

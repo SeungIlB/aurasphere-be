@@ -1,11 +1,12 @@
 package com.elice.aurasphere.user.service;
 
-import com.elice.aurasphere.config.utils.CookieUtil;
-import com.elice.aurasphere.config.authentication.JwtTokenProvider;
+import com.elice.aurasphere.global.utils.CookieUtil;
+import com.elice.aurasphere.global.authentication.JwtTokenProvider;
 import com.elice.aurasphere.global.exception.CustomException;
 import com.elice.aurasphere.global.exception.ErrorCode;
-import com.elice.aurasphere.user.dto.LoginRequest;
-import com.elice.aurasphere.user.dto.SignupRequest;
+import com.elice.aurasphere.user.dto.LoginRequestDTO;
+import com.elice.aurasphere.user.dto.PasswordUpdateRequestDTO;
+import com.elice.aurasphere.user.dto.SignupRequestDTO;
 import com.elice.aurasphere.user.entity.Profile;
 import com.elice.aurasphere.user.entity.User;
 import com.elice.aurasphere.user.repository.ProfileRepository;
@@ -21,6 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +35,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final CookieUtil cookieUtil;
 
-    public void login(LoginRequest loginRequest, HttpServletResponse response) {
+    public void login(LoginRequestDTO loginRequest, HttpServletResponse response) {
         // 인증
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
@@ -53,7 +55,8 @@ public class UserService {
         cookieUtil.addRefreshTokenCookie(response, refreshToken, jwtTokenProvider.REFRESH_TOKEN_VALIDITY);
     }
 
-    public User signup(SignupRequest signupRequest) {
+    @Transactional
+    public void signup(SignupRequestDTO signupRequest) {
         // 이메일 중복 체크
         if (userRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
             throw new CustomException(ErrorCode.EMAIL_ALREADY_EXISTS);
@@ -79,10 +82,8 @@ public class UserService {
             .build();
 
         // 사용자 저장
-        User savedUser = userRepository.save(user);
+        userRepository.save(user);
         profileRepository.save(profile);
-
-        return savedUser;
     }
 
     public void logout(HttpServletResponse response) {
@@ -100,5 +101,29 @@ public class UserService {
 
     public boolean checkNicknameDuplication(String nickname) {
         return profileRepository.existsByNickname(nickname);
+    }
+
+    public void resetPassword(String email, String newPassword) {
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        user.updatePassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    public void updatePassword(String email, PasswordUpdateRequestDTO request) {
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (!request.getCurrentPassword().equals(request.getCurrentPasswordConfirm())) {
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        user.updatePassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 }

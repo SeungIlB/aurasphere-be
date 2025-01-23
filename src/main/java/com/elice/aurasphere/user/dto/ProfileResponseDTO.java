@@ -7,7 +7,7 @@ import lombok.Getter;
 @Schema(description = "프로필 수정 응답 DTO")
 @Getter
 @Builder
-public class ProfileResponse {
+public class ProfileResponseDTO {
     @Schema(description = "사용자 닉네임")
     private String nickname;
 
