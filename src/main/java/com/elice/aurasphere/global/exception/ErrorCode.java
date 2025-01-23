@@ -57,7 +57,7 @@ public enum ErrorCode {
 
     FILE_TYPE_NOT_SUPPORTED("F001", HttpStatus.BAD_REQUEST, "지원하지 않는 파일 타입입니다."),
 
-            ;
+    ;
 
     private final String code;
     private final HttpStatus httpStatus;

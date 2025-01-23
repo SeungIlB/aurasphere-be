@@ -36,6 +36,9 @@ public class Post extends BaseEntity {
     @Column
     private Long likeCnt;
 
+    @Column
+    private Long viewCnt;
+
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     Set<Like> likes = new HashSet<>();
 
@@ -49,14 +52,18 @@ public class Post extends BaseEntity {
     public Post(
             User user,
             String content,
-            Long likeCnt
+            Long likeCnt,
+            Long viewCnt
     ) {
         this.user = user;
         this.content = content;
         this.likeCnt = likeCnt;
+        this.viewCnt = viewCnt;
     }
 
     public void updatePost(String content) { this.content = content; }
+
+    public void viewCntUp(){ this.viewCnt++; }
 
     public void addLike() { this.likeCnt++; }
 
