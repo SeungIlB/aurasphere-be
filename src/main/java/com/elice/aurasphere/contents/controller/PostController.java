@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -105,10 +107,13 @@ public class PostController {
     @GetMapping("/posts/{postId}")
     public ApiResponseDto<PostResDTO> readPostByPostId(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PathVariable("postId") Long postId
+            @PathVariable("postId") Long postId,
+            HttpServletRequest request,
+            HttpServletResponse response
     ){
 
         PostResDTO postResDTO = postService.getPost(userDetails.getUsername(), postId);
+        postService.incrementViewCnt(userDetails.getUsername(), postId, request, response);
 
         return ApiResponseDto.from(postResDTO);
     }
