@@ -88,6 +88,8 @@ deploy:
     - |
       ssh -i "$SSH_PRIVATE_KEY" $REMOTE_USER@$REMOTE_HOST <<EOF
       cd ~/aurasphere-backend/
+      mkdir -p src/main/resources
+      echo "$APPLICATION_PROPERTIES" > src/main/resources/application-prod.properties
       echo "1. Docker Compose 서비스 중지 중..."
       docker-compose down
       echo "2. Docker Compose 이미지 업데이트 중..."
