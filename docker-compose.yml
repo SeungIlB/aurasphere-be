@@ -1,0 +1,56 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3307:3306"
+    networks:
+      - app-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      retries: 5
+      timeout: 20s
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: aurasphere-backend_server:latest
+    environment:
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID}
+      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET}
+      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
+      KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,4 +1,4 @@
-package com.elice.aurasphere.config.authentication;
+package com.elice.aurasphere.global.authentication;
 
 import com.elice.aurasphere.global.common.ApiRes;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +16,7 @@ import java.io.IOException;
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
-        AuthenticationException authException) throws IOException, ServletException {
+        AuthenticationException authException) throws IOException {
 
         String errorMessage;
 

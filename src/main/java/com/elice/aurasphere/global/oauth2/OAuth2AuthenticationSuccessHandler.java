@@ -1,10 +1,9 @@
-package com.elice.aurasphere.config.oauth2;
+package com.elice.aurasphere.global.oauth2;
 
-import com.elice.aurasphere.config.utils.CookieUtil;
-import com.elice.aurasphere.config.authentication.JwtTokenProvider;
-import com.elice.aurasphere.user.dto.ErrorResponse;
+import com.elice.aurasphere.global.utils.CookieUtil;
+import com.elice.aurasphere.global.authentication.JwtTokenProvider;
+import com.elice.aurasphere.user.dto.ErrorResponseDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
@@ -15,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.io.IOException;
 import java.util.List;
@@ -31,20 +31,22 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-        Authentication authentication) throws IOException, ServletException {
+        Authentication authentication) throws IOException {
         try {
-            OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-            String email = extractEmail(oAuth2User);
-            String provider = extractProvider(request.getRequestURI());
+            OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
+            String email;
 
-            // 이메일 미동의 사용자 처리
-            if (email == null) {
-                email = generateTempEmail(provider, oAuth2User);
-                log.info("Generated temporary email for user without email consent: {}", email);
+            if (oauthUser.getAttribute("kakao_account") != null) {
+                Map<String, Object> kakaoAccount = oauthUser.getAttribute("kakao_account");
+                email = (String) kakaoAccount.get("email");
+            } else {
+                Map<String, Object> naverResponse = oauthUser.getAttribute("response");
+                email = (String) naverResponse.get("email");
             }
 
+
             List<String> roles = authentication.getAuthorities().stream()
-                .map(authority -> authority.getAuthority())
+                .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
             String accessToken = tokenProvider.createAccessToken(email, roles);
@@ -110,7 +112,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        ErrorResponse errorResponse = new ErrorResponse(
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
             errorMessage,
             "AUTH_FAILURE"
         );

@@ -52,7 +52,8 @@ public enum ErrorCode {
 
     FILE_TYPE_NOT_SUPPORTED("F001", HttpStatus.BAD_REQUEST, "지원하지 않는 파일 타입입니다."),
 
-    IMAGE_NOT_FOUND("I001", HttpStatus.NOT_FOUND, "Key에 해당하는 이미지를 찾을 수 없습니다.")
+    // 팔로우 관련 에러
+    CANNOT_FOLLOW_YOURSELF("F001", HttpStatus.BAD_REQUEST, "자기 자신을 팔로우할 수 없습니다.")
 
             ;
 

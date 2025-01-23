@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 
 @Getter
 @NoArgsConstructor
-public class VerificationRequest {
+public class VerificationRequestDTO {
     @NotBlank(message = "인증 코드는 필수 입력사항입니다")
     @Size(min = 6, max = 6, message = "인증 코드는 6자리여야 합니다")
     private String code;

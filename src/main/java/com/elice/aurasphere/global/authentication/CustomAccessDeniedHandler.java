@@ -1,4 +1,4 @@
-package com.elice.aurasphere.config.authentication;
+package com.elice.aurasphere.global.authentication;
 
 
 import com.elice.aurasphere.global.common.ApiRes;

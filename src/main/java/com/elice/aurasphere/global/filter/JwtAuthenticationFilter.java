@@ -1,9 +1,9 @@
-package com.elice.aurasphere.config.filter;
+package com.elice.aurasphere.global.filter;
 
-import com.elice.aurasphere.config.utils.CookieUtil;
-import com.elice.aurasphere.config.authentication.JwtTokenProvider;
+import com.elice.aurasphere.global.utils.CookieUtil;
+import com.elice.aurasphere.global.authentication.JwtTokenProvider;
 import com.elice.aurasphere.global.common.ApiRes;
-import com.elice.aurasphere.user.dto.TokenInfo;
+import com.elice.aurasphere.user.dto.TokenInfoDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
@@ -90,7 +90,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         try {
-            TokenInfo tokenInfo = jwtTokenProvider.reIssueAccessToken(refreshToken);
+            TokenInfoDTO tokenInfo = jwtTokenProvider.reIssueAccessToken(refreshToken);
 
             cookieUtil.addAccessTokenCookie(response, tokenInfo.getAccessToken(),
                 jwtTokenProvider.REFRESH_TOKEN_VALIDITY);
@@ -128,7 +128,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             path.startsWith("/swagger-ui") ||
             path.startsWith("/v3/api-docs") ||
             path.startsWith("/swagger-ui.html");
-
     }
 
     private void setErrorResponse(HttpServletResponse response, HttpStatus status, String message)
