@@ -28,7 +28,7 @@ public class PostResDTO {
     private Long commentCnt;
 
     @Schema(description = "컨텐츠의 url")
-    private List<String> imgUrls;
+    private List<FileDTO> urls;
 
     @Schema(description = "게시글 최초 작성 시간")
     private LocalDateTime createdAt;
@@ -44,7 +44,7 @@ public class PostResDTO {
             Long likeCnt,
             boolean isLiked,
             Long commentCnt,
-            List<String> imgUrls,
+            List<FileDTO> urls,
             LocalDateTime createdAt,
             LocalDateTime updatedAt) {
 
@@ -53,7 +53,7 @@ public class PostResDTO {
         this.likeCnt = likeCnt;
         this.isLiked = isLiked;
         this.commentCnt = commentCnt;
-        this.imgUrls = imgUrls;
+        this.urls = urls;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }

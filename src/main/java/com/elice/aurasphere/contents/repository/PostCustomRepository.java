@@ -8,6 +8,10 @@ import java.util.List;
 
 public interface PostCustomRepository {
 
+    public List<Post> findAllPostsByAsc(Long userId, int size, Long cursor);
+
     List<Post> findMyPosts(Long userId, int size, Long cursor);
+
+    List<Post> findPostsByLikes(Long userId, int size, Long cursor);
 
 }

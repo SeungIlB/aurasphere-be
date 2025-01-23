@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "image")
+@Table(name = "file")
 @Entity
-public class Image extends BaseEntity {
+public class File extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,15 +23,26 @@ public class Image extends BaseEntity {
     private Post post;
 
     @Lob
-    @JoinColumn(name = "img_url", nullable = false)
-    private String imgUrl;
+    @JoinColumn(name = "url", nullable = false)
+    private String url;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private FileType fileType;
+
+    public enum FileType {
+        IMAGE,
+        VIDEO
+    }
+
 
 
     @Builder
-    public Image(Long id, Post post, String imgUrl){
+    public File(Long id, Post post, String url, FileType fileType){
         this.id = id;
         this.post = post;
-        this.imgUrl = imgUrl;
+        this.url = url;
+        this.fileType = fileType;
     }
 
 }
