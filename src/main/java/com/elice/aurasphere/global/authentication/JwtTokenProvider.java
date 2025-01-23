@@ -1,7 +1,7 @@
-package com.elice.aurasphere.config.authentication;
+package com.elice.aurasphere.global.authentication;
 
 import com.elice.aurasphere.user.service.CustomUserDetailsService;
-import com.elice.aurasphere.user.dto.TokenInfo;
+import com.elice.aurasphere.user.dto.TokenInfoDTO;
 import com.elice.aurasphere.user.entity.RefreshToken;
 import com.elice.aurasphere.user.repository.RefreshTokenRepository;
 import io.jsonwebtoken.*;
@@ -115,7 +115,7 @@ public class JwtTokenProvider {
     }
 
     //토큰 재발급
-    public TokenInfo reIssueAccessToken(String refreshToken) {
+    public TokenInfoDTO reIssueAccessToken(String refreshToken) {
         if (!validateToken(refreshToken)) {
             throw new RuntimeException("Invalid refresh token");
         }
@@ -130,7 +130,7 @@ public class JwtTokenProvider {
         String newAccessToken = createAccessToken(userEmail, role);
         String newRefreshToken = createRefreshToken(userEmail);
 
-        return new TokenInfo(
+        return new TokenInfoDTO(
             "Bearer",
             newAccessToken,
             newRefreshToken,

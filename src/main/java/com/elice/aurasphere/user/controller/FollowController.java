@@ -2,7 +2,7 @@ package com.elice.aurasphere.user.controller;
 
 import com.elice.aurasphere.user.entity.CustomUserDetails;
 import com.elice.aurasphere.global.common.ApiResponseDto;
-import com.elice.aurasphere.user.dto.FollowUserResponse;
+import com.elice.aurasphere.user.dto.FollowUserResponseDTO;
 import com.elice.aurasphere.user.service.FollowService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -70,19 +70,22 @@ public class FollowController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "S000", description = "팔로워 목록 조회 성공")
     })
-    @GetMapping("/{userId}/followers")
-    public ApiResponseDto<List<FollowUserResponse>> getFollowers(@PathVariable Long userId) {
-        List<FollowUserResponse> followers = followService.getFollowers(userId);
+    @GetMapping("/me/followers")
+    public ApiResponseDto<List<FollowUserResponseDTO>> getMyFollowers(
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<FollowUserResponseDTO> followers = followService.getFollowers(userDetails.getId());
         return ApiResponseDto.from(followers);
     }
+
 
     @Operation(summary = "팔로잉 목록 조회 API", description = "특정 사용자의 팔로잉 목록을 조회하는 API입니다.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "S000", description = "팔로잉 목록 조회 성공")
     })
-    @GetMapping("/{userId}/following")
-    public ApiResponseDto<List<FollowUserResponse>> getFollowing(@PathVariable Long userId) {
-        List<FollowUserResponse> following = followService.getFollowing(userId);
+    @GetMapping("/me/following")
+    public ApiResponseDto<List<FollowUserResponseDTO>> getMyFollowing(
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<FollowUserResponseDTO> following = followService.getFollowing(userDetails.getId());
         return ApiResponseDto.from(following);
     }
 
@@ -90,11 +93,12 @@ public class FollowController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "S000", description = "팔로우 수 조회 성공")
     })
-    @GetMapping("/{userId}/follow/count")
-    public ApiResponseDto<Map<String, Long>> getFollowCount(@PathVariable Long userId) {
+    @GetMapping("/me/follow/count")
+    public ApiResponseDto<Map<String, Long>> getMyFollowCount(
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
         Map<String, Long> counts = new HashMap<>();
-        counts.put("followerCount", followService.getFollowerCount(userId));
-        counts.put("followingCount", followService.getFollowingCount(userId));
+        counts.put("followerCount", followService.getFollowerCount(userDetails.getId()));
+        counts.put("followingCount", followService.getFollowingCount(userDetails.getId()));
         return ApiResponseDto.from(counts);
     }
 }

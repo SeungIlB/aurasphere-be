@@ -1,4 +1,4 @@
-package com.elice.aurasphere.config.oauth2;
+package com.elice.aurasphere.global.oauth2;
 
 import java.util.Map;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;

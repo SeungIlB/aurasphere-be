@@ -1,6 +1,6 @@
-package com.elice.aurasphere.config.filter;
+package com.elice.aurasphere.global.filter;
 
-import com.elice.aurasphere.user.dto.ErrorResponse;
+import com.elice.aurasphere.user.dto.ErrorResponseDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -26,7 +26,7 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json;charset=UTF-8");
 
-        ErrorResponse errorResponse = new ErrorResponse(e.getMessage(), "JWT_ERROR");
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(e.getMessage(), "JWT_ERROR");
         new ObjectMapper().writeValue(response.getOutputStream(), errorResponse);
     }
 }

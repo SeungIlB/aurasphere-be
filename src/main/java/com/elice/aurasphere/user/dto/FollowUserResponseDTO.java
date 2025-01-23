@@ -8,7 +8,7 @@ import lombok.Getter;
 @Schema(description = "팔로워/팔로잉 정보 응답 DTO")
 @Getter
 @Builder
-public class FollowUserResponse {
+public class FollowUserResponseDTO {
     @Schema(description = "사용자 ID")
     private Long userId;
 
@@ -21,8 +21,8 @@ public class FollowUserResponse {
     @Schema(description = "프로필 이미지 URL")
     private String profileUrl;
 
-    public static FollowUserResponse from(User user) {
-        return FollowUserResponse.builder()
+    public static FollowUserResponseDTO from(User user) {
+        return FollowUserResponseDTO.builder()
             .userId(user.getId())
             .email(user.getEmail())
             .nickname(user.getProfile() != null ? user.getProfile().getNickname() : null)

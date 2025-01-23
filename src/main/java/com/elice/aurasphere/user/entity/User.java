@@ -53,23 +53,7 @@ public class User extends BaseEntity {
         profile.initUser(this);  // Profile 쪽에도 연관관계 설정
     }
 
-    // 팔로워 추가
-    public void addFollower(Follow follow) {
-        this.followers.add(follow);
-    }
-
-    // 팔로워 제거
-    public void removeFollower(Follow follow) {
-        this.followers.remove(follow);
-    }
-
-    // 팔로잉 추가
-    public void addFollowing(Follow follow) {
-        this.following.add(follow);
-    }
-
-    // 팔로잉 제거
-    public void removeFollowing(Follow follow) {
-        this.following.remove(follow);
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
     }
 }

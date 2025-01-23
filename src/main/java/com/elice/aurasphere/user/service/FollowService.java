@@ -2,7 +2,7 @@ package com.elice.aurasphere.user.service;
 
 import com.elice.aurasphere.global.exception.CustomException;
 import com.elice.aurasphere.global.exception.ErrorCode;
-import com.elice.aurasphere.user.dto.FollowUserResponse;
+import com.elice.aurasphere.user.dto.FollowUserResponseDTO;
 import com.elice.aurasphere.user.entity.Follow;
 import com.elice.aurasphere.user.entity.User;
 import com.elice.aurasphere.user.repository.FollowRepository;
@@ -94,22 +94,22 @@ public class FollowService {
     }
 
     @Transactional(readOnly = true)
-    public List<FollowUserResponse> getFollowers(Long userId) {
+    public List<FollowUserResponseDTO> getFollowers(Long userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         return user.getFollowers().stream()
-            .map(follow -> FollowUserResponse.from(follow.getFollower()))
+            .map(follow -> FollowUserResponseDTO.from(follow.getFollower()))
             .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<FollowUserResponse> getFollowing(Long userId) {
+    public List<FollowUserResponseDTO> getFollowing(Long userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         return user.getFollowing().stream()
-            .map(follow -> FollowUserResponse.from(follow.getFollowing()))
+            .map(follow -> FollowUserResponseDTO.from(follow.getFollowing()))
             .collect(Collectors.toList());
     }
 }

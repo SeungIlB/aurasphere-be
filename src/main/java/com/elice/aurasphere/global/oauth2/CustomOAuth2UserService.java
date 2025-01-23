@@ -1,4 +1,4 @@
-package com.elice.aurasphere.config.oauth2;
+package com.elice.aurasphere.global.oauth2;
 
 import com.elice.aurasphere.user.entity.Profile;
 import com.elice.aurasphere.user.entity.User;
@@ -30,32 +30,32 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oauth2User = super.loadUser(userRequest);
+        String provider = userRequest.getClientRegistration().getRegistrationId();
 
         try {
-            return processOAuth2User(userRequest, oauth2User);
+            return processOAuth2User(userRequest, oauth2User.getAttributes());
         } catch (Exception ex) {
             throw new InternalAuthenticationServiceException(ex.getMessage(), ex.getCause());
         }
     }
 
-    private OAuth2User processOAuth2User(OAuth2UserRequest userRequest, OAuth2User oauth2User) {
+    private OAuth2User processOAuth2User(OAuth2UserRequest userRequest, Map<String, Object> attributes) {
         String provider = userRequest.getClientRegistration().getRegistrationId();
-        OAuth2UserInfo oauth2UserInfo = getOAuth2UserInfo(provider, oauth2User.getAttributes());
+        OAuth2UserInfo oauth2UserInfo = getOAuth2UserInfo(provider, attributes);
 
-        Optional<User> userOptional = userRepository.findByEmail(oauth2UserInfo.getEmail());
-        User user;
-
-        if (userOptional.isPresent()) {
-            user = userOptional.get();
-            updateExistingUser(user, oauth2UserInfo);
-        } else {
-            user = registerNewUser(userRequest, oauth2UserInfo);
+        String email = oauth2UserInfo.getEmail();
+        if (email == null) {
+            throw new OAuth2AuthenticationException("Email not found from OAuth2 provider");
         }
+
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        User user = userOptional.map(existingUser -> updateExistingUser(existingUser, oauth2UserInfo))
+            .orElseGet(() -> registerNewUser(oauth2UserInfo));
 
         return new DefaultOAuth2User(
             Collections.singleton(new SimpleGrantedAuthority(user.getRole())),
-            oauth2User.getAttributes(),
-            "email"  // 또는 provider별 nameAttributeKey 설정
+            attributes,
+            provider.equals("naver") ? "response" : "id"
         );
     }
 
@@ -68,7 +68,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         throw new OAuth2AuthenticationException("Unsupported provider: " + provider);
     }
 
-    private User registerNewUser(OAuth2UserRequest userRequest, OAuth2UserInfo oauth2UserInfo) {
+    private User registerNewUser(OAuth2UserInfo oauth2UserInfo) {
         // 이메일이 없는 경우 처리
         String email = oauth2UserInfo.getEmail();
         if (email == null) {
@@ -81,20 +81,19 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             .password("")
             .build();
 
-        user = userRepository.save(user);
-
         Profile profile = Profile.builder()
             .nickname(oauth2UserInfo.getNickname())
             .profileUrl(oauth2UserInfo.getImageUrl())
             .build();
 
         user.addProfile(profile);
+        userRepository.save(user);
         profileRepository.save(profile);
 
         return user;
     }
 
-    private void updateExistingUser(User user, OAuth2UserInfo oauth2UserInfo) {
+    private User updateExistingUser(User user, OAuth2UserInfo oauth2UserInfo) {
         Profile profile = user.getProfile();
         if (profile != null) {
             String currentNickname = profile.getNickname();
@@ -125,5 +124,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user.addProfile(newProfile);
             profileRepository.save(newProfile);
         }
+        return user;
     }
 }

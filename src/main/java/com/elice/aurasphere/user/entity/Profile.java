@@ -34,7 +34,7 @@ public class Profile extends BaseEntity {
     @Column(nullable = false)
     private String nickname;
 
-    @Column(name = "profile_url", nullable = false)
+    @Column(name = "profile_url", nullable = false, length = 500)
     private String profileUrl;
 
     @Column(name = "profile_url_expiry_date")

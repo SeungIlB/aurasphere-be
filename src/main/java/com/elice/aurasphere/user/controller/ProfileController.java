@@ -2,8 +2,8 @@ package com.elice.aurasphere.user.controller;
 
 import com.elice.aurasphere.global.exception.ErrorResponseDto;
 import com.elice.aurasphere.user.entity.CustomUserDetails;
-import com.elice.aurasphere.user.dto.ProfileResponse;
-import com.elice.aurasphere.user.dto.ProfileRequest;
+import com.elice.aurasphere.user.dto.ProfileResponseDTO;
+import com.elice.aurasphere.user.dto.ProfileRequestDTO;
 import com.elice.aurasphere.user.service.ProfileService;
 import com.elice.aurasphere.global.common.ApiRes;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,11 +38,11 @@ public class ProfileController {
             content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
     @GetMapping
-    public ResponseEntity<ApiRes<ProfileResponse>> getProfile(
+    public ResponseEntity<ApiRes<ProfileResponseDTO>> getProfile(
         @Parameter(hidden = true)
         @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        ProfileResponse response = profileService.getProfile(userDetails.getId());
+        ProfileResponseDTO response = profileService.getProfile(userDetails.getId());
         return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, response));
     }
 
@@ -58,16 +58,16 @@ public class ProfileController {
             content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
     @PutMapping
-    public ResponseEntity<ApiRes<ProfileResponse>> updateProfile(
+    public ResponseEntity<ApiRes<ProfileResponseDTO>> updateProfile(
         @Parameter(hidden = true)
         @AuthenticationPrincipal CustomUserDetails userDetails,
-        @Valid @RequestBody ProfileRequest request
+        @Valid @RequestBody ProfileRequestDTO request
     ) {
         log.info("프로필 수정 요청 - 사용자 ID: {}, 이미지 키: {}, 닉네임: {}",
             userDetails.getId(),
             request.getImageKey(),
             request.getNickname());
-        ProfileResponse response = profileService.updateProfile(userDetails.getId(), request);
+        ProfileResponseDTO response = profileService.updateProfile(userDetails.getId(), request);
         return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, response));
     }
 }
