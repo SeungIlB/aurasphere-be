@@ -12,6 +12,9 @@ import com.elice.aurasphere.global.exception.ErrorCode;
 import com.elice.aurasphere.global.s3.service.S3Service;
 import com.elice.aurasphere.user.entity.User;
 import com.elice.aurasphere.user.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,6 +54,55 @@ public class PostService {
         this.mapper = mapper;
 
     }
+
+    public void incrementViewCnt(String username, Long postId, HttpServletRequest request, HttpServletResponse response){
+
+        Cookie oldCookie = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("postView")) {
+                    oldCookie = cookie;
+                }
+            }
+        }
+
+        if (oldCookie != null) {
+            if (!oldCookie.getValue().contains("[" + postId + "]")) {
+                viewCountUp(postId);
+                oldCookie.setValue(oldCookie.getValue() + "_[" + postId + "]");
+                oldCookie.setPath("/");
+                oldCookie.setMaxAge(60 * 60 * 24);
+                response.addCookie(oldCookie);
+            }
+        } else {
+            viewCountUp(postId);
+            Cookie newCookie = new Cookie("postView","[" + postId + "]");
+            newCookie.setPath("/");
+            newCookie.setMaxAge(60 * 60 * 24);
+            response.addCookie(newCookie);
+        }
+    }
+
+    public void viewCountUp(Long postId){
+
+        //Post를 찾을 수 없는 경우
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        postRepository.findById(postId)
+                .map(existingPost -> {
+
+                    existingPost.viewCntUp();
+
+                    Post updatedPost = postRepository.save(existingPost);
+
+                    return mapper.postToPostResDto(updatedPost);
+                })
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_UPDATE_FAILED));
+
+    }
+
 
     public PostListResDTO getFilteredPosts(String username, int size, Long cursor, String filter){
 
@@ -186,6 +238,7 @@ public class PostService {
                         .user(user)
                         .content(content)
                         .likeCnt(0L)
+                        .viewCnt(0L)
                         .build()
         );
 
@@ -233,6 +286,7 @@ public class PostService {
                 .id(registeredPost.getId())
                 .content(registeredPost.getContent())
                 .likeCnt(registeredPost.getLikeCnt())
+                .viewCnt(registeredPost.getViewCnt())
                 .commentCnt(0L)
                 .urls(urls)
                 .createdAt(registeredPost.getCreatedAt())
