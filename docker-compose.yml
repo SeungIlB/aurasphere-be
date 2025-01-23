@@ -3,19 +3,19 @@ version: '3.8'
 services:
   mysql:
     image: mysql:8.0
+    container_name: aurasphere-backend-mysql
     environment:
-      DATASOURCE_URL: ${DATASOURCE_URL}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: aurasphere
+      MYSQL_USER: elice-user
+      MYSQL_PASSWORD: Qwer1234!@
     ports:
       - "3307:3306"
     networks:
       - app-network
     restart: always
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${DB_USERNAME}", "-p${DB_PASSWORD}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "elice-user", "-pQwer1234!@"]
       interval: 10s
       retries: 5
       timeout: 5s
@@ -24,20 +24,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: aurasphere-backend_server:latest
+    image: aurasphere-backend-server:latest
+    container_name: aurasphere-backend-server
     environment:
-      DATASOURCE_URL: ${DATASOURCE_URL}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID}
-      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET}
-      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
-      KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
-      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
-      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
-      JWT_SECRET: ${JWT_SECRET}
-      MAIL_USERNAME: ${MAIL_USERNAME}
-      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      SPRING_PROFILES_ACTIVE: prod
+      DATASOURCE_URL: jdbc:mysql://aurasphere-backend-mysql:3306/aurasphere
+      DB_USERNAME: elice-user
+      DB_PASSWORD: Qwer1234!@
     ports:
       - "8080:8080"
     depends_on:
@@ -54,6 +47,7 @@ services:
 
   nginx:
     image: nginx:latest
+    container_name: aurasphere-backend-nginx
     ports:
       - "80:80"
     depends_on:
