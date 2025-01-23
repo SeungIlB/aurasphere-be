@@ -8,8 +8,11 @@ build: # JOB 이름
   stage: build
   script:
     - echo [INFO] spring-boot project build
-    - echo "$DOTENV_FILE" > .env
     - cd $CI_PROJECT_DIR # GitLab에서 자동으로 제공하는 프로젝트 디렉토리로 이동
+    # application-prod.properties 파일 생성
+    - mkdir -p src/main/resources
+    - echo "$APPLICATION_PROPERTIES" > src/main/resources/application-prod.properties
+    - cat src/main/resources/application-prod.properties # 생성된 파일 확인
     - chmod +x gradlew
     - ./gradlew clean
     - ./gradlew bootjar
