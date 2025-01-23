@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 
 services:
   mysql:
@@ -15,10 +15,10 @@ services:
       - app-network
     restart: always
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 30s
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${DB_USERNAME}", "-p${DB_PASSWORD}"]
+      interval: 10s
       retries: 5
-      timeout: 20s
+      timeout: 5s
 
   server:
     build:
@@ -41,18 +41,32 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     networks:
       - app-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      retries: 3
+      timeout: 5s
 
   nginx:
     image: nginx:latest
     ports:
       - "80:80"
     depends_on:
-      - server
+      server:
+        condition: service_healthy
     networks:
       - app-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 10s
+      retries: 3
+      timeout: 5s
 
 networks:
   app-network:
