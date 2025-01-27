@@ -1,6 +1,6 @@
 stages:
   - test
-  - deploy
+#  - deploy
 
 build_job:
   stage: test
@@ -8,22 +8,17 @@ build_job:
     - test  # test 태그가 설정된 Runner를 사용
   script:
     - echo "Building and testing application..."
-    - chmod +x gradlew
-    - ./gradlew -x test clean build
-    - cd build/libs
-    - java -jar -Dspring.config.activate.on-profile=prod aurasphere-0.0.1-SNAPSHOT.jar
     - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD" https://index.docker.io/v1/
-    - docker build -t aurasphere-backend-server:latest .
-    - docker tag aurasphere-backend-server:latest seungilbaek/aurasphere-server:latest
-    - docker push seungilbaek/aurasphere-server:latest
-    - echo "Build and test completed successfully."
+    - docker build -t "$DOCKER_USERNAME"/aurasphere-server:latest .
+    - docker push "$DOCKER_USERNAME"/aurasphere-server:latest
+    - echo "Build and push completed successfully."
 
-deploy_job:
-  stage: deploy
-  tags:
-    - deploy  # deploy 태그가 설정된 Runner를 사용
-  script:
-    - echo "Deploying application..."
-    - docker-compose down
-    - docker-compose pull
-    - docker-compose up -d
+#deploy_job:
+#  stage: deploy
+#  tags:
+#    - deploy  # deploy 태그가 설정된 Runner를 사용
+#  script:
+#    - echo "Deploying application..."
+#    - docker-compose down
+#    - docker-compose pull
+#    - docker-compose up -d
