@@ -1,6 +1,7 @@
 FROM eclipse-temurin:17-jdk-alpine
 
-RUN apt-get update && apt-get install -y mysql-client
+# MySQL client 설치 (apk 사용)
+RUN apk update && apk add --no-cache mysql-client
 
 WORKDIR /app
 
