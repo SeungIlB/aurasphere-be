@@ -11,8 +11,6 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "3307:3306"
-    networks:
-      - app-network
     restart: always
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
@@ -44,8 +42,6 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    networks:
-      - app-network
     restart: always
     entrypoint: >
       sh -c '
@@ -67,13 +63,8 @@ services:
     container_name: aurasphere-backend-nginx
     ports:
       - "80:80"
-    networks:
-      - app-network
     restart: always
     depends_on:
       server:
         condition: service_healthy
 
-networks:
-  app-network:
-    driver: bridge
