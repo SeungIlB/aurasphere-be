@@ -1,9 +1,20 @@
 stages:
   - test
-#  - deploy
+  - prebuild
+prebuild:
+  stage: prebuild
+  tags:
+    - test
+  script:
+    - chmod +x ./gradlew
+    - ./gradlew clean
+    - ./gradlew build -x test
+  artifacts:
+    paths:
+      - build/libs/*.jar
 
 build_job:
-  stage: test
+  stage: deploy
   tags:
     - test  # test 태그가 설정된 Runner를 사용
   script:
@@ -12,6 +23,8 @@ build_job:
     - docker build -t "$DOCKER_USERNAME"/aurasphere-server:latest .
     - docker push "$DOCKER_USERNAME"/aurasphere-server:latest
     - echo "Build and push completed successfully."
+
+
 
 #deploy_job:
 #  stage: deploy

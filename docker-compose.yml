@@ -29,7 +29,7 @@ services:
     image: aurasphere-backend-server:latest
     container_name: aurasphere-backend-server
     env_file:
-      - .env
+      - src/main/resources/.env
     ports:
       - "8080:8080"
     depends_on:
