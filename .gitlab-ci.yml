@@ -1,6 +1,6 @@
 stages:
-  - test
   - prebuild
+  - build
 
 prebuild:
   stage: prebuild
@@ -15,7 +15,7 @@ prebuild:
       - build/libs/*.jar
 
 build_job:
-  stage: deploy
+  stage: build
   tags:
     - test  # test 태그가 설정된 Runner를 사용
   script:
