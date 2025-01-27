@@ -15,7 +15,7 @@ prebuild:
   artifacts:
     paths:
       - build/libs/*.jar
-      - .env
+      - ./.env
 
 build_job:
   stage: build
@@ -29,7 +29,7 @@ build_job:
     - echo "Build and push completed successfully."
   artifacts:
   paths:
-    - .env
+    - ./.env
 
 deploy_job:
   stage: deploy
