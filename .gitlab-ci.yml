@@ -8,7 +8,7 @@ prebuild:
   tags:
     - test
   script:
-    - cp $ENV_FILE .env && chmod +x .env ./gradlew
+    - cp "$ENV_FILE" .env && chmod +x .env ./gradlew
     - ./gradlew clean
     - ./gradlew build -x test
   artifacts:
@@ -32,6 +32,6 @@ deploy_job:
     - deploy
   script:
     - echo "Deploying application..."
-    - docker compose --env-file $ENV_FILE down
-    - docker compose --env-file $ENV_FILE pull
-    - docker compose --env-file $ENV_FILE up -d
+    - docker compose --env-file "$ENV_FILE" down
+    - docker compose --env-file "$ENV_FILE" pull
+    - docker compose --env-file "$ENV_FILE" up -d
