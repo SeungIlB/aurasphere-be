@@ -3,26 +3,13 @@ services:
     image: mysql:8.0
     container_name: aurasphere-backend-mysql
     env_file:
-      - .env  # .env 파일 경로 수정
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    ports:
-      - "3307:3306"
-    restart: always
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
-      interval: 10s
-      retries: 10
-      timeout: 5s
+      - .env  # 프로젝트 루트에 .env 파일이 있을 경우
 
   server:
     image: seungilbaek/aurasphere-server:latest
     container_name: aurasphere-backend-server
     env_file:
-      - .env
+      - .env  # 프로젝트 루트에 .env 파일이 있을 경우
     ports:
       - "8081:8080"
     environment:
@@ -39,12 +26,4 @@ services:
       AWS_SECRET_KEY: ${AWS_SECRET_KEY}
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
-    depends_on:
-      mysql:
-        condition: service_healthy
     restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 10s
-      retries: 3
-      timeout: 5s
