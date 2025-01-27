@@ -3,19 +3,22 @@ stages:
   - build
   - deploy
 
+variables:
+  ENV_COPY_PATH: src/main/resources/.env
+
 prebuild:
   stage: prebuild
   tags:
     - test
   script:
-    - cp ${ENV_FILE} .env
-    - sudo chmod +x .env ./gradlew
+    - cp ${ENV_FILE} ${ENV_COPY_PATH}
+    - sudo chmod +x ./gradlew
     - ./gradlew clean
     - ./gradlew build -x test
   artifacts:
     paths:
       - build/libs/*.jar
-      - ./.env
+      - ${ENV_COPY_PATH}
 
 build_job:
   stage: build
@@ -29,7 +32,7 @@ build_job:
     - echo "Build and push completed successfully."
   artifacts:
     paths:
-        - ./.env
+      - ${ENV_COPY_PATH}
 
 deploy_job:
   stage: deploy
@@ -38,6 +41,6 @@ deploy_job:
   script:
     - echo "Deploying application..."
     - echo "envfile ${ENV_FILE}"
-    - docker compose --env-file .env down
-    - docker compose --env-file .env pull
-    - docker compose --env-file .env up -d
+    - docker compose --env-file ${ENV_COPY_PATH} down
+    - docker compose --env-file ${ENV_COPY_PATH} pull
+    - docker compose --env-file ${ENV_COPY_PATH} up -d
