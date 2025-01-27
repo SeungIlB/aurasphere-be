@@ -1,5 +1,5 @@
 stages:
-  - build
+  - test
   - deploy
 
 variables:
@@ -16,7 +16,7 @@ build_job:
     # Docker 이미지 푸시
     - docker push $IMAGE_NAME:$IMAGE_TAG
   tags:
-    - build
+    - test
 
 deploy_job:
   stage: deploy
