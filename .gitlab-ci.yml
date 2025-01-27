@@ -10,7 +10,7 @@ build_job:
     - echo "Building and testing application..."
     - chmod +x gradlew
     - ./gradlew -x test clean build
-    - cd bin/libs
+    - cd build/libs
     - java -jar -Dspring.profiles=prod aurasphere-0.0.1-SNAPSHOT.jar
     - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD" https://index.docker.io/v1/
     - docker build -t aurasphere-backend-server:latest .
