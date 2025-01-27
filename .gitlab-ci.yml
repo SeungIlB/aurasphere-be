@@ -4,6 +4,8 @@ stages:
 
 test_job:
   stage: test
+  tags:
+    - test  # test 태그가 설정된 Runner를 사용
   script:
     - echo "Building and testing application..."
     - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
@@ -14,6 +16,8 @@ test_job:
 
 deploy_job:
   stage: deploy
+  tags:
+    - deploy  # deploy 태그가 설정된 Runner를 사용
   script:
     - echo "Deploying application..."
     - docker-compose down
