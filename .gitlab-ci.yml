@@ -4,14 +4,14 @@ stages:
   - deploy
 
 variables:
-  ENV_COPY_PATH: src/main/resources/.env
+  ENV_COPY_PATH: .env
 
 prebuild:
   stage: prebuild
   tags:
     - test
   script:
-    - cp ${ENV_FILE} ${ENV_COPY_PATH}
+    - cat ${ENV_FILE} > ${ENV_COPY_PATH}
     - sudo chmod +x ./gradlew
     - ./gradlew clean
     - ./gradlew build -x test
