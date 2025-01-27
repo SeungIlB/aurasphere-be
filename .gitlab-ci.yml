@@ -8,7 +8,7 @@ prebuild:
   tags:
     - test
   script:
-    - base64 -d $ENV_FILE > .env
+    - ${ENV_FILE} > .env
     - chmod +x .env ./gradlew
     - ./gradlew clean
     - ./gradlew build -x test
