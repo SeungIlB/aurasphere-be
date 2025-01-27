@@ -23,10 +23,7 @@ services:
       timeout: 5s
 
   server:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: aurasphere-backend-server:latest
+    image: seungilbaek/aurasphere-server:latest
     container_name: aurasphere-backend-server
     env_file:
       - src/main/resources/.env

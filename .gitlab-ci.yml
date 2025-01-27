@@ -1,6 +1,7 @@
 stages:
   - prebuild
   - build
+  - deploy
 
 prebuild:
   stage: prebuild
@@ -27,12 +28,11 @@ build_job:
 
 
 
-#deploy_job:
-#  stage: deploy
-#  tags:
-#    - deploy  # deploy 태그가 설정된 Runner를 사용
-#  script:
-#    - echo "Deploying application..."
-#    - docker-compose down
-#    - docker-compose pull
-#    - docker-compose up -d
+deploy_job:
+  stage: deploy
+  tags:
+    - deploy  # deploy 태그가 설정된 Runner를 사용
+  script:
+    - echo "Deploying application..."
+    - docker-compose down
+    - docker-compose up -d
