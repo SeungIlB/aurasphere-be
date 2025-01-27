@@ -2,27 +2,20 @@ stages:
   - test
   - deploy
 
-variables:
-  IMAGE_NAME: "seungilbaek/aurasphere-server" # Docker Hub 이미지 이름
-  IMAGE_TAG: "latest" # 이미지 태그 (필요 시 다른 태그 사용 가능)
-
-build_job:
-  stage: build
+test_job:
+  stage: test
   script:
-    # Docker 로그인
-    - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
-    # Docker 이미지 빌드
-    - docker build -t $IMAGE_NAME:$IMAGE_TAG .
-    # Docker 이미지 푸시
-    - docker push $IMAGE_NAME:$IMAGE_TAG
-  tags:
-    - test
+    - echo "Building and testing application..."
+    - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+    - docker build -t aurasphere-backend-server:latest .
+    - docker tag aurasphere-backend-server:latest seungilbaek/aurasphere-server:latest
+    - docker push seungilbaek/aurasphere-server:latest
+    - echo "Build and test completed successfully."
 
 deploy_job:
   stage: deploy
   script:
-    - docker-compose down # 기존 컨테이너 종료
-    - docker-compose pull # 최신 이미지 가져오기
-    - docker-compose up -d # 새로운 컨테이너 배포
-  tags:
-    - build
+    - echo "Deploying application..."
+    - docker-compose down
+    - docker-compose pull
+    - docker-compose up -d
