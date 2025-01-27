@@ -26,7 +26,7 @@ services:
     image: seungilbaek/aurasphere-server:latest
     container_name: aurasphere-backend-server
     env_file:
-      - src/main/resources/.env
+      - .env
     ports:
       - "8080:8080"
     environment:
