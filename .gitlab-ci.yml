@@ -11,6 +11,8 @@ build: # JOB 이름
     - cd $CI_PROJECT_DIR # GitLab에서 자동으로 제공하는 프로젝트 디렉토리로 이동
     - mkdir -p src/main/resources
     - echo "$APPLICATION_PROPERTIES" > src/main/resources/application-prod.properties
+    - echo "Creating .env file from DOTENV_FILE..."
+    - echo "$DOTENV_FILE" > .env
     - chmod +x gradlew
     - ./gradlew clean
     - ./gradlew bootjar
@@ -88,6 +90,8 @@ deploy:
     - |
       ssh -i "$SSH_PRIVATE_KEY" $REMOTE_USER@$REMOTE_HOST <<EOF
       cd ~/aurasphere-backend/
+      echo "Creating .env file from DOTENV_FILE..."
+      echo "$DOTENV_FILE" > .env
       mkdir -p src/main/resources
       echo "$APPLICATION_PROPERTIES" > src/main/resources/application-prod.properties
       echo "1. Docker Compose 서비스 중지 중..."
