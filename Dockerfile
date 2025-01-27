@@ -1,8 +1,5 @@
 FROM eclipse-temurin:17-jdk-alpine
 
-# MySQL client 설치 (apk 사용)
-RUN apk update && apk add --no-cache mysql-client
-
 WORKDIR /app
 
 # 정확한 .jar 파일을 지정

@@ -1,114 +1,28 @@
 stages:
   - build
-  - package
   - deploy
 
-build: # JOB 이름
-  image: gradle:8.11.1-jdk17
+variables:
+  IMAGE_NAME: "seungilbaek/aurasphere-server" # Docker Hub 이미지 이름
+  IMAGE_TAG: "latest" # 이미지 태그 (필요 시 다른 태그 사용 가능)
+
+build_job:
   stage: build
   script:
-    - echo [INFO] spring-boot project build
-    - cd $CI_PROJECT_DIR # GitLab에서 자동으로 제공하는 프로젝트 디렉토리로 이동
-    - echo "Creating .env file from DOTENV_FILE..."
-    - echo "$DOTENV_FILE" > $CI_PROJECT_DIR/.env
-    - chmod 644 $CI_PROJECT_DIR/.env
-    - mkdir -p src/main/resources
-    - echo "$APPLICATION_PROPERTIES" > src/main/resources/application-prod.properties
-    - chmod +x gradlew
-    - ./gradlew clean
-    - ./gradlew bootjar
+    # Docker 로그인
+    - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
+    # Docker 이미지 빌드
+    - docker build -t $IMAGE_NAME:$IMAGE_TAG .
+    # Docker 이미지 푸시
+    - docker push $IMAGE_NAME:$IMAGE_TAG
   tags:
-    - build
-  artifacts:
-    paths:
-      - build/libs/*.jar
-      - .env
-    expire_in: 1 days
-  only:
-    - feature/notification
+    - shell
 
-package:
-  image: docker:latest
-  stage: package
-  services:
-    - name: docker:dind
-      command: ["--iptables=false", "--tls=false", "--host=tcp://0.0.0.0:2375", "--insecure-registry=0.0.0.0/0"]
-  variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-  before_script:
-    - |
-      for i in {1..3}; do
-        echo "$DOCKER_HUB_PW" | docker login --username "$DOCKER_HUB_NAME" --password-stdin && break || sleep 10
-      done
-    - if [ -z "$DOCKER_HUB_NAME" ] || [ -z "$DOCKER_HUB_PW" ]; then echo "Docker Hub credentials are missing"; exit 1; fi
-    - echo "$DOCKER_HUB_PW" | docker login --username "$DOCKER_HUB_NAME" --password-stdin
-    - echo "Docker Hub 로그인 성공"
-  script:
-    - docker-compose up -d
-    - echo "docker-compose 실행 성공"
-    - IMAGE_ID=$(docker images -q aurasphere-backend_server:latest)
-    - >
-      if [ -z "$IMAGE_ID" ]; then
-        echo "Error: Image aurasphere-backend_server:latest not found";
-        exit 1;
-      fi
-    - docker tag aurasphere-backend_server:latest "$DOCKER_HUB_NAME/aurasphere-server:latest"
-    - docker push "$DOCKER_HUB_NAME/aurasphere-server:latest"
-    - echo "이미지 푸시 성공"
-  after_script:
-    - docker logout
-  only:
-    - feature/notification
-  tags:
-    - package
-
-deploy:
-  image: docker:latest
+deploy_job:
   stage: deploy
-  services:
-    - name: docker:dind
-      command: ["--host=tcp://0.0.0.0:2375", "--insecure-registry=0.0.0.0/0"]
-  variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-  tags:
-    - deploy
-  before_script:
-    - echo [INFO] docker deploy start!
-    - |
-      for i in {1..3}; do
-        echo "$DOCKER_HUB_PW" | docker login --username "$DOCKER_HUB_NAME" --password-stdin && break || sleep 10
-      done
-    - if [ -z "$DOCKER_HUB_NAME" ] || [ -z "$DOCKER_HUB_PW" ]; then echo "Docker Hub credentials are missing"; exit 1; fi
-    - echo "$DOCKER_HUB_PW" | docker login --username "$DOCKER_HUB_NAME" --password-stdin
-    - echo "Docker Hub 로그인 성공"
   script:
-    - echo "배포 서버로 SSH 연결하여 배포 시작"
-    - mkdir -p ~/.ssh
-    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-    - chmod 600 ~/.ssh/id_rsa
-    - ssh-keyscan -H $REMOTE_HOST >> ~/.ssh/known_hosts
-    - |
-      ssh -i "$SSH_PRIVATE_KEY" $REMOTE_USER@$REMOTE_HOST <<EOF
-      cd ~/aurasphere-backend/
-      echo "Creating .env file from DOTENV_FILE..."
-      echo "$DOTENV_FILE" > .env
-      mkdir -p src/main/resources
-      echo "$APPLICATION_PROPERTIES" > src/main/resources/application-prod.properties
-      echo "1. Docker Compose 서비스 중지 중..."
-      docker-compose down
-      echo "2. Docker Compose 이미지 업데이트 중..."
-      docker-compose pull
-      echo "3. Docker Compose 시작 중..."
-      docker-compose up -d
-      docker-compose ps
-      docker-compose logs
-      echo "4. Docker Compose 로그 출력 중..."
-      EOF
-
-  after_script:
-    - docker logout
-    - echo [INFO] docker deploy end!
-  only:
-    - feature/notification
+    - docker-compose down # 기존 컨테이너 종료
+    - docker-compose pull # 최신 이미지 가져오기
+    - docker-compose up -d # 새로운 컨테이너 배포
+  tags:
+    - shell
