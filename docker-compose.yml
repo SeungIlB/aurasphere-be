@@ -5,7 +5,7 @@ services:
     image: mysql:8.0
     container_name: aurasphere-backend-mysql
     env_file:
-      - .env
+      - ./.env  # .env 파일 경로 수정
     ports:
       - "3306:3306"
     networks:
