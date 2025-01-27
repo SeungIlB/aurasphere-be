@@ -10,7 +10,8 @@ build: # JOB 이름
     - echo [INFO] spring-boot project build
     - cd $CI_PROJECT_DIR # GitLab에서 자동으로 제공하는 프로젝트 디렉토리로 이동
     - echo "Creating .env file from DOTENV_FILE..."
-    - echo "$DOTENV_FILE" > .env
+    - echo "$DOTENV_FILE" > $CI_PROJECT_DIR/.env
+    - chmod 644 $CI_PROJECT_DIR/.env
     - mkdir -p src/main/resources
     - echo "$APPLICATION_PROPERTIES" > src/main/resources/application-prod.properties
     - chmod +x gradlew
@@ -21,6 +22,7 @@ build: # JOB 이름
   artifacts:
     paths:
       - build/libs/*.jar
+      - .env
     expire_in: 1 days
   only:
     - feature/notification
