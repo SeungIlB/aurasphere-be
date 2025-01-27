@@ -57,14 +57,3 @@ services:
       interval: 10s
       retries: 3
       timeout: 5s
-
-  nginx:
-    image: nginx:latest
-    container_name: aurasphere-backend-nginx
-    ports:
-      - "80:80"
-    restart: always
-    depends_on:
-      server:
-        condition: service_healthy
-
