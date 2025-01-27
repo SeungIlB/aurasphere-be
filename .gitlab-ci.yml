@@ -36,3 +36,5 @@ deploy_job:
     - echo "Deploying application..."
     - docker-compose down
     - docker-compose up -d
+    - docker exec -it aurasphere-backend-server cat /app/.env
+
