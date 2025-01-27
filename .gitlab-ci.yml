@@ -3,17 +3,22 @@ stages:
   - build
   - deploy
 
+variables:
+  ENV_COPY_PATH: .env
+
 prebuild:
   stage: prebuild
   tags:
     - test
   script:
-    - chmod +x ./gradlew
+    - cat ${ENV_FILE} > ${ENV_COPY_PATH}
+    - sudo chmod +x ./gradlew
     - ./gradlew clean
     - ./gradlew build -x test
   artifacts:
     paths:
       - build/libs/*.jar
+      - ${ENV_COPY_PATH}
 
 build_job:
   stage: build
@@ -25,16 +30,17 @@ build_job:
     - docker build -t "$DOCKER_USERNAME"/aurasphere-server:latest .
     - docker push "$DOCKER_USERNAME"/aurasphere-server:latest
     - echo "Build and push completed successfully."
-
-
+  artifacts:
+    paths:
+      - ${ENV_COPY_PATH}
 
 deploy_job:
   stage: deploy
   tags:
-    - deploy  # deploy 태그가 설정된 Runner를 사용
+    - deploy
   script:
     - echo "Deploying application..."
-    - docker-compose down
-    - docker-compose up -d
-    - docker exec -it aurasphere-backend-server cat /app/.env
-
+    - echo "envfile ${ENV_FILE}"
+    - docker compose --env-file ${ENV_COPY_PATH} down
+    - docker compose --env-file ${ENV_COPY_PATH} pull
+    - docker compose --env-file ${ENV_COPY_PATH} up -d
