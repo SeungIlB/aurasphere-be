@@ -8,8 +8,8 @@ prebuild:
   tags:
     - test
   script:
-    - ${ENV_FILE} > .env
-    - chmod +x .env ./gradlew
+    - sudo bash -c '${ENV_FILE} > .env'
+    - sudo chmod +x .env ./gradlew
     - ./gradlew clean
     - ./gradlew build -x test
   artifacts:
