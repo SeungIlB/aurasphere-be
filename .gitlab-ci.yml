@@ -15,6 +15,7 @@ prebuild:
   artifacts:
     paths:
       - build/libs/*.jar
+      - .env
 
 build_job:
   stage: build
@@ -26,6 +27,9 @@ build_job:
     - docker build -t "$DOCKER_USERNAME"/aurasphere-server:latest .
     - docker push "$DOCKER_USERNAME"/aurasphere-server:latest
     - echo "Build and push completed successfully."
+  artifacts:
+  paths:
+    - .env
 
 deploy_job:
   stage: deploy
@@ -34,6 +38,6 @@ deploy_job:
   script:
     - echo "Deploying application..."
     - echo "envfile ${ENV_FILE}"
-    - docker compose --env-file ${ENV_FILE} down
-    - docker compose --env-file ${ENV_FILE} pull
-    - docker compose --env-file ${ENV_FILE} up -d
+    - docker compose --env-file .env down
+    - docker compose --env-file .env pull
+    - docker compose --env-file .env up -d
