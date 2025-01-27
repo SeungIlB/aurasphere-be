@@ -4,18 +4,15 @@ services:
   mysql:
     image: mysql:8.0
     container_name: aurasphere-backend-mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: aurasphere
-      MYSQL_USER: elice-user
-      MYSQL_PASSWORD: Qwer1234!@
+    env_file:
+      - .env
     ports:
       - "3307:3306"
     networks:
       - app-network
     restart: always
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "elice-user", "-pQwer1234!@"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
       interval: 10s
       retries: 10
       timeout: 5s
@@ -26,11 +23,8 @@ services:
       dockerfile: Dockerfile
     image: aurasphere-backend-server:latest
     container_name: aurasphere-backend-server
-    environment:
-      SPRING_PROFILES_ACTIVE: prod
-      DATASOURCE_URL: jdbc:mysql://aurasphere-backend-mysql:3306/aurasphere
-      DB_USERNAME: elice-user
-      DB_PASSWORD: Qwer1234!@
+    env_file:
+      - .env
     ports:
       - "8080:8080"
     depends_on:
@@ -46,7 +40,7 @@ services:
         sleep 5;
       done;
       echo "MySQL is ready! Starting server...";
-      java -jar /app/libs/app.jar
+      exec java -jar /app/libs/app.jar
       '
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
@@ -59,17 +53,12 @@ services:
     container_name: aurasphere-backend-nginx
     ports:
       - "80:80"
-    depends_on:
-      server:
-        condition: service_healthy
     networks:
       - app-network
     restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost"]
-      interval: 10s
-      retries: 3
-      timeout: 5s
+    depends_on:
+      server:
+        condition: service_healthy
 
 networks:
   app-network:
