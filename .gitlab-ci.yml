@@ -8,6 +8,7 @@ build_job:
     - test  # test 태그가 설정된 Runner를 사용
   script:
     - echo "Building and testing application..."
+    - chmod +x gradlew
     - ./gradlew -x test clean build
     - cd bin/libs
     - java -jar -Dspring.profiles=prod aurasphere-0.0.1-SNAPSHOT.jar
