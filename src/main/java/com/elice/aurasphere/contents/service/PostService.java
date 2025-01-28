@@ -12,6 +12,7 @@ import com.elice.aurasphere.global.exception.ErrorCode;
 import com.elice.aurasphere.global.s3.service.S3Service;
 import com.elice.aurasphere.user.entity.User;
 import com.elice.aurasphere.user.repository.UserRepository;
+import com.querydsl.core.Tuple;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,6 +24,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.elice.aurasphere.contents.entity.QPost.post;
 
 @Slf4j
 @Service
@@ -104,36 +109,30 @@ public class PostService {
     }
 
 
-    public PostListResDTO getFilteredPosts(String username, int size, Long cursor, String filter){
+    public PostListResDTO getFilteredPosts(
+            String username, int size, Long post_cursor, Optional<Long> filter_cursor, Optional<String> filter
+    ){
 
         User user = userRepository.findByEmail(username)
                 .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        List<Post> postList;
+        FilterResDTO results;
 
-        postList = postRepository.findPostsByLikes(user.getId(), size, cursor);
-
-//        switch (filter) {
-//            case "likes":
-//                postList = postRepository.findPostsByLikes();
-//                break;
-//            case "views":
-//                postList = postRepository.findPostsByViews();
-//                break;
-//            case "following":
-//                Long userId = userDetails.getId();
-//                postList = postRepository.findPostsByFollowing(userId);
-//                break;
-//            default:
-//                postList = postRepository.findAllPostsByAsc();
-//                break;
-//        }
+        if(filter.isPresent() && filter.get().equals("likes")){
+            results = postRepository.findPostsByLikes(user.getId(), size, post_cursor, filter_cursor);
+        }else if(filter.isPresent() && filter.get().equals("views")){
+            results = postRepository.findAllPostsByAsc(user.getId(), size, post_cursor);
+        }else if(filter.isPresent() && filter.get().equals("following")){
+            results = postRepository.findAllPostsByAsc(user.getId(), size, post_cursor);
+        }else {
+            results = postRepository.findAllPostsByAsc(user.getId(), size, post_cursor);
+        }
 
         //리스트가 비어있는 경우 hasNext를 false로 반환하고 리턴
-        if(postList.isEmpty())
+        if(results.getPostList().isEmpty())
             return PostListResDTO.builder().hasNext(false).build();
 
-        List<PostResDTO> posts = postList.stream().map(post -> {
+        List<PostResDTO> posts = results.getPostList().stream().map(post -> {
 
             List<FileDTO> urls = fileRepository.findFilesByPostId(post.getId());
 
@@ -148,13 +147,14 @@ public class PostService {
                     .build();
         }).toList();
 
-        Long lastCursor = postList.get(postList.size() - 1).getId();
-        boolean hasNext = postList.size() >= size;
+        Long lastCursor = results.getPostList().get(results.getPostList().size() - 1).getId();
+        boolean hasNext = results.getPostList().size() >= size;
 
 
         return PostListResDTO.builder()
                 .postList(posts)
-                .cursor(lastCursor)
+                .post_cursor(lastCursor)
+                .filter_cursor(results.getFilterCursor())
                 .hasNext(hasNext)
                 .build();
 
@@ -194,7 +194,7 @@ public class PostService {
 
         return PostListResDTO.builder()
                 .postList(posts)
-                .cursor(lastCursor)
+                .post_cursor(lastCursor)
                 .hasNext(hasNext)
                 .build();
     }

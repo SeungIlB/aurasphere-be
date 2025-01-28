@@ -47,7 +47,11 @@ public class PostController {
     게시글 필터별로 조회하는 api
     필터링 없이 그냥 조회했을 경우(모든 글 최신순), 좋아요 수 기준, 조회수 기준, 내가 팔로우한 사람만
     */
-    @Operation(summary = "게시글 리스트 필터링 조회 API", description = "필터 별로 게시글을 조회하는 API입니다. " +
+    @Operation(summary = "게시글 리스트 필터링 조회 API", description = "필터 별로 게시글을 조회하는 API입니다. <br>" +
+            "post_cursor는 마지막 게시글의 id를 담은 커서이고, filter_cursor는 마지막 게시글의 필터값의 숫자를 담은 커서입니다. <br>" +
+            "이 값을 사용하여 다음 페이지의 게시글을 가져오는 데 활용됩니다. <br>" +
+            "예를 들어, 이전 요청에서 반환된 게시글 리스트의 마지막 게시글이 5개의 좋아요를 가지고 있다면, <br>" +
+            "filter_cursor는 5로 설정됩니다. <br>" +
             "<br>likes : 좋아요 순 <br>views : 조회수 순 <br>following : 내가 팔로우 한 사람들")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "S000",
@@ -59,15 +63,16 @@ public class PostController {
     public ApiResponseDto<PostListResDTO> readPostsByFilter(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(value = "size", defaultValue = "5") int size,
-            @RequestParam(value = "cursor", defaultValue = "0") Long cursor,
-            @RequestParam(value = "filter", required = false) String filter
+            @RequestParam(value = "post_cursor", defaultValue = "0") Long post_cursor,
+            @RequestParam(value = "filter_cursor") Optional<Long> filter_cursor,
+            @RequestParam(value = "filter") Optional<String> filter
     ){
 
         PostListResDTO postListResDTO = postService.getFilteredPosts(
-                userDetails.getUsername(), size, cursor, filter
+                userDetails.getUsername(), size, post_cursor, filter_cursor, filter
         );
 
-        return ApiResponseDto.from(null);
+        return ApiResponseDto.from(postListResDTO);
     }
 
 
