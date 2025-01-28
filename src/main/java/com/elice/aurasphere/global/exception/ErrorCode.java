@@ -57,6 +57,8 @@ public enum ErrorCode {
 
     FILE_TYPE_NOT_SUPPORTED("F001", HttpStatus.BAD_REQUEST, "지원하지 않는 파일 타입입니다."),
 
+    //조회수 관련 에러
+    VIEW_UPDATE_FAILED("V001", HttpStatus.BAD_REQUEST, "조회수 업데이트에 실패했습니다."),
     ;
 
     private final String code;

@@ -1,17 +1,22 @@
 package com.elice.aurasphere.contents.repository;
 
+import com.elice.aurasphere.contents.dto.FilterResDTO;
 import com.elice.aurasphere.contents.entity.Post;
+import com.querydsl.core.Tuple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PostCustomRepository {
 
-    public List<Post> findAllPostsByAsc(Long userId, int size, Long cursor);
+    public FilterResDTO findAllPostsByAsc(Long userId, int size, Long postCursor);
 
     List<Post> findMyPosts(Long userId, int size, Long cursor);
 
-    List<Post> findPostsByLikes(Long userId, int size, Long cursor);
+    FilterResDTO findPostsByLikes(Long userId, int size, Long postCursor, Optional<Long> filterCursor);
+
+    FilterResDTO findAllPostsByViews(Long userId, int size, Long postCursor, Optional<Long> filterCursor);
 
 }
