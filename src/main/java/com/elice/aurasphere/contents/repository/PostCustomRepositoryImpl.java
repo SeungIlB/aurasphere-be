@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import static com.elice.aurasphere.contents.entity.QLike.like;
 import static com.elice.aurasphere.contents.entity.QPost.post;
+import static com.elice.aurasphere.contents.entity.QView.view;
 
 
 @Repository
@@ -76,6 +77,31 @@ public class PostCustomRepositoryImpl implements PostCustomRepository{
         return FilterResDTO.builder()
                 .postList(postList)
                 .filterCursor(lastLike)
+                .build();
+    }
+
+    @Override
+    public FilterResDTO findAllPostsByViews(Long userId, int size, Long postCursor, Optional<Long> filterCursor) {
+        List<Tuple> results = queryFactory
+                .select(post, view.viewCnt)
+                .from(post)
+                .leftJoin(view).on(view.post.id.eq(post.id))
+                .having(checkLikeCondition(postCursor, filterCursor))
+                .orderBy(view.viewCnt.desc(), post.id.desc())
+                .limit(size)
+                .fetch();
+
+        List<Post> postList = results.stream()
+                .map(tuple -> tuple.get(post))
+                .toList();
+
+        // 마지막 게시글의 좋아요 수
+        Long lastView = results.isEmpty() ? 0L : results.get(results.size() - 1).get(1, Long.class);
+
+
+        return FilterResDTO.builder()
+                .postList(postList)
+                .filterCursor(lastView)
                 .build();
     }
 

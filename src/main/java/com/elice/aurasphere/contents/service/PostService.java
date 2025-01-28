@@ -4,9 +4,11 @@ package com.elice.aurasphere.contents.service;
 import com.elice.aurasphere.contents.dto.*;
 import com.elice.aurasphere.contents.entity.File;
 import com.elice.aurasphere.contents.entity.Post;
+import com.elice.aurasphere.contents.entity.View;
 import com.elice.aurasphere.contents.mapper.PostMapper;
 import com.elice.aurasphere.contents.repository.FileRepository;
 import com.elice.aurasphere.contents.repository.PostRepository;
+import com.elice.aurasphere.contents.repository.ViewRepository;
 import com.elice.aurasphere.global.exception.CustomException;
 import com.elice.aurasphere.global.exception.ErrorCode;
 import com.elice.aurasphere.global.s3.service.S3Service;
@@ -25,9 +27,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static com.elice.aurasphere.contents.entity.QPost.post;
 
 @Slf4j
 @Service
@@ -36,8 +35,11 @@ public class PostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final FileRepository fileRepository;
+    private final ViewRepository viewRepository;
     private final LikeService likeService;
+    private final ViewService viewService;
     private final S3Service s3Service;
+
 
 
     private final PostMapper mapper;
@@ -47,20 +49,28 @@ public class PostService {
             UserRepository userRepository,
             PostRepository postRepository,
             FileRepository fileRepository,
+            ViewRepository viewRepository,
             LikeService likeService,
+            ViewService viewService,
             S3Service s3Service,
             PostMapper mapper) {
 
         this.userRepository = userRepository;
         this.postRepository = postRepository;
         this.fileRepository = fileRepository;
+        this.viewRepository = viewRepository;
         this.likeService = likeService;
+        this.viewService = viewService;
         this.s3Service = s3Service;
         this.mapper = mapper;
 
     }
 
-    public void incrementViewCnt(String username, Long postId, HttpServletRequest request, HttpServletResponse response){
+    public void incrementViewCnt(
+            String username, Long postId,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ){
 
         Cookie oldCookie = null;
         Cookie[] cookies = request.getCookies();
@@ -95,22 +105,18 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        postRepository.findById(postId)
-                .map(existingPost -> {
+        viewRepository.findByPostId(post.getId())
+                .map(view1 -> {
+                    view1.countUp();
 
-                    existingPost.viewCntUp();
-
-                    Post updatedPost = postRepository.save(existingPost);
-
-                    return mapper.postToPostResDto(updatedPost);
+                    return view1;
                 })
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_UPDATE_FAILED));
-
     }
 
 
     public PostListResDTO getFilteredPosts(
-            String username, int size, Long post_cursor, Optional<Long> filter_cursor, Optional<String> filter
+            String username, int size, Long postCursor, Optional<Long> filterCursor, Optional<String> filter
     ){
 
         User user = userRepository.findByEmail(username)
@@ -119,13 +125,13 @@ public class PostService {
         FilterResDTO results;
 
         if(filter.isPresent() && filter.get().equals("likes")){
-            results = postRepository.findPostsByLikes(user.getId(), size, post_cursor, filter_cursor);
+            results = postRepository.findPostsByLikes(user.getId(), size, postCursor, filterCursor);
         }else if(filter.isPresent() && filter.get().equals("views")){
-            results = postRepository.findAllPostsByAsc(user.getId(), size, post_cursor);
+            results = postRepository.findAllPostsByViews(user.getId(), size, postCursor, filterCursor);
         }else if(filter.isPresent() && filter.get().equals("following")){
-            results = postRepository.findAllPostsByAsc(user.getId(), size, post_cursor);
+            results = postRepository.findAllPostsByAsc(user.getId(), size, postCursor);
         }else {
-            results = postRepository.findAllPostsByAsc(user.getId(), size, post_cursor);
+            results = postRepository.findAllPostsByAsc(user.getId(), size, postCursor);
         }
 
         //리스트가 비어있는 경우 hasNext를 false로 반환하고 리턴
@@ -241,6 +247,11 @@ public class PostService {
                         .viewCnt(0L)
                         .build()
         );
+
+        viewRepository.save(View.builder()
+                .post(registeredPost)
+                .viewCnt(0L)
+                .build());
 
         List<FileDTO> urls = new ArrayList<>();
 

@@ -11,10 +11,12 @@ import java.util.Optional;
 
 public interface PostCustomRepository {
 
-    public FilterResDTO findAllPostsByAsc(Long userId, int size, Long filter_cursor);
+    public FilterResDTO findAllPostsByAsc(Long userId, int size, Long postCursor);
 
     List<Post> findMyPosts(Long userId, int size, Long cursor);
 
-    FilterResDTO findPostsByLikes(Long userId, int size, Long post_cursor, Optional<Long> filter_cursor);
+    FilterResDTO findPostsByLikes(Long userId, int size, Long postCursor, Optional<Long> filterCursor);
+
+    FilterResDTO findAllPostsByViews(Long userId, int size, Long postCursor, Optional<Long> filterCursor);
 
 }
