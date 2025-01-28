@@ -12,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -33,30 +36,58 @@ public class ProfileService {
             .build();
     }
 
-    @Transactional
-    public ProfileResponseDTO updateProfile(Long userId, ProfileRequestDTO request) {
-        Profile profile = profileRepository.findByUserId(userId)
-            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if (request.getNickname() != null) {
-            if (profileRepository.existsByNicknameAndUserIdNot(request.getNickname(), userId)) {
+    @Transactional
+    public ProfileResponseDTO updateProfile(Long userId, String nickname, MultipartFile file) throws IOException {
+        Profile profile = profileRepository.findByUserId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (nickname != null) {
+            if (profileRepository.existsByNicknameAndUserIdNot(nickname, userId)) {
                 throw new CustomException(ErrorCode.NICKNAME_ALREADY_EXISTS);
             }
-            profile.updateProfileNickname(request.getNickname());
+            profile.updateProfileNickname(nickname);
         }
 
-        if (request.getImageKey() != null) {
-            String imageUrl = s3Service.getGetS3Url(request.getImageKey());
+        if (file != null) {
+            String imageUrl = s3Service.uploadFile(file, "profile");
             profile.updateProfileUrl(imageUrl);
         }
 
         profileRepository.save(profile);
 
         return ProfileResponseDTO.builder()
-            .nickname(profile.getNickname())
-            .profileUrl(profile.getProfileUrl()) // "DEFAULT" 또는 실제 S3 URL
-            .build();
+                .nickname(profile.getNickname())
+                .profileUrl(profile.getProfileUrl()) // "DEFAULT" 또는 실제 S3 URL
+                .build();
     }
+
+//    @Transactional
+//    public ProfileResponseDTO updateProfile(Long userId, ProfileRequestDTO request) {
+//        Profile profile = profileRepository.findByUserId(userId)
+//            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+//
+//        if (request.getNickname() != null) {
+//            if (profileRepository.existsByNicknameAndUserIdNot(request.getNickname(), userId)) {
+//                throw new CustomException(ErrorCode.NICKNAME_ALREADY_EXISTS);
+//            }
+//            profile.updateProfileNickname(request.getNickname());
+//        }
+//
+//        if (request.getImageKey() != null) {
+//            String imageUrl = s3Service.getGetS3Url(request.getImageKey());
+//            profile.updateProfileUrl(imageUrl);
+//        }
+//
+//        profileRepository.save(profile);
+//
+//        return ProfileResponseDTO.builder()
+//            .nickname(profile.getNickname())
+//            .profileUrl(profile.getProfileUrl()) // "DEFAULT" 또는 실제 S3 URL
+//            .build();
+//    }
+
+
 
     @Transactional
     public void updateProfileImageUrl(Long userId, String newImageUrl) {
