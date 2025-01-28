@@ -47,6 +47,14 @@ public class PostController {
     게시글 필터별로 조회하는 api
     필터링 없이 그냥 조회했을 경우(모든 글 최신순), 좋아요 수 기준, 조회수 기준, 내가 팔로우한 사람만
     */
+    @Operation(summary = "게시글 리스트 필터링 조회 API", description = "필터 별로 게시글을 조회하는 API입니다. " +
+            "<br>likes : 좋아요 순 <br>views : 조회수 순 <br>following : 내가 팔로우 한 사람들")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "S000",
+                    description = "게시글 조회 성공"),
+            @ApiResponse(responseCode = "P001",
+                    description = "게시글을 찾을 수 없습니다.")
+    })
     @GetMapping("/posts")
     public ApiResponseDto<PostListResDTO> readPostsByFilter(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -68,7 +76,8 @@ public class PostController {
      */
     @Operation(
             summary = "내가 작성한 게시글 조회 API",
-            description = "현재 로그인되어 있는 유저가 작성한 게시글(내 게시글)들을 조회하는 API"
+            description = "현재 로그인되어 있는 유저가 작성한 게시글(내 게시글)들을 조회하는 API" +
+                    "<br>첫 페이지 요청 시에는 cursor값을 0이나 null로 요청, 이후 페이지는 반환되는 cursor를 담아서 요청"
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -84,13 +93,12 @@ public class PostController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(value = "size", defaultValue = "5") int size,
             @RequestParam(value = "cursor", defaultValue = "0") Long cursor
-            ){
+    ){
 
         PostListResDTO postListResDTO = postService.getMyPosts(userDetails.getUsername(), size, cursor);
 
         return ApiResponseDto.from(postListResDTO);
     }
-
 
 
     /*
@@ -126,14 +134,15 @@ public class PostController {
             @ApiResponse(responseCode = "S000",
                     description = "게시글 등록 성공"),
             @ApiResponse(responseCode = "U001",
-                    description = "유저를 찾을 수 없는 경우")
+                    description = "유저를 찾을 수 없는 경우",
+                    content = @Content(schema = @Schema(implementation = ResponseDto.class)))
     })
     @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponseDto<PostResDTO> createPost(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestPart(value = "content") String content,
             @RequestPart(value = "files") List<MultipartFile> files
-            ) throws IOException {
+    ) throws IOException {
 
         PostResDTO postResDTO = postService.registerPost(
                 userDetails.getUsername(),
@@ -146,6 +155,8 @@ public class PostController {
     /*
     좋아요 누르기 / 취소 api
     */
+    @Operation(summary = "좋아요 누르기 API", description = "좋아요 API입니다. " +
+            "<br>반환값 <br>true : 좋아요를 누름 <br>false : 좋아요 취소")
     @PostMapping("/posts/{postId}/like")
     public ApiResponseDto<Boolean> likePost(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -167,11 +178,14 @@ public class PostController {
             @ApiResponse(responseCode = "S000",
                     description = "게시글 수정 성공"),
             @ApiResponse(responseCode = "P001",
-                    description = "게시글을 찾을 수 없는 경우"),
+                    description = "게시글을 찾을 수 없는 경우",
+                    content = @Content(schema = @Schema(implementation = ResponseDto.class))),
             @ApiResponse(responseCode = "U001",
-                    description = "유저를 찾을 수 없는 경우"),
+                    description = "유저를 찾을 수 없는 경우",
+                    content = @Content(schema = @Schema(implementation = ResponseDto.class))),
             @ApiResponse(responseCode = "U002",
-                    description = "로그인된 유저가 게시글 작성자가 아닌 경우")
+                    description = "로그인된 유저가 게시글 작성자가 아닌 경우",
+                    content = @Content(schema = @Schema(implementation = ResponseDto.class)))
     })
     @PatchMapping("/posts/{postId}")
     public ApiResponseDto<PostResDTO> updatePost(

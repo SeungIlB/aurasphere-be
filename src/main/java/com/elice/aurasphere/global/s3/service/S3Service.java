@@ -47,6 +47,8 @@ public class S3Service {
             directoryPath = "images/";
         } else if ("video".equals(fileType)) {
             directoryPath = "videos/";
+        } else if ("profile".equals(fileType)){
+            directoryPath = "profiles/";
         } else {
             throw new CustomException(ErrorCode.FILE_TYPE_NOT_SUPPORTED);
         }

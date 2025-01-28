@@ -111,7 +111,7 @@ public class PostService {
 
         List<Post> postList;
 
-        postList = postRepository.findAllPostsByAsc(user.getId(), size, cursor);
+        postList = postRepository.findPostsByLikes(user.getId(), size, cursor);
 
 //        switch (filter) {
 //            case "likes":

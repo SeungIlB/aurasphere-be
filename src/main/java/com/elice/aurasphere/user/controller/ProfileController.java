@@ -17,9 +17,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
 
 @Tag(name = "Profile", description = "프로필 관련 API")
 @RestController
@@ -48,26 +53,47 @@ public class ProfileController {
 
     @Operation(summary = "프로필 수정", description = "프로필 정보(닉네임, 프로필 이미지)를 수정합니다. 닉네임과 이미지를 선택적으로 업데이트할 수 있습니다.")
     @ApiResponses({
-        @ApiResponse(responseCode = "S000", description = "프로필 수정 성공",
-            content = @Content(schema = @Schema(implementation = ApiRes.class))),
-        @ApiResponse(responseCode = "U001", description = "유저를 찾을 수 없습니다.",
-            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-        @ApiResponse(responseCode = "U003", description = "이미 존재하는 닉네임입니다.",
-            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-        @ApiResponse(responseCode = "I001", description = "Key에 해당하는 이미지를 찾을 수 없습니다.",
-            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+            @ApiResponse(responseCode = "S000", description = "프로필 수정 성공",
+                    content = @Content(schema = @Schema(implementation = ApiRes.class))),
+            @ApiResponse(responseCode = "U001", description = "유저를 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "U003", description = "이미 존재하는 닉네임입니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
-    @PutMapping
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiRes<ProfileResponseDTO>> updateProfile(
-        @Parameter(hidden = true)
-        @AuthenticationPrincipal CustomUserDetails userDetails,
-        @Valid @RequestBody ProfileRequestDTO request
-    ) {
-        log.info("프로필 수정 요청 - 사용자 ID: {}, 이미지 키: {}, 닉네임: {}",
-            userDetails.getId(),
-            request.getImageKey(),
-            request.getNickname());
-        ProfileResponseDTO response = profileService.updateProfile(userDetails.getId(), request);
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestPart(value = "nickname") String nickname,
+            @RequestPart(value = "file") MultipartFile file
+    ) throws IOException {
+        ProfileResponseDTO response = profileService.updateProfile(userDetails.getId(), nickname, file);
         return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, response));
     }
+
+//    @Operation(summary = "프로필 수정", description = "프로필 정보(닉네임, 프로필 이미지)를 수정합니다. 닉네임과 이미지를 선택적으로 업데이트할 수 있습니다.")
+//    @ApiResponses({
+//        @ApiResponse(responseCode = "S000", description = "프로필 수정 성공",
+//            content = @Content(schema = @Schema(implementation = ApiRes.class))),
+//        @ApiResponse(responseCode = "U001", description = "유저를 찾을 수 없습니다.",
+//            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+//        @ApiResponse(responseCode = "U003", description = "이미 존재하는 닉네임입니다.",
+//            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+//        @ApiResponse(responseCode = "I001", description = "Key에 해당하는 이미지를 찾을 수 없습니다.",
+//            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+//    })
+//    @PutMapping
+//    public ResponseEntity<ApiRes<ProfileResponseDTO>> updateProfile(
+//        @Parameter(hidden = true)
+//        @AuthenticationPrincipal CustomUserDetails userDetails,
+//        @Valid @RequestBody ProfileRequestDTO request
+//    ) {
+//        log.info("프로필 수정 요청 - 사용자 ID: {}, 이미지 키: {}, 닉네임: {}",
+//            userDetails.getId(),
+//            request.getImageKey(),
+//            request.getNickname());
+//        ProfileResponseDTO response = profileService.updateProfile(userDetails.getId(), request);
+//        return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, response));
+//    }
+
 }
