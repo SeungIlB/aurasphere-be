@@ -53,29 +53,29 @@ public class LikeService {
                             .post(post)
                             .build()
             );
-            postRepository.findById(postId)
-                    .map(existingPost -> {
-
-                        existingPost.addLike();
-
-                        Post updatedPost = postRepository.save(existingPost);
-
-                        return mapper.postToPostResDto(updatedPost);
-                    })
-                    .orElseThrow(() -> new CustomException(ErrorCode.POST_UPDATE_FAILED));
+//            postRepository.findById(postId)
+//                    .map(existingPost -> {
+//
+//                        existingPost.addLike();
+//
+//                        Post updatedPost = postRepository.save(existingPost);
+//
+//                        return mapper.postToPostResDto(updatedPost);
+//                    })
+//                    .orElseThrow(() -> new CustomException(ErrorCode.POST_UPDATE_FAILED));
             return true;
         }else {
             likeRepository.deleteLikeByUserAndPost(user, post);
-            postRepository.findById(postId)
-                    .map(existingPost -> {
-
-                        existingPost.removeLike();
-
-                        Post updatedPost = postRepository.save(existingPost);
-
-                        return mapper.postToPostResDto(updatedPost);
-                    })
-                    .orElseThrow(() -> new CustomException(ErrorCode.POST_UPDATE_FAILED));
+//            postRepository.findById(postId)
+//                    .map(existingPost -> {
+//
+//                        existingPost.removeLike();
+//
+//                        Post updatedPost = postRepository.save(existingPost);
+//
+//                        return mapper.postToPostResDto(updatedPost);
+//                    })
+//                    .orElseThrow(() -> new CustomException(ErrorCode.POST_UPDATE_FAILED));
         }
 
 
@@ -87,6 +87,10 @@ public class LikeService {
     //해당 user가 post를 좋아요 누른 적 있는 지 확인
     public boolean isNotAlreadyLike(User user, Post post) {
         return likeRepository.findByUserAndPost(user, post).isEmpty();
+    }
+
+    public Long getLikeCnt(Long postId){
+        return likeRepository.findlikeCntByPostId(postId);
     }
 
 

@@ -7,9 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ViewRepository extends JpaRepository<View, Long> {
+public interface ViewRepository extends JpaRepository<View, Long>, ViewCustomRepository {
 
-    public Optional<View> findByPostId(Long postId);
-
-    public Long findViewCntByPostId(Long postId);
+    public View findByPostId(Long postId);
 }

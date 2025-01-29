@@ -1,7 +1,8 @@
-package com.elice.aurasphere.contents.repository;
+package com.elice.aurasphere.contents.repository.repoimpl;
 
 import com.elice.aurasphere.contents.dto.FilterResDTO;
 import com.elice.aurasphere.contents.entity.Post;
+import com.elice.aurasphere.contents.repository.PostCustomRepository;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -16,10 +17,11 @@ import java.util.stream.Collectors;
 import static com.elice.aurasphere.contents.entity.QLike.like;
 import static com.elice.aurasphere.contents.entity.QPost.post;
 import static com.elice.aurasphere.contents.entity.QView.view;
+import static com.elice.aurasphere.user.entity.QFollow.follow;
 
 
 @Repository
-public class PostCustomRepositoryImpl implements PostCustomRepository{
+public class PostCustomRepositoryImpl implements PostCustomRepository {
 
     private final JPAQueryFactory queryFactory;
 
@@ -60,6 +62,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository{
                 .select(post, like.count().as("likeCnt"))
                 .from(post)
                 .leftJoin(like).on(like.post.id.eq(post.id))
+                .where(post.deletedDate.isNull())
                 .groupBy(post.id)
                 .having(checkLikeCondition(postCursor, filterCursor))
                 .orderBy(like.count().desc(), post.id.desc())
@@ -86,6 +89,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository{
                 .select(post, view.viewCnt)
                 .from(post)
                 .leftJoin(view).on(view.post.id.eq(post.id))
+                .where(post.deletedDate.isNull())
                 .having(checkLikeCondition(postCursor, filterCursor))
                 .orderBy(view.viewCnt.desc(), post.id.desc())
                 .limit(size)
@@ -105,9 +109,35 @@ public class PostCustomRepositoryImpl implements PostCustomRepository{
                 .build();
     }
 
-    private BooleanExpression checkCondition(Long cursor){
-        return cursor == 0 ? null : post.id.lt(cursor);
+    @Override
+    public FilterResDTO findAllPostsByFollowing(Long userId, int size, Long postCursor, Optional<Long> filterCursor) {
+
+        List<Post> results = queryFactory
+                .selectFrom(post)
+                .join(follow).on(post.user.id.eq(follow.following.id))
+                .where(follow.follower.id.eq(userId), checkCondition(postCursor))
+                .orderBy(post.id.desc())
+                .limit(size)
+                .fetch();
+
+
+        return FilterResDTO.builder()
+                .postList(results)
+                .build();
     }
+
+
+    private BooleanExpression checkCondition(Long cursor){
+
+        BooleanExpression condition = post.deletedDate.isNull();
+
+        if (cursor != 0) {
+            condition = condition.and(post.id.lt(cursor));
+        }
+
+        return condition;
+    }
+
     private BooleanExpression checkLikeCondition(Long postCursor, Optional<Long> filterCursor){
         return filterCursor.isPresent() ? like.count().lt(filterCursor.get())
                 .or(like.count().eq(filterCursor.get()).and(post.id.lt(postCursor))) : null;

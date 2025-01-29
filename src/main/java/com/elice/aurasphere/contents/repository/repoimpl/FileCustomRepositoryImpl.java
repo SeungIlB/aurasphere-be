@@ -1,6 +1,7 @@
-package com.elice.aurasphere.contents.repository;
+package com.elice.aurasphere.contents.repository.repoimpl;
 
 import com.elice.aurasphere.contents.dto.FileDTO;
+import com.elice.aurasphere.contents.repository.FileCustomRepository;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -12,7 +13,7 @@ import static com.elice.aurasphere.contents.entity.QFile.file;
 
 
 @Repository
-public class FileCustomRepositoryImpl implements FileCustomRepository{
+public class FileCustomRepositoryImpl implements FileCustomRepository {
 
     private final JPAQueryFactory queryFactory;
 
