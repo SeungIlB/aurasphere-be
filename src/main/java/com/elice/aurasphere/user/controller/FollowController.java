@@ -34,7 +34,7 @@ public class FollowController {
     @PostMapping("/{userId}/follow")
     public ApiResponseDto<Void> followUser(
         @AuthenticationPrincipal CustomUserDetails userDetails,
-        @PathVariable Long userId
+        @PathVariable("userId") Long userId
     ) {
         followService.follow(userDetails.getUsername(), userId);
         return ApiResponseDto.from(null);

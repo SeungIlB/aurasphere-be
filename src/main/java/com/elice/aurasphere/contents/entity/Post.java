@@ -33,12 +33,6 @@ public class Post extends BaseEntity {
     @Column(length = 150)
     private String content;
 
-    @Column
-    private Long likeCnt;
-
-    @Column
-    private Long viewCnt;
-
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     Set<Like> likes = new HashSet<>();
 
@@ -51,23 +45,15 @@ public class Post extends BaseEntity {
     @Builder
     public Post(
             User user,
-            String content,
-            Long likeCnt,
-            Long viewCnt
+            String content
     ) {
         this.user = user;
         this.content = content;
-        this.likeCnt = likeCnt;
-        this.viewCnt = viewCnt;
     }
 
     public void updatePost(String content) { this.content = content; }
 
-    public void viewCntUp(){ this.viewCnt++; }
-
-    public void addLike() { this.likeCnt++; }
-
-    public void removeLike() { this.likeCnt--; }
+    public void removePost() { this.deletedDate = LocalDateTime.now(); }
 
 }
 

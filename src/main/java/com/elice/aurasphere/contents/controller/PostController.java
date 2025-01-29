@@ -47,17 +47,23 @@ public class PostController {
     게시글 필터별로 조회하는 api
     필터링 없이 그냥 조회했을 경우(모든 글 최신순), 좋아요 수 기준, 조회수 기준, 내가 팔로우한 사람만
     */
-    @Operation(summary = "게시글 리스트 필터링 조회 API", description = "필터 별로 게시글을 조회하는 API입니다. <br>" +
+    @Operation(summary = "게시글 리스트 필터링 조회 API", description = "필터 별로 게시글을 조회하는 API입니다. <br><br>" +
             "post_cursor는 마지막 게시글의 id를 담은 커서이고, filter_cursor는 마지막 게시글의 필터값의 숫자를 담은 커서입니다. <br>" +
             "이 값을 사용하여 다음 페이지의 게시글을 가져오는 데 활용됩니다. <br>" +
             "예를 들어, 이전 요청에서 반환된 게시글 리스트의 마지막 게시글이 5개의 좋아요를 가지고 있다면, <br>" +
-            "filter_cursor는 5로 설정됩니다. <br>" +
-            "<br>likes : 좋아요 순 <br>views : 조회수 순 <br>following : 내가 팔로우 한 사람들")
+            "filter_cursor는 5가 반환됩니다. <br>" +
+            "<br>첫 페이지를 요청할 시에는 size만 요청하거나(기본 최신순), size, filter 만 요청해주세요.(좋아요, 조회수, 팔로우) <br>" +
+            "<br>filter_cursor, filter 에 아무것도 넣지 않는 경우 : 모든 글 최신순(post_cursor 필요)<br>" +
+            "<br> filter 에 들어갈 변수 목록" +
+            "<br>likes : 좋아요 순(post_cursor, filter_cursor 필요)" +
+            "<br>views : 조회수 순(post_cursor, filter_cursor 필요)" +
+            "<br>following : 내가 팔로우 한 사람들(post_cursor 필요)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "S000",
                     description = "게시글 조회 성공"),
             @ApiResponse(responseCode = "P001",
-                    description = "게시글을 찾을 수 없습니다.")
+                    description = "게시글을 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ResponseDto.class)))
     })
     @GetMapping("/posts")
     public ApiResponseDto<PostListResDTO> readPostsByFilter(
@@ -157,22 +163,6 @@ public class PostController {
         return ApiResponseDto.from(postResDTO);
     }
 
-    /*
-    좋아요 누르기 / 취소 api
-    */
-    @Operation(summary = "좋아요 누르기 API", description = "좋아요 API입니다. " +
-            "<br>반환값 <br>true : 좋아요를 누름 <br>false : 좋아요 취소")
-    @PostMapping("/posts/{postId}/like")
-    public ApiResponseDto<Boolean> likePost(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PathVariable("postId") Long postId) {
-
-
-        boolean result = likeService.toggleLike(userDetails.getUsername(), postId);
-
-        return ApiResponseDto.from(result);
-    }
-
 
     /*
     게시글 수정하는 api
@@ -204,11 +194,49 @@ public class PostController {
         return ApiResponseDto.from(postResDTO);
     }
 
+    /*
+    좋아요 누르기 / 취소 api
+    */
+    @Operation(summary = "좋아요 누르기 API", description = "좋아요 API입니다. " +
+            "<br>반환값 <br>true : 좋아요를 누름 <br>false : 좋아요 취소")
+    @PostMapping("/posts/{postId}/like")
+    public ApiResponseDto<Boolean> likePost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable("postId") Long postId) {
+
+
+        boolean result = likeService.toggleLike(userDetails.getUsername(), postId);
+
+        return ApiResponseDto.from(result);
+    }
+
 
     /*
     게시글 삭제하는 api (soft delete)
     */
+    @Operation(summary = "게시글 삭제 API", description = "게시글을 삭제하는 API입니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "S000",
+                    description = "게시글 삭제 성공"),
+            @ApiResponse(responseCode = "P001",
+                    description = "게시글을 찾을 수 없는 경우",
+                    content = @Content(schema = @Schema(implementation = ResponseDto.class))),
+            @ApiResponse(responseCode = "U001",
+                    description = "유저를 찾을 수 없는 경우",
+                    content = @Content(schema = @Schema(implementation = ResponseDto.class))),
+            @ApiResponse(responseCode = "U002",
+                    description = "로그인된 유저가 게시글 작성자가 아닌 경우",
+                    content = @Content(schema = @Schema(implementation = ResponseDto.class)))
+    })
+    @PatchMapping("/posts/{postId}/delete")
+    public ApiResponseDto<Long> deletePost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable("postId") Long postId
+    ){
 
+        Long deletedPostId = postService.removePost(userDetails.getUsername(), postId);
 
+        return ApiResponseDto.from(deletedPostId);
+    }
 
 }
