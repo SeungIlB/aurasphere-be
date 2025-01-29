@@ -214,7 +214,29 @@ public class PostController {
     /*
     게시글 삭제하는 api (soft delete)
     */
+    @Operation(summary = "게시글 삭제 API", description = "게시글을 삭제하는 API입니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "S000",
+                    description = "게시글 삭제 성공"),
+            @ApiResponse(responseCode = "P001",
+                    description = "게시글을 찾을 수 없는 경우",
+                    content = @Content(schema = @Schema(implementation = ResponseDto.class))),
+            @ApiResponse(responseCode = "U001",
+                    description = "유저를 찾을 수 없는 경우",
+                    content = @Content(schema = @Schema(implementation = ResponseDto.class))),
+            @ApiResponse(responseCode = "U002",
+                    description = "로그인된 유저가 게시글 작성자가 아닌 경우",
+                    content = @Content(schema = @Schema(implementation = ResponseDto.class)))
+    })
+    @PatchMapping("/posts/{postId}/delete")
+    public ApiResponseDto<Long> deletePost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable("postId") Long postId
+    ){
 
+        Long deletedPostId = postService.removePost(userDetails.getUsername(), postId);
 
+        return ApiResponseDto.from(deletedPostId);
+    }
 
 }

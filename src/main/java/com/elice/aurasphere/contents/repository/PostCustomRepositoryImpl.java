@@ -61,6 +61,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository{
                 .select(post, like.count().as("likeCnt"))
                 .from(post)
                 .leftJoin(like).on(like.post.id.eq(post.id))
+                .where(post.deletedDate.isNull())
                 .groupBy(post.id)
                 .having(checkLikeCondition(postCursor, filterCursor))
                 .orderBy(like.count().desc(), post.id.desc())
@@ -87,6 +88,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository{
                 .select(post, view.viewCnt)
                 .from(post)
                 .leftJoin(view).on(view.post.id.eq(post.id))
+                .where(post.deletedDate.isNull())
                 .having(checkLikeCondition(postCursor, filterCursor))
                 .orderBy(view.viewCnt.desc(), post.id.desc())
                 .limit(size)
@@ -125,7 +127,14 @@ public class PostCustomRepositoryImpl implements PostCustomRepository{
 
 
     private BooleanExpression checkCondition(Long cursor){
-        return cursor == 0 ? null : post.id.lt(cursor);
+
+        BooleanExpression condition = post.deletedDate.isNull();
+
+        if (cursor != 0) {
+            condition = condition.and(post.id.lt(cursor));
+        }
+
+        return condition;
     }
 
     private BooleanExpression checkLikeCondition(Long postCursor, Optional<Long> filterCursor){

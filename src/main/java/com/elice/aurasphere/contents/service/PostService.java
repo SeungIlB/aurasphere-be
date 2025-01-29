@@ -331,4 +331,25 @@ public class PostService {
                 })
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_UPDATE_FAILED));
     }
+
+    public Long removePost(String username, Long postId){
+
+        //유저를 찾을 수 없는 경우
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        //Post를 찾을 수 없는 경우
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        //User와 Post 작성자가 일치하지 않는 경우
+        if(!post.getUser().getEmail().equals(user.getEmail()))
+            throw new CustomException(ErrorCode.USER_NOT_MATCH);
+
+        post.removePost();
+
+        Post deletedPost = postRepository.save(post);
+
+        return deletedPost.getId();
+    }
 }

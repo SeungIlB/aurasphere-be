@@ -63,11 +63,11 @@ public class Post extends BaseEntity {
 
     public void updatePost(String content) { this.content = content; }
 
-    public void viewCntUp(){ this.viewCnt++; }
-
     public void addLike() { this.likeCnt++; }
 
     public void removeLike() { this.likeCnt--; }
+
+    public void removePost() { this.deletedDate = LocalDateTime.now(); }
 
 }
 
