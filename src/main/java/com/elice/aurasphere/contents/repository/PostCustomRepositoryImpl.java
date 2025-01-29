@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import static com.elice.aurasphere.contents.entity.QLike.like;
 import static com.elice.aurasphere.contents.entity.QPost.post;
 import static com.elice.aurasphere.contents.entity.QView.view;
+import static com.elice.aurasphere.user.entity.QFollow.follow;
 
 
 @Repository
@@ -105,9 +106,28 @@ public class PostCustomRepositoryImpl implements PostCustomRepository{
                 .build();
     }
 
+    @Override
+    public FilterResDTO findAllPostsByFollowing(Long userId, int size, Long postCursor, Optional<Long> filterCursor) {
+
+        List<Post> results = queryFactory
+                .selectFrom(post)
+                .join(follow).on(post.user.id.eq(follow.following.id))
+                .where(follow.follower.id.eq(userId), checkCondition(postCursor))
+                .orderBy(post.id.desc())
+                .limit(size)
+                .fetch();
+
+
+        return FilterResDTO.builder()
+                .postList(results)
+                .build();
+    }
+
+
     private BooleanExpression checkCondition(Long cursor){
         return cursor == 0 ? null : post.id.lt(cursor);
     }
+
     private BooleanExpression checkLikeCondition(Long postCursor, Optional<Long> filterCursor){
         return filterCursor.isPresent() ? like.count().lt(filterCursor.get())
                 .or(like.count().eq(filterCursor.get()).and(post.id.lt(postCursor))) : null;

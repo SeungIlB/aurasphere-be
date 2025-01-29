@@ -18,5 +18,6 @@ public interface PostCustomRepository {
     FilterResDTO findPostsByLikes(Long userId, int size, Long postCursor, Optional<Long> filterCursor);
 
     FilterResDTO findAllPostsByViews(Long userId, int size, Long postCursor, Optional<Long> filterCursor);
+    FilterResDTO findAllPostsByFollowing(Long userId, int size, Long postCursor, Optional<Long> filterCursor);
 
 }

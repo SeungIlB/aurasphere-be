@@ -129,7 +129,7 @@ public class PostService {
         }else if(filter.isPresent() && filter.get().equals("views")){
             results = postRepository.findAllPostsByViews(user.getId(), size, postCursor, filterCursor);
         }else if(filter.isPresent() && filter.get().equals("following")){
-            results = postRepository.findAllPostsByAsc(user.getId(), size, postCursor);
+            results = postRepository.findAllPostsByFollowing(user.getId(), size, postCursor, filterCursor);
         }else {
             results = postRepository.findAllPostsByAsc(user.getId(), size, postCursor);
         }
