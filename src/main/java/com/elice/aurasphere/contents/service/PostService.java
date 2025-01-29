@@ -105,13 +105,9 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        viewRepository.findByPostId(post.getId())
-                .map(view1 -> {
-                    view1.countUp();
-
-                    return view1;
-                })
-                .orElseThrow(() -> new CustomException(ErrorCode.POST_UPDATE_FAILED));
+        View view = viewRepository.findByPostId(postId);
+        view.countUp();
+        viewRepository.save(view);
     }
 
 
@@ -145,7 +141,8 @@ public class PostService {
             return PostResDTO.builder()
                     .id(post.getId())
                     .content(post.getContent())
-                    .likeCnt(post.getLikeCnt())
+                    .likeCnt(likeService.getLikeCnt(post.getId()))
+                    .viewCnt(viewService.getViewCnt(post.getId()))
                     .isLiked(!likeService.isNotAlreadyLike(user,post))
                     .urls(urls)
                     .createdAt(post.getCreatedAt())
@@ -186,7 +183,8 @@ public class PostService {
             return PostResDTO.builder()
                     .id(post.getId())
                     .content(post.getContent())
-                    .likeCnt(post.getLikeCnt())
+                    .likeCnt(likeService.getLikeCnt(post.getId()))
+                    .viewCnt(viewService.getViewCnt(post.getId()))
                     .isLiked(!likeService.isNotAlreadyLike(user,post))
                     .urls(urls)
                     .createdAt(post.getCreatedAt())
@@ -219,7 +217,8 @@ public class PostService {
         return PostResDTO.builder()
                 .id(post.getId())
                 .content(post.getContent())
-                .likeCnt(post.getLikeCnt())
+                .likeCnt(likeService.getLikeCnt(postId))
+                .viewCnt(viewService.getViewCnt(postId))
                 .isLiked(!likeService.isNotAlreadyLike(user,post))
                 .urls(urls)
                 .createdAt(post.getCreatedAt())
@@ -243,8 +242,6 @@ public class PostService {
                 Post.builder()
                         .user(user)
                         .content(content)
-                        .likeCnt(0L)
-                        .viewCnt(0L)
                         .build()
         );
 
@@ -296,8 +293,8 @@ public class PostService {
         return PostResDTO.builder()
                 .id(registeredPost.getId())
                 .content(registeredPost.getContent())
-                .likeCnt(registeredPost.getLikeCnt())
-                .viewCnt(registeredPost.getViewCnt())
+                .likeCnt(likeService.getLikeCnt(registeredPost.getId()))
+                .viewCnt(viewService.getViewCnt(registeredPost.getId()))
                 .commentCnt(0L)
                 .urls(urls)
                 .createdAt(registeredPost.getCreatedAt())

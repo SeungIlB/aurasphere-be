@@ -163,22 +163,6 @@ public class PostController {
         return ApiResponseDto.from(postResDTO);
     }
 
-    /*
-    좋아요 누르기 / 취소 api
-    */
-    @Operation(summary = "좋아요 누르기 API", description = "좋아요 API입니다. " +
-            "<br>반환값 <br>true : 좋아요를 누름 <br>false : 좋아요 취소")
-    @PostMapping("/posts/{postId}/like")
-    public ApiResponseDto<Boolean> likePost(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PathVariable("postId") Long postId) {
-
-
-        boolean result = likeService.toggleLike(userDetails.getUsername(), postId);
-
-        return ApiResponseDto.from(result);
-    }
-
 
     /*
     게시글 수정하는 api
@@ -208,6 +192,22 @@ public class PostController {
         PostResDTO postResDTO = postService.editPost(userDetails.getUsername(), postId, postUpdateDTO);
 
         return ApiResponseDto.from(postResDTO);
+    }
+
+    /*
+    좋아요 누르기 / 취소 api
+    */
+    @Operation(summary = "좋아요 누르기 API", description = "좋아요 API입니다. " +
+            "<br>반환값 <br>true : 좋아요를 누름 <br>false : 좋아요 취소")
+    @PostMapping("/posts/{postId}/like")
+    public ApiResponseDto<Boolean> likePost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable("postId") Long postId) {
+
+
+        boolean result = likeService.toggleLike(userDetails.getUsername(), postId);
+
+        return ApiResponseDto.from(result);
     }
 
 

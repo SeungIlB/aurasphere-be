@@ -1,7 +1,8 @@
-package com.elice.aurasphere.contents.repository;
+package com.elice.aurasphere.contents.repository.repoimpl;
 
 import com.elice.aurasphere.contents.dto.FilterResDTO;
 import com.elice.aurasphere.contents.entity.Post;
+import com.elice.aurasphere.contents.repository.PostCustomRepository;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -20,7 +21,7 @@ import static com.elice.aurasphere.user.entity.QFollow.follow;
 
 
 @Repository
-public class PostCustomRepositoryImpl implements PostCustomRepository{
+public class PostCustomRepositoryImpl implements PostCustomRepository {
 
     private final JPAQueryFactory queryFactory;
 
