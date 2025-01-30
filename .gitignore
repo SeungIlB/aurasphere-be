@@ -4,7 +4,6 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-.env
 ### STS ###
 .apt_generated
 .classpath
@@ -316,3 +315,4 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,linux,macos,intellij,java,git,gradle,groovy,visualstudiocode
+.env
