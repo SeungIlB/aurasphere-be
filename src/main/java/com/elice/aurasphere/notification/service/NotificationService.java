@@ -5,6 +5,7 @@ import com.elice.aurasphere.notification.dto.NotificationType;
 import com.elice.aurasphere.notification.entity.Notification;
 import com.elice.aurasphere.notification.repository.NotificationRepository;
 import com.elice.aurasphere.user.entity.User;
+import com.elice.aurasphere.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -15,27 +16,35 @@ import java.util.stream.Collectors;
 @Service
 public class NotificationService {
 
+
     private final NotificationRepository notificationRepository;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final SimpMessagingTemplate messagingTemplate;  // WebSocket 메시지 전송을 위한 템플릿
+    private final UserRepository userRepository;
 
-
-    public NotificationService(NotificationRepository notificationRepository, SimpMessagingTemplate messagingTemplate) {
+    public NotificationService(NotificationRepository notificationRepository, SimpMessagingTemplate messagingTemplate,
+                               UserRepository userRepository) {
         this.notificationRepository = notificationRepository;
         this.messagingTemplate = messagingTemplate;
+        this.userRepository = userRepository;
     }
 
-    public void sendNotification(User user, User fromUser, NotificationType type) {
+    @Transactional
+    public void createNotification(User fromUser, User toUser, NotificationType type) {
+        // 알림 메시지 생성
         Notification notification = Notification.builder()
-                .user(user)
+                .user(toUser)
                 .fromUser(fromUser)
                 .type(type)
                 .isRead(false)
                 .build();
+
         notificationRepository.save(notification);
 
-        messagingTemplate.convertAndSend(
-                "/topic/notifications/" + user.getId(), new NotificationDTO(notification)
-        );
+        // NotificationDTO 생성
+        NotificationDTO notificationDTO = new NotificationDTO(notification);  // 주어진 생성자 사용
+
+        // 실시간 알림 전송
+        messagingTemplate.convertAndSendToUser(toUser.getId().toString(), "/queue/notifications", notificationDTO);
     }
 
     public List<NotificationDTO> getUserNotifications(Long userId) {
