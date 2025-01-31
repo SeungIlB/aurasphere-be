@@ -137,4 +137,12 @@ public class JwtTokenProvider {
             ACCESS_TOKEN_VALIDITY
         );
     }
+    public Long getUserIdFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.get("userId", Long.class); // JWT의 "userId" 클레임을 가져옴
+    }
 }
