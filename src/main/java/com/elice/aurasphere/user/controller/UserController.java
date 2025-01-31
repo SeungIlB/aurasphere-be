@@ -40,7 +40,7 @@ public class UserController {
             content = {@Content(schema = @Schema(implementation = ErrorResponseDto.class))}),
         @ApiResponse(responseCode = "A004", description = "잘못된 인증 정보")
     })
-    @PostMapping("/login")
+    @PostMapping("/api/login")
     public ResponseEntity<ApiRes<Void>> login(@Valid @RequestBody LoginRequestDTO loginRequest, BindingResult bindingResult, HttpServletResponse response) {
         log.info("Login request received for email: {}", loginRequest.getEmail());
         userService.login(loginRequest, response);
@@ -58,7 +58,7 @@ public class UserController {
         @ApiResponse(responseCode = "U003", description = "이미 존재하는 닉네임",
             content = {@Content(schema = @Schema(implementation = ErrorResponseDto.class))})
     })
-    @PostMapping("/signup")
+    @PostMapping("/api/signup")
     public ResponseEntity<ApiRes<Void>> signup(@Valid @RequestBody SignupRequestDTO signupRequest) {
         userService.signup(signupRequest);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -69,7 +69,7 @@ public class UserController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "S000", description = "로그아웃 성공")
     })
-    @PostMapping("/logout")
+    @PostMapping("/api/logout")
     public ResponseEntity<ApiRes<Void>> logout(HttpServletResponse response) {
         log.info("logout endpoint accessed");
         userService.logout(response);
@@ -94,9 +94,9 @@ public class UserController {
         @ApiResponse(responseCode = "U003", description = "이미 존재하는 닉네임입니다.",
             content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
-    @GetMapping("/users/nickname")
-    public ResponseEntity<ApiRes<Boolean>> checkNicknameDuplication(@RequestBody NicknameCheckRequestDTO request) {
-        boolean isDuplicate = userService.checkNicknameDuplication(request.getNickname());
+    @GetMapping("/api/users/nickname")
+    public ResponseEntity<ApiRes<Boolean>> checkNicknameDuplication(@RequestParam String nickname) {
+        boolean isDuplicate = userService.checkNicknameDuplication(nickname);
         return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, isDuplicate));
     }
 
@@ -109,7 +109,7 @@ public class UserController {
         @ApiResponse(responseCode = "U005", description = "잘못된 사용자 요청",
             content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
-    @PostMapping("/user/reset_password")
+    @PostMapping("/api/user/reset_password")
     public ResponseEntity<ApiRes<Void>> resetPassword(@Valid @RequestBody PasswordResetRequestDTO request) {
         userService.resetPassword(request.getEmail(), request.getNewPassword());
         return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, null));
@@ -120,7 +120,7 @@ public class UserController {
         @ApiResponse(responseCode = "S000", description = "비밀번호 수정 성공"),
         @ApiResponse(responseCode = "U004", description = "잘못된 비밀번호입니다.")
     })
-    @PatchMapping("/user/edit/password")
+    @PatchMapping("/api/user/edit/password")
     public ResponseEntity<ApiRes<Void>> updatePassword(
         @AuthenticationPrincipal CustomUserDetails userDetails,
         @Valid @RequestBody PasswordUpdateRequestDTO request
