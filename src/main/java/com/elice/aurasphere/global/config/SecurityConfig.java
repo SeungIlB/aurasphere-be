@@ -68,8 +68,8 @@ public class SecurityConfig {
 
             .authorizeHttpRequests(authorize -> {
                 authorize
-                    .requestMatchers( "/login", "/signup", "/oauth2/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html",  "/user/checkNickname", "/email/verifyCode/send", "/email/verify").permitAll()
-                    .requestMatchers("/admin").hasRole("ADMIN")
+                    .requestMatchers( "/api/login", "/api/signup", "/api/oauth2/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html",  "/api/user/checkNickname", "/api/email/verifyCode/send", "/api/email/verify").permitAll()
+                    .requestMatchers("/api/admin").hasRole("ADMIN")
                     .anyRequest().authenticated();
             })
 
@@ -84,7 +84,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://34.64.75.50:5173")); // 프론트엔드 주소
+        configuration.setAllowedOrigins(Arrays.asList("http://34.64.75.50:5173", "http://localhost:8080")); // 프론트엔드 주소
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
