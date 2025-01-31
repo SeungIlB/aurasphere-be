@@ -33,6 +33,7 @@ import java.util.Optional;
 @Tag(name = "Post", description = "게시글 API \n 모든 api Access Token 필요")
 @Slf4j
 @RestController
+@RequestMapping("/api")
 public class PostController {
 
     private final PostService postService;

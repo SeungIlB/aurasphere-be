@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "User", description = "사용자 관련 API")
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 @Slf4j
 public class UserController {
     private final UserService userService;
@@ -40,7 +41,7 @@ public class UserController {
             content = {@Content(schema = @Schema(implementation = ErrorResponseDto.class))}),
         @ApiResponse(responseCode = "A004", description = "잘못된 인증 정보")
     })
-    @PostMapping("/api/login")
+    @PostMapping("/login")
     public ResponseEntity<ApiRes<Void>> login(@Valid @RequestBody LoginRequestDTO loginRequest, BindingResult bindingResult, HttpServletResponse response) {
         log.info("Login request received for email: {}", loginRequest.getEmail());
         userService.login(loginRequest, response);
@@ -58,7 +59,7 @@ public class UserController {
         @ApiResponse(responseCode = "U003", description = "이미 존재하는 닉네임",
             content = {@Content(schema = @Schema(implementation = ErrorResponseDto.class))})
     })
-    @PostMapping("/api/signup")
+    @PostMapping("/signup")
     public ResponseEntity<ApiRes<Void>> signup(@Valid @RequestBody SignupRequestDTO signupRequest) {
         userService.signup(signupRequest);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -69,7 +70,7 @@ public class UserController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "S000", description = "로그아웃 성공")
     })
-    @PostMapping("/api/logout")
+    @PostMapping("/logout")
     public ResponseEntity<ApiRes<Void>> logout(HttpServletResponse response) {
         log.info("logout endpoint accessed");
         userService.logout(response);
@@ -94,7 +95,7 @@ public class UserController {
         @ApiResponse(responseCode = "U003", description = "이미 존재하는 닉네임입니다.",
             content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
-    @GetMapping("/api/users/nickname")
+    @GetMapping("/users/nickname")
     public ResponseEntity<ApiRes<Boolean>> checkNicknameDuplication(@RequestParam String nickname) {
         boolean isDuplicate = userService.checkNicknameDuplication(nickname);
         return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, isDuplicate));
@@ -109,7 +110,7 @@ public class UserController {
         @ApiResponse(responseCode = "U005", description = "잘못된 사용자 요청",
             content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
-    @PostMapping("/api/user/reset_password")
+    @PostMapping("/user/reset_password")
     public ResponseEntity<ApiRes<Void>> resetPassword(@Valid @RequestBody PasswordResetRequestDTO request) {
         userService.resetPassword(request.getEmail(), request.getNewPassword());
         return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, null));
@@ -120,7 +121,7 @@ public class UserController {
         @ApiResponse(responseCode = "S000", description = "비밀번호 수정 성공"),
         @ApiResponse(responseCode = "U004", description = "잘못된 비밀번호입니다.")
     })
-    @PatchMapping("/api/user/edit/password")
+    @PatchMapping("/user/edit/password")
     public ResponseEntity<ApiRes<Void>> updatePassword(
         @AuthenticationPrincipal CustomUserDetails userDetails,
         @Valid @RequestBody PasswordUpdateRequestDTO request
