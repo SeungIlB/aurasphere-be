@@ -1,4 +1,4 @@
-package com.elice.aurasphere.config;
+package com.elice.aurasphere.global.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
