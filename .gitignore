@@ -4,7 +4,6 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-
 ### STS ###
 .apt_generated
 .classpath
@@ -16,7 +15,8 @@ build/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
-*.properties
+application-dev.properties
+application.properties
 # Created by https://www.toptal.com/developers/gitignore/api/windows,linux,macos,intellij,java,git,gradle,groovy,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,linux,macos,intellij,java,git,gradle,groovy,visualstudiocode
 
@@ -315,3 +315,4 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,linux,macos,intellij,java,git,gradle,groovy,visualstudiocode
+.env
