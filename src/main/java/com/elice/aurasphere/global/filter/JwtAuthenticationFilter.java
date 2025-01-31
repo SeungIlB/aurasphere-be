@@ -31,8 +31,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     // 인증(로그인)없어도 접근 가능한 리소스
     private final List<String> EXCLUDED_URLS = Arrays.asList(
-        "/login",
-        "/signup",
+        "/api/login",
+        "/api/signup",
         "/swagger-ui",  // Swagger UI 경로
         "/v3/api-docs", // OpenAPI 문서 경로
         "/swagger-ui.html"
@@ -119,12 +119,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        return path.startsWith("/login") ||
-            path.startsWith("/signup") ||
-            path.startsWith("/oauth2") ||
-            path.startsWith("/user/checkNickname") ||
-            path.startsWith("/email/verifyCode/send") ||
-            path.startsWith("/email/verify") ||
+        return path.startsWith("/api/login") ||
+            path.startsWith("/api/signup") ||
+            path.startsWith("/api/oauth2") ||
+            path.startsWith("/api/user/checkNickname") ||
+            path.startsWith("/api/email/verifyCode/send") ||
+            path.startsWith("/api/email/verify") ||
             path.startsWith("/swagger-ui") ||
             path.startsWith("/v3/api-docs") ||
             path.startsWith("/swagger-ui.html");
