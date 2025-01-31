@@ -19,6 +19,8 @@ prebuild:
     paths:
       - build/libs/*.jar
       - ${ENV_COPY_PATH}
+  only:
+    - dev
 
 build_job:
   stage: build
@@ -33,6 +35,8 @@ build_job:
   artifacts:
     paths:
       - ${ENV_COPY_PATH}
+  only:
+    - dev
 
 deploy_job:
   stage: deploy
@@ -44,3 +48,5 @@ deploy_job:
     - docker compose --env-file ${ENV_COPY_PATH} down
     - docker compose --env-file ${ENV_COPY_PATH} pull
     - docker compose --env-file ${ENV_COPY_PATH} up -d
+  only:
+    - dev
