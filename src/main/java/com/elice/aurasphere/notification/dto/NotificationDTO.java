@@ -18,7 +18,7 @@ public class NotificationDTO {
         this.id = notification.getId();
         this.message = notification.generateMessage();
         this.createdAt = notification.getCreatedAt();
-        this.isRead = notification.getIsRead();
+        this.isRead = notification.isRead();
     }
 }
 
