@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Comment", description = "댓글 API")
 @Slf4j
-@RequestMapping("/comment")
+@RequestMapping("/api/comment")
 @RestController
 public class CommentController {
 

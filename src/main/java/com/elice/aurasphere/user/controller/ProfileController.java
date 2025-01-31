@@ -28,7 +28,7 @@ import java.util.List;
 
 @Tag(name = "Profile", description = "프로필 관련 API")
 @RestController
-@RequestMapping("/profile")
+@RequestMapping("/api/profile")
 @RequiredArgsConstructor
 @Slf4j
 public class ProfileController {
