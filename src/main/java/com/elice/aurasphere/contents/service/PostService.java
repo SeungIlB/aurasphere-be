@@ -322,9 +322,20 @@ public class PostService {
 
                     existingPost.updatePost(postUpdateDTO.getContent());
 
-                    Post updatedPost = postRepository.save(existingPost);
+                    Post savedPost = postRepository.save(existingPost);
 
-                    return mapper.postToPostResDto(updatedPost);
+                    List<FileDTO> urls = fileRepository.findFilesByPostId(savedPost.getId());
+
+                    return PostResDTO.builder()
+                            .id(savedPost.getId())
+                            .content(savedPost.getContent())
+                            .likeCnt(likeService.getLikeCnt(savedPost.getId()))
+                            .viewCnt(viewService.getViewCnt(savedPost.getId()))
+                            .urls(urls)
+                            .isLiked(!likeService.isNotAlreadyLike(user, savedPost))
+                            .createdAt(savedPost.getCreatedAt())
+                            .updatedAt(savedPost.getUpdatedAt())
+                            .build();
                 })
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_UPDATE_FAILED));
     }
