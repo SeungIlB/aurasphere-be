@@ -58,8 +58,16 @@ dependencies {
 	//liveReload 소스코드 자동반영
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
+	//Querydsl
+	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+	annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
 	// 이메일 전송을 위한 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+	implementation 'io.github.cdimascio:dotenv-java:3.0.0'
 
 }
 

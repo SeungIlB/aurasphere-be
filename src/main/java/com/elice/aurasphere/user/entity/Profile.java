@@ -34,7 +34,7 @@ public class Profile extends BaseEntity {
     @Column(nullable = false)
     private String nickname;
 
-    @Column(name = "profile_url", nullable = false)
+    @Column(name = "profile_url", nullable = false, length = 500)
     private String profileUrl;
 
     @Column(name = "profile_url_expiry_date")
@@ -45,9 +45,8 @@ public class Profile extends BaseEntity {
     }
 
     // 프로필 업데이트를 위한 메서드
-    public void updateProfile(String nickname, String profileUrl) {
+    public void updateProfileNickname(String nickname) {
         this.nickname = nickname;
-        this.profileUrl = profileUrl;
     }
 
     public void updateProfileUrl(String profileUrl) {
