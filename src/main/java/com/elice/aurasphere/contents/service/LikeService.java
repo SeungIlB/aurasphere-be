@@ -8,6 +8,8 @@ import com.elice.aurasphere.contents.repository.LikeRepository;
 import com.elice.aurasphere.contents.repository.PostRepository;
 import com.elice.aurasphere.global.exception.CustomException;
 import com.elice.aurasphere.global.exception.ErrorCode;
+import com.elice.aurasphere.notification.dto.NotificationType;
+import com.elice.aurasphere.notification.service.NotificationService;
 import com.elice.aurasphere.user.entity.User;
 import com.elice.aurasphere.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -21,17 +23,19 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService; // 알림 서비스 추가
 
     private final PostMapper mapper;
 
     public LikeService(
             LikeRepository likeRepository,
             PostRepository postRepository,
-            UserRepository userRepository,
+            UserRepository userRepository, NotificationService notificationService,
             PostMapper mapper) {
         this.likeRepository = likeRepository;
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
         this.mapper = mapper;
     }
 
@@ -78,7 +82,13 @@ public class LikeService {
 //                    .orElseThrow(() -> new CustomException(ErrorCode.POST_UPDATE_FAILED));
         }
 
-
+        if (!user.equals(post.getUser())) { // 자기 자신에게 알림 보내지 않도록 체크
+            notificationService.createNotification(
+                    user,
+                    post.getUser(),
+                    NotificationType.LIKE
+            );
+        }
 
         //좋아요 누른 적이 있으면 false 반환
         return false;
