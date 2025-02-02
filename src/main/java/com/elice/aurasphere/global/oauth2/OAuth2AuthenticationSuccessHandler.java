@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -26,8 +27,9 @@ import java.util.stream.Collectors;
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final JwtTokenProvider tokenProvider;
     private final CookieUtil cookieUtil;
-    private final String REDIRECT_URI = "http://localhost:3000";
-    private final String LOGIN_FAILURE_URI = "http://localhost:3000/login";
+
+    @Value("${frontend.redirect.url}")
+    private String redirectUri;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -57,7 +59,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             cookieUtil.addRefreshTokenCookie(response, refreshToken, tokenProvider.REFRESH_TOKEN_VALIDITY);
 
             // 프론트엔드로 리다이렉트
-            getRedirectStrategy().sendRedirect(request, response, REDIRECT_URI);
+            getRedirectStrategy().sendRedirect(request, response, redirectUri);
 
         } catch (Exception ex) {
             log.error("OAuth2 authentication failed", ex);
@@ -65,47 +67,47 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
     }
 
-    private String extractEmail(OAuth2User oAuth2User) {
-        String email = null;
-
-        // Kakao
-        Map<String, Object> kakaoAccount = oAuth2User.getAttribute("kakao_account");
-        if (kakaoAccount != null && (Boolean) kakaoAccount.get("has_email")) {
-            email = (String) kakaoAccount.get("email");
-        }
-
-        // Naver
-        Map<String, Object> naverResponse = oAuth2User.getAttribute("response");
-        if (naverResponse != null) {
-            email = (String) naverResponse.get("email");
-        }
-
-        return email;
-    }
-
-    private String extractProvider(String requestUri) {
-        if (requestUri.contains("kakao")) {
-            return "KAKAO";
-        } else if (requestUri.contains("naver")) {
-            return "NAVER";
-        }
-        return "UNKNOWN";
-    }
-
-    private String generateTempEmail(String provider, OAuth2User oAuth2User) {
-        String id = "";
-        if (provider.equals("KAKAO")) {
-            id = String.valueOf(oAuth2User.getAttribute("id"));
-        } else if (provider.equals("NAVER")) {
-            Map<String, Object> response = oAuth2User.getAttribute("response");
-            id = (String) response.get("id");
-        }
-
-        return String.format("%s_%s@temp.%s.com",
-            provider.toLowerCase(),
-            id,
-            UUID.randomUUID().toString().substring(0, 8));
-    }
+//    private String extractEmail(OAuth2User oAuth2User) {
+//        String email = null;
+//
+//        // Kakao
+//        Map<String, Object> kakaoAccount = oAuth2User.getAttribute("kakao_account");
+//        if (kakaoAccount != null && (Boolean) kakaoAccount.get("has_email")) {
+//            email = (String) kakaoAccount.get("email");
+//        }
+//
+//        // Naver
+//        Map<String, Object> naverResponse = oAuth2User.getAttribute("response");
+//        if (naverResponse != null) {
+//            email = (String) naverResponse.get("email");
+//        }
+//
+//        return email;
+//    }
+//
+//    private String extractProvider(String requestUri) {
+//        if (requestUri.contains("kakao")) {
+//            return "KAKAO";
+//        } else if (requestUri.contains("naver")) {
+//            return "NAVER";
+//        }
+//        return "UNKNOWN";
+//    }
+//
+//    private String generateTempEmail(String provider, OAuth2User oAuth2User) {
+//        String id = "";
+//        if (provider.equals("KAKAO")) {
+//            id = String.valueOf(oAuth2User.getAttribute("id"));
+//        } else if (provider.equals("NAVER")) {
+//            Map<String, Object> response = oAuth2User.getAttribute("response");
+//            id = (String) response.get("id");
+//        }
+//
+//        return String.format("%s_%s@temp.%s.com",
+//            provider.toLowerCase(),
+//            id,
+//            UUID.randomUUID().toString().substring(0, 8));
+//    }
 
     private void handleAuthenticationFailure(HttpServletResponse response, String errorMessage)
         throws IOException {
