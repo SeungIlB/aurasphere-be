@@ -24,7 +24,7 @@ public class CookieUtil {
     private Cookie createCookie(String name, String value, long maxAge) {
         Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+        cookie.setSecure(false);
         cookie.setPath("/");
         cookie.setAttribute("SameSite", "None");
         cookie.setMaxAge((int) (maxAge / 1000)); // milliseconds to seconds
