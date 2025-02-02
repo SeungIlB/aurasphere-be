@@ -7,6 +7,7 @@ import com.elice.aurasphere.global.exception.ErrorCode;
 import com.elice.aurasphere.user.dto.LoginRequestDTO;
 import com.elice.aurasphere.user.dto.PasswordUpdateRequestDTO;
 import com.elice.aurasphere.user.dto.SignupRequestDTO;
+import com.elice.aurasphere.user.dto.TokenInfoDTO;
 import com.elice.aurasphere.user.entity.Profile;
 import com.elice.aurasphere.user.entity.User;
 import com.elice.aurasphere.user.repository.ProfileRepository;
@@ -39,21 +40,28 @@ public class UserService {
     @Value("${default.profile.image.url}")
     private String defaultProfileImageUrl;
 
-    public void login(LoginRequestDTO loginRequest, HttpServletResponse response) {
+    public TokenInfoDTO login(LoginRequestDTO loginRequest, HttpServletResponse response) {
         // 인증
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
         );
 
-//        // 권한 정보 추출
-//        List<String> roles = authentication.getAuthorities().stream()
-//            .map(GrantedAuthority::getAuthority)
-//            .collect(Collectors.toList());
-//
-//        // 토큰 생성
-//        String accessToken = jwtTokenProvider.createAccessToken(authentication.getName(), roles);
-//        String refreshToken = jwtTokenProvider.createRefreshToken(authentication.getName());
-//
+        // 권한 정보 추출
+        List<String> roles = authentication.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.toList());
+
+        // 토큰 생성
+        String accessToken = jwtTokenProvider.createAccessToken(authentication.getName(), roles);
+        String refreshToken = jwtTokenProvider.createRefreshToken(authentication.getName());
+
+        // TokenInfo로 반환
+        return new TokenInfoDTO(
+            "Bearer",
+            accessToken,
+            refreshToken,
+            jwtTokenProvider.REFRESH_TOKEN_VALIDITY
+        );
 //        // 쿠키에 토큰 추가
 //        cookieUtil.addAccessTokenCookie(response, accessToken, jwtTokenProvider.REFRESH_TOKEN_VALIDITY);
 //        cookieUtil.addRefreshTokenCookie(response, refreshToken, jwtTokenProvider.REFRESH_TOKEN_VALIDITY);
