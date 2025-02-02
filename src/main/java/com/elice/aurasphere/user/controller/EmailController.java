@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Email", description = "이메일 인증 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/users/email")
 @Slf4j
 public class EmailController {
 
@@ -38,7 +38,7 @@ public class EmailController {
         @ApiResponse(responseCode = "S001", description = "서버에 오류가 발생했습니다.",
             content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
-    @PostMapping("/users/email/verification_code")
+    @PostMapping("/verification_code")
     public ResponseEntity<ApiRes<Void>> sendVerificationEmail(@RequestBody EmailCheckRequestDTO request) {
         emailService.createAndSendVerification(request.getEmail());
         return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, null));
@@ -55,7 +55,7 @@ public class EmailController {
         @ApiResponse(responseCode = "V003", description = "이미 인증이 완료된 코드입니다.",
             content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
-    @PostMapping("/users/email/verification")
+    @PostMapping("/verification")
     public ResponseEntity<ApiRes<Void>> verifyEmail(@RequestBody VerificationRequestDTO request) {
         emailService.verifyEmail(request.getEmail(), request.getCode());
         return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, null));

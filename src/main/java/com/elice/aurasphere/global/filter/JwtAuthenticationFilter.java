@@ -122,9 +122,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return path.startsWith("/api/login") ||
             path.startsWith("/api/signup") ||
             path.startsWith("/api/oauth2") ||
-            path.startsWith("/api/user/checkNickname") ||
-            path.startsWith("/api/email/verifyCode/send") ||
-            path.startsWith("/api/email/verify") ||
+            path.startsWith("/api//users/nickname") ||
+            path.startsWith("/api/users/email/verification_code") ||
+            path.startsWith("/api/users/email/verification") ||
             path.startsWith("/swagger-ui") ||
             path.startsWith("/v3/api-docs") ||
             path.startsWith("/swagger-ui.html");
