@@ -42,7 +42,7 @@ public class UserController {
         @ApiResponse(responseCode = "A004", description = "잘못된 인증 정보")
     })
     @PostMapping("/login")
-    public ResponseEntity<ApiRes<Void>> login(@Valid @RequestBody LoginRequestDTO loginRequest, BindingResult bindingResult, HttpServletResponse response) {
+    public ResponseEntity<ApiRes<Void>> login(@Valid @RequestBody LoginRequestDTO loginRequest, HttpServletResponse response) {
         log.info("Login request received for email: {}", loginRequest.getEmail());
         userService.login(loginRequest, response);
         return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, null));
