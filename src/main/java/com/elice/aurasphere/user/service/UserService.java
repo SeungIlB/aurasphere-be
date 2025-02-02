@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,6 +35,9 @@ public class UserService {
     private final ProfileRepository profileRepository;
     private final PasswordEncoder passwordEncoder;
     private final CookieUtil cookieUtil;
+
+    @Value("${default.profile.image.url}")
+    private String defaultProfileImageUrl;
 
     public void login(LoginRequestDTO loginRequest, HttpServletResponse response) {
         // 인증
@@ -78,7 +82,7 @@ public class UserService {
         Profile profile = Profile.builder()
             .user(user)
             .nickname(signupRequest.getNickname())
-            .profileUrl("DEFAULT") // 기본 프로필 이미지 경로
+            .profileUrl(defaultProfileImageUrl) // 기본 프로필 이미지 경로
             .build();
 
         // 사용자 저장
