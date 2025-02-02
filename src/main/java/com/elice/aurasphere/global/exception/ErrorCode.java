@@ -59,6 +59,10 @@ public enum ErrorCode {
 
     //조회수 관련 에러
     VIEW_UPDATE_FAILED("V001", HttpStatus.BAD_REQUEST, "조회수 업데이트에 실패했습니다."),
+
+    // 알림 관련 에러
+    NOTIFICATION_NOT_FOUND("N001", HttpStatus.NOT_FOUND, "해당 알림을 찾을 수 없습니다."),
+    NOTIFICATION_ACCESS_DENIED("N002", HttpStatus.FORBIDDEN, "해당 알림에 대한 접근 권한이 없습니다."),
     ;
 
     private final String code;
