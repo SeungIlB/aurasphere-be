@@ -29,15 +29,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
     private final CookieUtil cookieUtil;
 
-    // 인증(로그인)없어도 접근 가능한 리소스
-    private final List<String> EXCLUDED_URLS = Arrays.asList(
-        "/api/login",
-        "/api/signup",
-        "/swagger-ui",  // Swagger UI 경로
-        "/v3/api-docs", // OpenAPI 문서 경로
-        "/swagger-ui.html"
-    );
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
         FilterChain filterChain) throws ServletException, IOException {
@@ -122,7 +113,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return path.startsWith("/api/login") ||
             path.startsWith("/api/signup") ||
             path.startsWith("/api/oauth2") ||
-            path.startsWith("/api//users/nickname") ||
+            path.startsWith("/api/users/nickname") ||
             path.startsWith("/api/users/email/verification_code") ||
             path.startsWith("/api/users/email/verification") ||
             path.startsWith("/swagger-ui") ||
