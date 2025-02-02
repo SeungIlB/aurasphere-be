@@ -45,18 +45,18 @@ public class UserService {
             new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
         );
 
-        // 권한 정보 추출
-        List<String> roles = authentication.getAuthorities().stream()
-            .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.toList());
-
-        // 토큰 생성
-        String accessToken = jwtTokenProvider.createAccessToken(authentication.getName(), roles);
-        String refreshToken = jwtTokenProvider.createRefreshToken(authentication.getName());
-
-        // 쿠키에 토큰 추가
-        cookieUtil.addAccessTokenCookie(response, accessToken, jwtTokenProvider.REFRESH_TOKEN_VALIDITY);
-        cookieUtil.addRefreshTokenCookie(response, refreshToken, jwtTokenProvider.REFRESH_TOKEN_VALIDITY);
+//        // 권한 정보 추출
+//        List<String> roles = authentication.getAuthorities().stream()
+//            .map(GrantedAuthority::getAuthority)
+//            .collect(Collectors.toList());
+//
+//        // 토큰 생성
+//        String accessToken = jwtTokenProvider.createAccessToken(authentication.getName(), roles);
+//        String refreshToken = jwtTokenProvider.createRefreshToken(authentication.getName());
+//
+//        // 쿠키에 토큰 추가
+//        cookieUtil.addAccessTokenCookie(response, accessToken, jwtTokenProvider.REFRESH_TOKEN_VALIDITY);
+//        cookieUtil.addRefreshTokenCookie(response, refreshToken, jwtTokenProvider.REFRESH_TOKEN_VALIDITY);
     }
 
     @Transactional

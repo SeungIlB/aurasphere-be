@@ -39,35 +39,50 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         log.info("Request URL: {}", request.getRequestURL());
         log.info("Servlet Path: {}", request.getServletPath());
 
-        String accessToken = getTokenFromCookie(request, cookieUtil.ACCESS_TOKEN_COOKIE_NAME);
-        log.info("Access token from cookie: {}", accessToken != null ? "present" : "null");
+//        String accessToken = getTokenFromCookie(request, cookieUtil.ACCESS_TOKEN_COOKIE_NAME);
+//        log.info("Access token from cookie: {}", accessToken != null ? "present" : "null");
+//
+//        // 액세스 토큰이 없다면 예외 발생
+//        if (accessToken == null) {
+//            setErrorResponse(response, HttpStatus.UNAUTHORIZED, "토큰이 존재하지 않습니다.");
+//            return;
+//        }
 
-        // 액세스 토큰이 없다면 예외 발생
-        if (accessToken == null) {
-            setErrorResponse(response, HttpStatus.UNAUTHORIZED, "토큰이 존재하지 않습니다.");
-            return;
-        }
+//        try {
+//            // 토큰 유효성 검사 및 인증 처리
+//            if (jwtTokenProvider.validateToken(accessToken)) {
+//                log.info("Token validation successful");
+//                Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
+//                SecurityContextHolder.getContext().setAuthentication(authentication);
+//                log.info("Authentication set in SecurityContext");
+//            }
+//            Authentication authentication = jwtTokenProvider.getAuthentication(email);
+//            SecurityContextHolder.getContext().setAuthentication(authentication);
+//        } catch (ExpiredJwtException e) {
+//            // Access Token이 만료된 경우 자동으로 재발급
+//            log.info("Token expired, attempting to refresh");
+//            reIssueAccessToken(request, response);
+//        } catch (SignatureException e) {
+//            log.error("Token validation failed", e);
+//            setErrorResponse(response, HttpStatus.BAD_REQUEST, "변조된 토큰입니다.");
+//            return;
+//        } catch (Exception e) {
+//            setErrorResponse(response, HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");
+//            return;
+//        }
 
-        try {
-            // 토큰 유효성 검사 및 인증 처리
-            if (jwtTokenProvider.validateToken(accessToken)) {
-                log.info("Token validation successful");
-                Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
+        String email = request.getHeader("email"); // 커스텀 헤더에서 이메일 가져오기
+
+        if (email != null) {
+            try {
+                Authentication authentication = jwtTokenProvider.getAuthentication(email);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.info("Authentication set in SecurityContext");
+                log.info("Authentication set for email: {}", email);
+            } catch (Exception e) {
+                log.error("Authentication error", e);
             }
-        } catch (ExpiredJwtException e) {
-            // Access Token이 만료된 경우 자동으로 재발급
-            log.info("Token expired, attempting to refresh");
-            reIssueAccessToken(request, response);
-        } catch (SignatureException e) {
-            log.error("Token validation failed", e);
-            setErrorResponse(response, HttpStatus.BAD_REQUEST, "변조된 토큰입니다.");
-            return;
-        } catch (Exception e) {
-            setErrorResponse(response, HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");
-            return;
         }
+
 
         filterChain.doFilter(request, response);
     }
