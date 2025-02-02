@@ -7,6 +7,7 @@ import com.elice.aurasphere.user.dto.NicknameCheckRequestDTO;
 import com.elice.aurasphere.user.dto.PasswordResetRequestDTO;
 import com.elice.aurasphere.user.dto.PasswordUpdateRequestDTO;
 import com.elice.aurasphere.user.dto.SignupRequestDTO;
+import com.elice.aurasphere.user.dto.TokenInfoDTO;
 import com.elice.aurasphere.user.entity.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
@@ -42,10 +43,10 @@ public class UserController {
         @ApiResponse(responseCode = "A004", description = "잘못된 인증 정보")
     })
     @PostMapping("/login")
-    public ResponseEntity<ApiRes<Void>> login(@Valid @RequestBody LoginRequestDTO loginRequest, HttpServletResponse response) {
+    public ResponseEntity<ApiRes<TokenInfoDTO>> login(@Valid @RequestBody LoginRequestDTO loginRequest, HttpServletResponse response) {
         log.info("Login request received for email: {}", loginRequest.getEmail());
-        userService.login(loginRequest, response);
-        return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, null));
+        TokenInfoDTO tokenInfo = userService.login(loginRequest, response);
+        return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, tokenInfo));
     }
 
     @Operation(summary = "회원가입 API", description = "새로운 사용자를 등록하는 API입니다.")

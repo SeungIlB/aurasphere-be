@@ -71,18 +71,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 //            return;
 //        }
 
-        String email = request.getHeader("email"); // 커스텀 헤더에서 이메일 가져오기
+        // Authorization 헤더에서 토큰 추출
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            String token = bearerToken.substring(7);
 
-        if (email != null) {
             try {
-                Authentication authentication = jwtTokenProvider.getAuthentication(email);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.info("Authentication set for email: {}", email);
+                if (jwtTokenProvider.validateToken(token)) {
+                    Authentication authentication = jwtTokenProvider.getAuthentication(token);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             } catch (Exception e) {
-                log.error("Authentication error", e);
+                log.error("Token validation failed", e);
             }
         }
-
 
         filterChain.doFilter(request, response);
     }
