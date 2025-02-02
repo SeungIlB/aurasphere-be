@@ -26,6 +26,7 @@ public class CookieUtil {
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/");
+        cookie.setAttribute("SameSite", "None");
         cookie.setMaxAge((int) (maxAge / 1000)); // milliseconds to seconds
         return cookie;
     }

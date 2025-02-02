@@ -20,17 +20,16 @@ public class Notification {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user; // 알림을 받는 사용자
-
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "from_user_id", nullable = false)
-    private User fromUser; // 알림을 발생시킨 사용자
+    private User fromUser;
 
     @Enumerated(EnumType.STRING)
-    private NotificationType type; // 알림 유형 (댓글, 팔로우, 좋아요)
+    private NotificationType type;
 
-    private boolean isRead; // 읽음 여부
+    private boolean read; // `isRead` -> `read`로 변경 (JPA 컬럼 매핑 문제 방지)
 
     private LocalDateTime createdAt;
 
@@ -40,7 +39,7 @@ public class Notification {
     }
 
     public String generateMessage() {
-        String fromUserName = fromUser.getProfile().getNickname();
+        String fromUserName = (fromUser != null && fromUser.getProfile() != null) ? fromUser.getProfile().getNickname() : "알 수 없는 사용자";
         switch (type) {
             case COMMENT:
                 return fromUserName + "님이 게시물에 댓글을 달았습니다.";
@@ -51,6 +50,10 @@ public class Notification {
             default:
                 return "새로운 알림이 도착했습니다.";
         }
+    }
+
+    public void markAsRead() {
+        this.read = true;
     }
 }
 
