@@ -73,13 +73,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Authorization 헤더에서 토큰 추출
         String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            String token = bearerToken.substring(7);
-
+        log.info("bearerToken: {}", bearerToken);
+        if (bearerToken != null) {
             try {
-                if (jwtTokenProvider.validateToken(token)) {
-                    Authentication authentication = jwtTokenProvider.getAuthentication(token);
+                if (jwtTokenProvider.validateToken(bearerToken)) {
+                    log.info("Token validation successful");
+                    Authentication authentication = jwtTokenProvider.getAuthentication(bearerToken);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+                    log.info("Authentication set in SecurityContext");
                 }
             } catch (Exception e) {
                 log.error("Token validation failed", e);

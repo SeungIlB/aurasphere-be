@@ -75,15 +75,13 @@ public class SecurityConfig {
                 authorize
                     .requestMatchers( "/api/login", "/api/signup", "/api/oauth2/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html",  "/api/users/nickname", "/api/users/email/verification_code", "/api/users/email/verification").permitAll()
                     .requestMatchers("/api/admin").hasRole("ADMIN")
-                    // 나머지 API는 테스트를 위해 임시로 허용
-                    .requestMatchers("/api/**").permitAll();
-//                    .anyRequest().authenticated();
-            });
+                    .anyRequest().authenticated();
+            })
 
-//            .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, cookieUtil),
-//                UsernamePasswordAuthenticationFilter.class)
-//            .addFilterBefore(new JwtExceptionFilter(),
-//                JwtAuthenticationFilter.class);
+            .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, cookieUtil),
+                UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(new JwtExceptionFilter(),
+                JwtAuthenticationFilter.class);
 
         return http.build();
     }
