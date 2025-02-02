@@ -83,17 +83,17 @@ public class JwtTokenProvider {
     }
 
     // 토큰에서 인증 정보 조회
-//    public Authentication getAuthentication(String token) {
-//        String userEmail = getUserEmail(token);
-//        UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-//
-//        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
-//    }
+    public Authentication getAuthentication(String token) {
+        String userEmail = getUserEmail(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
 
-    public Authentication getAuthentication(String email) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
+
+//    public Authentication getAuthentication(String email) {
+//        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+//        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+//    }
 
     // 토큰에서 사용자 이메일 추출
     public String getUserEmail(String token) {
