@@ -43,9 +43,9 @@ public class UserController {
         @ApiResponse(responseCode = "A004", description = "잘못된 인증 정보")
     })
     @PostMapping("/login")
-    public ResponseEntity<ApiRes<TokenInfoDTO>> login(@Valid @RequestBody LoginRequestDTO loginRequest, HttpServletResponse response) {
+    public ResponseEntity<ApiRes<TokenInfoDTO>> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
         log.info("Login request received for email: {}", loginRequest.getEmail());
-        TokenInfoDTO tokenInfo = userService.login(loginRequest, response);
+        TokenInfoDTO tokenInfo = userService.login(loginRequest);
         return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, tokenInfo));
     }
 
@@ -72,9 +72,9 @@ public class UserController {
         @ApiResponse(responseCode = "S000", description = "로그아웃 성공")
     })
     @PostMapping("/logout")
-    public ResponseEntity<ApiRes<Void>> logout(HttpServletResponse response) {
-        log.info("logout endpoint accessed");
-        userService.logout(response);
+    public ResponseEntity<ApiRes<Void>> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        log.info("Logout request received for user: {}", userDetails.getEmail());
+        userService.logout(userDetails.getEmail());
         return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, null));
     }
 
