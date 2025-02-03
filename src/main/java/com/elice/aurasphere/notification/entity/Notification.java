@@ -29,8 +29,8 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     private NotificationType type;
 
-    @Column(name = "is_read")
-    private boolean is_read;
+    @Column(name = "is_read_flag")  // 컬럼 이름을 변경
+    private boolean isRead;
 
     private LocalDateTime createdAt;
 
@@ -54,7 +54,7 @@ public class Notification {
     }
 
     public void markAsRead() {
-        this.is_read = true;
+        this.isRead = true;
     }
 }
 
