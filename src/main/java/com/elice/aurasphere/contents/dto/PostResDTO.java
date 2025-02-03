@@ -15,6 +15,9 @@ public class PostResDTO {
     @Schema(description = "게시글 id")
     private Long id;
 
+    @Schema(description = "게시글 작성자 닉네임")
+    private String nickname;
+
     @Schema(description = "게시글 내용")
     private String content;
 
@@ -43,6 +46,7 @@ public class PostResDTO {
     @Builder
     public PostResDTO(
             Long id,
+            String nickname,
             String content,
             Long likeCnt,
             Long viewCnt,
@@ -53,6 +57,7 @@ public class PostResDTO {
             LocalDateTime updatedAt) {
 
         this.id = id;
+        this.nickname = nickname;
         this.content = content;
         this.likeCnt = likeCnt;
         this.viewCnt = viewCnt;

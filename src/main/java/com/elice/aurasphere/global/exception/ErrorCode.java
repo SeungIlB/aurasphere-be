@@ -2,11 +2,13 @@ package com.elice.aurasphere.global.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 
 import java.util.Optional;
 import java.util.function.Predicate;
 
+@Slf4j
 @AllArgsConstructor
 @Getter
 public enum ErrorCode {
@@ -14,9 +16,14 @@ public enum ErrorCode {
     // Success
     OK("S000", HttpStatus.OK, "OK"),
 
+    //공통 에러
+    MISSING_PART("C001", HttpStatus.BAD_REQUEST, "필수 데이터가 누락되었습니다."),
+
     //공통 서버에러
     INTERNAL_ERROR("E001", HttpStatus.INTERNAL_SERVER_ERROR, "서버에 오류가 발생했습니다."),
     METHOD_NOT_ALLOWED("E002", HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP Method 요청입니다."),
+    //프로필 관련 에러
+    PROFILE_NOT_FOUND("E003", HttpStatus.NOT_FOUND, "프로필 정보를 찾을 수 없습니다."),
 
     // 인증 관련 에러
     TOKEN_EXPIRED("A001", HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
@@ -49,6 +56,7 @@ public enum ErrorCode {
     POST_RETRIEVAL_FAILED("P008", HttpStatus.INTERNAL_SERVER_ERROR, "게시글을 조회하는 데 실패했습니다."),
     POST_IMAGE_UPLOAD_FAILED("P009", HttpStatus.INTERNAL_SERVER_ERROR, "게시글 이미지 업로드에 실패했습니다."),
     POST_SERVER_ERROR("P010", HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류로 게시글을 작성할 수 없습니다."),
+    POST_ALREADY_DELETED("P011", HttpStatus.NOT_FOUND, "삭제된 게시물입니다."),
 
     IMAGE_NOT_FOUND("I001", HttpStatus.NOT_FOUND, "Key에 해당하는 이미지를 찾을 수 없습니다."),
 
@@ -69,13 +77,22 @@ public enum ErrorCode {
     private final HttpStatus httpStatus;
     private final String message;
 
-    public String getMessage(Throwable throwable) {
-        return this.getMessage(this.getMessage(this.getMessage() + " - " + throwable.getMessage()));
+    public String getDetailMessage(Throwable throwable) {
+        if(throwable != null && !isBlank(throwable.getMessage())){
+            log.info("throwable.getMessage {}", throwable.getMessage());
+            return sanitizeMessage(this.message + " - " + throwable.getMessage());
+        }
+        return sanitizeMessage(this.message);
     }
 
-    public String getMessage(String message) {
-        return Optional.ofNullable(message)
+    public String sanitizeMessage(String msg) {
+        return Optional.ofNullable(msg)
                 .filter(Predicate.not(String::isBlank))
-                .orElse(this.getMessage());
+                .orElse(this.message);
     }
+
+    private boolean isBlank(String str) {
+        return str == null || str.trim().isEmpty();
+    }
+
 }
