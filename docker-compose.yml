@@ -9,6 +9,9 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql  # MySQL 데이터 영구 저장
+    restart: on-failure
 
   server:
     image: seungilbaek/aurasphere-server:latest
@@ -31,3 +34,6 @@ services:
       AWS_SECRET_KEY: ${AWS_SECRET_KEY}
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
+
+volumes:
+  mysql_data:
