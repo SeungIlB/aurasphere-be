@@ -12,6 +12,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +29,12 @@ public class EmailService {
         emailSender.send(message);
     }
 
+    @Transactional
     public void createAndSendVerification(String email) {
+        // 기존 인증 정보가 있다면 삭제
+        verificationRepository.findByEmailWithPessimisticLock(email)
+            .ifPresent(verificationRepository::delete);
+
         // 이메일 중복 체크
         if (userService.checkEmailDuplication(email)) {
             throw new CustomException(ErrorCode.EMAIL_ALREADY_EXISTS);
@@ -36,10 +42,6 @@ public class EmailService {
 
         String verificationCode = generateVerificationCode();
         LocalDateTime expiryDate = LocalDateTime.now().plusMinutes(30);
-
-        // 기존 인증 정보가 있다면 삭제
-        verificationRepository.findByEmail(email)
-            .ifPresent(verificationRepository::delete);
 
         // 새로운 인증 정보 저장
         EmailVerification verification = new EmailVerification(email, verificationCode, expiryDate);

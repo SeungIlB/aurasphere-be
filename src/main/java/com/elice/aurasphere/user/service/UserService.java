@@ -11,6 +11,7 @@ import com.elice.aurasphere.user.dto.TokenInfoDTO;
 import com.elice.aurasphere.user.entity.Profile;
 import com.elice.aurasphere.user.entity.User;
 import com.elice.aurasphere.user.repository.ProfileRepository;
+import com.elice.aurasphere.user.repository.RefreshTokenRepository;
 import com.elice.aurasphere.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -34,13 +35,14 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final CookieUtil cookieUtil;
 
     @Value("${default.profile.image.url}")
     private String defaultProfileImageUrl;
 
-    public TokenInfoDTO login(LoginRequestDTO loginRequest, HttpServletResponse response) {
+    public TokenInfoDTO login(LoginRequestDTO loginRequest) {
         // 인증
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
@@ -98,13 +100,19 @@ public class UserService {
         profileRepository.save(profile);
     }
 
-    public void logout(HttpServletResponse response) {
-        log.info("Logout process started");
-        cookieUtil.deleteAccessTokenCookie(response);
-        log.info("Access token cookie deleted");
-        cookieUtil.deleteRefreshTokenCookie(response);
-        log.info("Refresh token cookie deleted");
-        log.info("Logout completed successfully");
+//    public void logout(HttpServletResponse response) {
+//        log.info("Logout process started");
+//        cookieUtil.deleteAccessTokenCookie(response);
+//        log.info("Access token cookie deleted");
+//        cookieUtil.deleteRefreshTokenCookie(response);
+//        log.info("Refresh token cookie deleted");
+//        log.info("Logout completed successfully");
+//    }
+
+    public void logout(String email) {
+        log.info("Logout process started for user: {}", email);
+        refreshTokenRepository.deleteByUsername(email);
+        log.info("Refresh token deleted and logout completed for user: {}", email);
     }
 
     public boolean checkEmailDuplication(String email) {

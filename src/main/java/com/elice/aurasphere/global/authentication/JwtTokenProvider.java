@@ -109,35 +109,18 @@ public class JwtTokenProvider {
     }
 
     // 토큰 유효성 검증
-    public boolean validateToken(String refreshToken) {
-        try {
-            log.info("bearerToken: {}", refreshToken);
-            Jws<Claims> claims = Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(refreshToken);
+    public boolean validateToken(String accessToken) {
+        log.info("bearerToken: {}", accessToken);
+        Jws<Claims> claims = Jwts.parserBuilder()
+            .setSigningKey(secretKey)
+            .build()
+            .parseClaimsJws(accessToken);
 
-            log.info("Token expiration date: {}", claims.getBody().getExpiration());
-            log.info("Current date: {}", new Date());
-            log.info("Is token expired: {}", claims.getBody().getExpiration().before(new Date()));
+        log.info("Token expiration date: {}", claims.getBody().getExpiration());
+        log.info("Current date: {}", new Date());
+        log.info("Is token expired: {}", claims.getBody().getExpiration().before(new Date()));
 
-            return !claims.getBody().getExpiration().before(new Date());
-        } catch (ExpiredJwtException e) {
-            log.warn("Token has expired", e);
-            return false;
-        } catch (UnsupportedJwtException e) {
-            log.error("Unsupported JWT token", e);
-            return false;
-        } catch (MalformedJwtException e) {
-            log.error("Invalid JWT token", e);
-            return false;
-        } catch (SignatureException e) {
-            log.error("Invalid JWT signature", e);
-            return false;
-        } catch (IllegalArgumentException e) {
-            log.error("JWT claims string is empty", e);
-            return false;
-        }
+        return !claims.getBody().getExpiration().before(new Date());
     }
 
     //토큰 재발급
