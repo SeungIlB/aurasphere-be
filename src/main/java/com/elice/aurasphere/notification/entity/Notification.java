@@ -31,8 +31,7 @@ public class Notification {
 
     @Column(name = "is_read")
     private boolean is_read;
-
-
+    
     private LocalDateTime createdAt;
 
     @PrePersist
