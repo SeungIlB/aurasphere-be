@@ -29,7 +29,7 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     private NotificationType type;
 
-    private boolean read; // `isRead` -> `read`로 변경 (JPA 컬럼 매핑 문제 방지)
+    private boolean is_read;
 
     private LocalDateTime createdAt;
 
@@ -53,7 +53,7 @@ public class Notification {
     }
 
     public void markAsRead() {
-        this.read = true;
+        this.is_read = true;
     }
 }
 
