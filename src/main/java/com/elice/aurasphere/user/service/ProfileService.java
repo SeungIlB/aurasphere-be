@@ -36,7 +36,6 @@ public class ProfileService {
             .build();
     }
 
-
     @Transactional
     public ProfileResponseDTO updateProfile(Long userId, String nickname, MultipartFile file) throws IOException {
         Profile profile = profileRepository.findByUserId(userId)
