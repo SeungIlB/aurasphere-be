@@ -34,7 +34,7 @@ public class NotificationService {
                 .user(toUser)
                 .fromUser(fromUser)
                 .type(type)
-                .read(false)
+                .is_read(false)
                 .createdAt(LocalDateTime.now()) // 명시적으로 추가
                 .build();
 
