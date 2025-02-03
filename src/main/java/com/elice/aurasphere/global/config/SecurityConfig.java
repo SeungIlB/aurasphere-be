@@ -8,7 +8,7 @@ import com.elice.aurasphere.global.authentication.JwtTokenProvider;
 import com.elice.aurasphere.global.filter.JwtAuthenticationFilter;
 import com.elice.aurasphere.global.filter.JwtExceptionFilter;
 import com.elice.aurasphere.global.oauth2.CustomOAuth2UserService;
-import com.elice.aurasphere.global.utils.CookieUtil;
+//import com.elice.aurasphere.global.utils.CookieUtil;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +37,6 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
-    private final CookieUtil cookieUtil;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2AuthenticationSuccessHandler oauth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oauth2AuthenticationFailureHandler;
@@ -78,7 +77,7 @@ public class SecurityConfig {
                     .anyRequest().authenticated();
             })
 
-            .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, cookieUtil),
+            .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
                 UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(new JwtExceptionFilter(),
                 JwtAuthenticationFilter.class);
@@ -89,12 +88,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList(
-            "http://localhost:5173",  // 로컬 프론트엔드
-            "https://34.64.75.50:5173"  // 배포 프론트엔드
-        ));
+        configuration.setAllowedOriginPatterns(Arrays.asList(allowedOrigins));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "Refresh-Token"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
