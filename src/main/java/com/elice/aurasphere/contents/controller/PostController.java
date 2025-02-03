@@ -164,6 +164,8 @@ public class PostController {
                 postContent,
                 files);
 
+        log.info("postResDTO : {}", postResDTO);
+
         return ApiResponseDto.from(postResDTO);
     }
 

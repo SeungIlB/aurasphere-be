@@ -12,9 +12,10 @@ import com.elice.aurasphere.contents.repository.ViewRepository;
 import com.elice.aurasphere.global.exception.CustomException;
 import com.elice.aurasphere.global.exception.ErrorCode;
 import com.elice.aurasphere.global.s3.service.S3Service;
+import com.elice.aurasphere.user.entity.Profile;
 import com.elice.aurasphere.user.entity.User;
+import com.elice.aurasphere.user.repository.ProfileRepository;
 import com.elice.aurasphere.user.repository.UserRepository;
-import com.querydsl.core.Tuple;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,6 +34,7 @@ import java.util.Optional;
 public class PostService {
 
     private final UserRepository userRepository;
+    private final ProfileRepository profileRepository;
     private final PostRepository postRepository;
     private final FileRepository fileRepository;
     private final ViewRepository viewRepository;
@@ -47,6 +49,7 @@ public class PostService {
 
     public PostService(
             UserRepository userRepository,
+            ProfileRepository profileRepository,
             PostRepository postRepository,
             FileRepository fileRepository,
             ViewRepository viewRepository,
@@ -56,6 +59,7 @@ public class PostService {
             PostMapper mapper) {
 
         this.userRepository = userRepository;
+        this.profileRepository = profileRepository;
         this.postRepository = postRepository;
         this.fileRepository = fileRepository;
         this.viewRepository = viewRepository;
@@ -138,8 +142,12 @@ public class PostService {
 
             List<FileDTO> urls = fileRepository.findFilesByPostId(post.getId());
 
+            Profile profile = profileRepository.findByUserId(post.getUser().getId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
+
             return PostResDTO.builder()
                     .id(post.getId())
+                    .nickname(profile.getNickname())
                     .content(post.getContent())
                     .likeCnt(likeService.getLikeCnt(post.getId()))
                     .viewCnt(viewService.getViewCnt(post.getId()))
@@ -180,8 +188,12 @@ public class PostService {
 
             List<FileDTO> urls = fileRepository.findFilesByPostId(post.getId());
 
+            Profile profile = profileRepository.findByUserId(post.getUser().getId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
+
             return PostResDTO.builder()
                     .id(post.getId())
+                    .nickname(profile.getNickname())
                     .content(post.getContent())
                     .likeCnt(likeService.getLikeCnt(post.getId()))
                     .viewCnt(viewService.getViewCnt(post.getId()))
@@ -212,10 +224,18 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
+        if(post.getDeletedDate() != null){
+            throw new CustomException(ErrorCode.POST_ALREADY_DELETED);
+        }
+
+        Profile profile = profileRepository.findByUserId(post.getUser().getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
+
         List<FileDTO> urls = fileRepository.findFilesByPostId(post.getId());
 
         return PostResDTO.builder()
                 .id(post.getId())
+                .nickname(profile.getNickname())
                 .content(post.getContent())
                 .likeCnt(likeService.getLikeCnt(postId))
                 .viewCnt(viewService.getViewCnt(postId))
@@ -237,6 +257,10 @@ public class PostService {
 
         User user = userRepository.findByEmail(username)
                 .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Profile profile = profileRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
+
 
         Post registeredPost = postRepository.save(
                 Post.builder()
@@ -292,6 +316,7 @@ public class PostService {
 
         return PostResDTO.builder()
                 .id(registeredPost.getId())
+                .nickname(profile.getNickname())
                 .content(registeredPost.getContent())
                 .likeCnt(likeService.getLikeCnt(registeredPost.getId()))
                 .viewCnt(viewService.getViewCnt(registeredPost.getId()))
@@ -308,6 +333,10 @@ public class PostService {
         //유저를 찾을 수 없는 경우
         User user = userRepository.findByEmail(username)
                 .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        //프로필을 찾을 수 없는 경우
+        Profile profile = profileRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
 
         //Post를 찾을 수 없는 경우
         Post post = postRepository.findById(postId)
@@ -328,6 +357,7 @@ public class PostService {
 
                     return PostResDTO.builder()
                             .id(savedPost.getId())
+                            .nickname(profile.getNickname())
                             .content(savedPost.getContent())
                             .likeCnt(likeService.getLikeCnt(savedPost.getId()))
                             .viewCnt(viewService.getViewCnt(savedPost.getId()))

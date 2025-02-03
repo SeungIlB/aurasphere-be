@@ -22,6 +22,8 @@ public enum ErrorCode {
     //공통 서버에러
     INTERNAL_ERROR("E001", HttpStatus.INTERNAL_SERVER_ERROR, "서버에 오류가 발생했습니다."),
     METHOD_NOT_ALLOWED("E002", HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP Method 요청입니다."),
+    //프로필 관련 에러
+    PROFILE_NOT_FOUND("E003", HttpStatus.NOT_FOUND, "프로필 정보를 찾을 수 없습니다."),
 
     // 인증 관련 에러
     TOKEN_EXPIRED("A001", HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
@@ -54,6 +56,7 @@ public enum ErrorCode {
     POST_RETRIEVAL_FAILED("P008", HttpStatus.INTERNAL_SERVER_ERROR, "게시글을 조회하는 데 실패했습니다."),
     POST_IMAGE_UPLOAD_FAILED("P009", HttpStatus.INTERNAL_SERVER_ERROR, "게시글 이미지 업로드에 실패했습니다."),
     POST_SERVER_ERROR("P010", HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류로 게시글을 작성할 수 없습니다."),
+    POST_ALREADY_DELETED("P011", HttpStatus.NOT_FOUND, "삭제된 게시물입니다."),
 
     IMAGE_NOT_FOUND("I001", HttpStatus.NOT_FOUND, "Key에 해당하는 이미지를 찾을 수 없습니다."),
 
@@ -64,6 +67,7 @@ public enum ErrorCode {
 
     //조회수 관련 에러
     VIEW_UPDATE_FAILED("V001", HttpStatus.BAD_REQUEST, "조회수 업데이트에 실패했습니다."),
+
     ;
 
     private final String code;
