@@ -109,6 +109,7 @@ public class UserService {
 //        log.info("Logout completed successfully");
 //    }
 
+    @Transactional
     public void logout(String email) {
         log.info("Logout process started for user: {}", email);
         refreshTokenRepository.deleteByUsername(email);
