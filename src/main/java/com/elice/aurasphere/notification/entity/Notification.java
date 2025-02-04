@@ -29,7 +29,7 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     private NotificationType type;
 
-    @Column(name = "is_read_flag")  // 컬럼 이름을 변경
+    @Column(name = "is_read_flag", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
     private boolean isRead;
 
     private LocalDateTime createdAt;
