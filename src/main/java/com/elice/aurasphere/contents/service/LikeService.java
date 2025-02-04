@@ -3,7 +3,6 @@ package com.elice.aurasphere.contents.service;
 
 import com.elice.aurasphere.contents.entity.Like;
 import com.elice.aurasphere.contents.entity.Post;
-import com.elice.aurasphere.contents.mapper.PostMapper;
 import com.elice.aurasphere.contents.repository.LikeRepository;
 import com.elice.aurasphere.contents.repository.PostRepository;
 import com.elice.aurasphere.global.exception.CustomException;
@@ -25,18 +24,15 @@ public class LikeService {
     private final UserRepository userRepository;
     private final NotificationService notificationService; // 알림 서비스 추가
 
-    private final PostMapper mapper;
 
     public LikeService(
             LikeRepository likeRepository,
             PostRepository postRepository,
-            UserRepository userRepository, NotificationService notificationService,
-            PostMapper mapper) {
+            UserRepository userRepository, NotificationService notificationService) {
         this.likeRepository = likeRepository;
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.notificationService = notificationService;
-        this.mapper = mapper;
     }
 
 
@@ -57,29 +53,9 @@ public class LikeService {
                             .post(post)
                             .build()
             );
-//            postRepository.findById(postId)
-//                    .map(existingPost -> {
-//
-//                        existingPost.addLike();
-//
-//                        Post updatedPost = postRepository.save(existingPost);
-//
-//                        return mapper.postToPostResDto(updatedPost);
-//                    })
-//                    .orElseThrow(() -> new CustomException(ErrorCode.POST_UPDATE_FAILED));
             return true;
         }else {
             likeRepository.deleteLikeByUserAndPost(user, post);
-//            postRepository.findById(postId)
-//                    .map(existingPost -> {
-//
-//                        existingPost.removeLike();
-//
-//                        Post updatedPost = postRepository.save(existingPost);
-//
-//                        return mapper.postToPostResDto(updatedPost);
-//                    })
-//                    .orElseThrow(() -> new CustomException(ErrorCode.POST_UPDATE_FAILED));
         }
 
         if (!user.equals(post.getUser())) { // 자기 자신에게 알림 보내지 않도록 체크

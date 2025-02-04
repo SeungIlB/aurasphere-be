@@ -173,7 +173,9 @@ public class PostService {
     }
 
 
-
+    /*
+    내가 쓴 게시글 조회
+    */
     public PostListResDTO getMyPosts(String username, int size, Long cursor){
 
         User user = userRepository.findByEmail(username)
@@ -195,6 +197,7 @@ public class PostService {
             return PostResDTO.builder()
                     .id(post.getId())
                     .nickname(profile.getNickname())
+                    .profileUrl(profile.getProfileUrl())
                     .content(post.getContent())
                     .likeCnt(likeService.getLikeCnt(post.getId()))
                     .viewCnt(viewService.getViewCnt(post.getId()))
@@ -237,6 +240,7 @@ public class PostService {
         return PostResDTO.builder()
                 .id(post.getId())
                 .nickname(profile.getNickname())
+                .profileUrl(profile.getProfileUrl())
                 .content(post.getContent())
                 .likeCnt(likeService.getLikeCnt(postId))
                 .viewCnt(viewService.getViewCnt(postId))
@@ -318,6 +322,7 @@ public class PostService {
         return PostResDTO.builder()
                 .id(registeredPost.getId())
                 .nickname(profile.getNickname())
+                .profileUrl(profile.getProfileUrl())
                 .content(registeredPost.getContent())
                 .likeCnt(likeService.getLikeCnt(registeredPost.getId()))
                 .viewCnt(viewService.getViewCnt(registeredPost.getId()))
@@ -359,6 +364,7 @@ public class PostService {
                     return PostResDTO.builder()
                             .id(savedPost.getId())
                             .nickname(profile.getNickname())
+                            .profileUrl(profile.getProfileUrl())
                             .content(savedPost.getContent())
                             .likeCnt(likeService.getLikeCnt(savedPost.getId()))
                             .viewCnt(viewService.getViewCnt(savedPost.getId()))
