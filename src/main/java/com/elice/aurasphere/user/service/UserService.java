@@ -136,12 +136,12 @@ public class UserService {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if (!request.getCurrentPassword().equals(request.getCurrentPasswordConfirm())) {
-            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new CustomException(ErrorCode.CURRENT_PASSWORD_NOT_MATCH);
         }
 
-        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+        if (!request.getNewPassword().equals(request.getNewPasswordConfirm())) {
+            throw new CustomException(ErrorCode.NEW_PASSWORD_NOT_MATCH);
         }
 
         user.updatePassword(passwordEncoder.encode(request.getNewPassword()));
