@@ -63,6 +63,9 @@ public enum ErrorCode {
     // 알림 관련 에러
     NOTIFICATION_NOT_FOUND("N001", HttpStatus.NOT_FOUND, "해당 알림을 찾을 수 없습니다."),
     NOTIFICATION_ACCESS_DENIED("N002", HttpStatus.FORBIDDEN, "해당 알림에 대한 접근 권한이 없습니다."),
+    INVALID_NOTIFICATION_REQUEST("N003", HttpStatus.BAD_REQUEST, "알림 생성 요청이 유효하지 않습니다."),
+    NOTIFICATION_TYPE_NULL("N004", HttpStatus.BAD_REQUEST, "알림 유형이 null일 수 없습니다."),
+    NOTIFICATION_SAME_USER("N005", HttpStatus.BAD_REQUEST,"본인에게 알림을 보낼 수 없습니다."),
     ;
 
     private final String code;
