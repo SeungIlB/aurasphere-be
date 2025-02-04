@@ -17,6 +17,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -111,6 +113,25 @@ public class PostController {
 
         return ApiResponseDto.from(postListResDTO);
     }
+
+    /*
+    페이지네이션 관련 테스트 코드
+    */
+//    @Operation(
+//            summary = "테스트 API입니다. 사용 X",
+//            description = "현재 로그인되어 있는 유저가 작성한 게시글(내 게시글)들을 조회하는 API" +
+//                    "<br>페이지네이션 처리"
+//    )
+//    @GetMapping("/posts/test")
+//    public ApiResponseDto<PostListResDTO> paginationPost(
+//            @AuthenticationPrincipal CustomUserDetails userDetails,
+//            @PageableDefault(size = 5) Pageable pageable
+//    ){
+//
+//        PostListResDTO postListResDTO = postService.getTestPosts(userDetails.getUsername(), pageable);
+//
+//        return ApiResponseDto.from(postListResDTO);
+//    }
 
 
     /*
