@@ -111,7 +111,7 @@ public class UserController {
         @ApiResponse(responseCode = "U005", description = "잘못된 사용자 요청",
             content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
-    @PostMapping("/user/reset_password")
+    @PatchMapping("/user/reset_password")
     public ResponseEntity<ApiRes<Void>> resetPassword(@Valid @RequestBody PasswordResetRequestDTO request) {
         userService.resetPassword(request.getEmail(), request.getNewPassword());
         return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, null));
