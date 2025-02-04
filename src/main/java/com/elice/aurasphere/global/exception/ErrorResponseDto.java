@@ -1,7 +1,11 @@
 package com.elice.aurasphere.global.exception;
 
 import com.elice.aurasphere.global.common.ResponseDto;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class ErrorResponseDto extends ResponseDto {
 
     private ErrorResponseDto(ErrorCode errorCode) {
@@ -9,7 +13,7 @@ public class ErrorResponseDto extends ResponseDto {
     }
 
     private ErrorResponseDto(ErrorCode errorCode, Exception e) {
-        super(errorCode.getCode(), errorCode.getMessage(e));
+        super(errorCode.getCode(), errorCode.getDetailMessage(e));
     }
 
     public static ErrorResponseDto from(ErrorCode errorCode) {
@@ -19,4 +23,8 @@ public class ErrorResponseDto extends ResponseDto {
     public static ErrorResponseDto of(ErrorCode errorCode, Exception e) {
         return new ErrorResponseDto(errorCode, e);
     }
+
+
+
+
 }

@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,6 +34,7 @@ import java.util.Optional;
 @Tag(name = "Post", description = "게시글 API \n 모든 api Access Token 필요")
 @Slf4j
 @RestController
+@RequestMapping("/api")
 public class PostController {
 
     private final PostService postService;
@@ -151,14 +153,19 @@ public class PostController {
     @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponseDto<PostResDTO> createPost(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestPart(value = "content") String content,
+            @RequestPart(value = "content", required = false) Optional<String> content,
             @RequestPart(value = "files") List<MultipartFile> files
+//            @ModelAttribute @Valid PostReqDTO postReqDTO
     ) throws IOException {
+
+        String postContent = content.orElse("");
 
         PostResDTO postResDTO = postService.registerPost(
                 userDetails.getUsername(),
-                content,
+                postContent,
                 files);
+
+        log.info("postResDTO : {}", postResDTO);
 
         return ApiResponseDto.from(postResDTO);
     }
