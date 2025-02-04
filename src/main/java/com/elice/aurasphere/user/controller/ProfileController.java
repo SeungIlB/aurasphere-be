@@ -35,7 +35,7 @@ public class ProfileController {
 
     private final ProfileService profileService;
 
-    @Operation(summary = "프로필 정보 조회", description = "현재 로그인한 사용자의 프로필 정보(닉네임, 프로필 이미지)를 조회합니다.")
+    @Operation(summary = "프로필 정보 조회", description = "현재 로그인한 사용자의 프로필 정보(닉네임, 프로필 이미지)및 게시글,팔로워,팔로잉 수를 조회합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "S000", description = "프로필 조회 성공",
             content = @Content(schema = @Schema(implementation = ProfileResponseDTO.class))),

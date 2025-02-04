@@ -11,6 +11,15 @@ public class ProfileResponseDTO {
     @Schema(description = "사용자 닉네임")
     private String nickname;
 
-    @Schema(description = "프로필 이미지 URL ('DEFAULT' 또는 S3 URL)")
+    @Schema(description = "프로필 이미지 URL")
     private String profileUrl;
+
+    @Schema(description = "작성한 게시글 수")
+    private Long postsCount;
+
+    @Schema(description = "팔로워 수")
+    private Long followerCount;
+
+    @Schema(description = "팔로잉 수")
+    private Long followingCount;
 }
