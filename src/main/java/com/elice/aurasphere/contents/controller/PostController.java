@@ -83,7 +83,6 @@ public class PostController {
         return ApiResponseDto.from(postListResDTO);
     }
 
-
     /*
     내가 작성한 게시글 List 조회하는 api
      */
