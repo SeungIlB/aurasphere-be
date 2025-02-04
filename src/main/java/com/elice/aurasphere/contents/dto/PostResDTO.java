@@ -18,6 +18,9 @@ public class PostResDTO {
     @Schema(description = "게시글 작성자 닉네임")
     private String nickname;
 
+    @Schema(description = "게시글 작성자 프로필")
+    private String profileUrl;
+
     @Schema(description = "게시글 내용")
     private String content;
 
@@ -47,6 +50,7 @@ public class PostResDTO {
     public PostResDTO(
             Long id,
             String nickname,
+            String profileUrl,
             String content,
             Long likeCnt,
             Long viewCnt,
@@ -58,6 +62,7 @@ public class PostResDTO {
 
         this.id = id;
         this.nickname = nickname;
+        this.profileUrl = profileUrl;
         this.content = content;
         this.likeCnt = likeCnt;
         this.viewCnt = viewCnt;
