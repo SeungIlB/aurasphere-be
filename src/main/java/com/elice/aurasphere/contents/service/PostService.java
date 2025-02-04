@@ -148,6 +148,7 @@ public class PostService {
             return PostResDTO.builder()
                     .id(post.getId())
                     .nickname(profile.getNickname())
+                    .profileUrl(profile.getProfileUrl())
                     .content(post.getContent())
                     .likeCnt(likeService.getLikeCnt(post.getId()))
                     .viewCnt(viewService.getViewCnt(post.getId()))
