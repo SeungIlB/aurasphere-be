@@ -20,4 +20,6 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
 
     // 만료된 이미지 URL을 가진 프로필 조회
     List<Profile> findAllByProfileUrlExpiryDateBefore(LocalDateTime dateTime);
+
+    void deleteByUserId(Long userId);
 }

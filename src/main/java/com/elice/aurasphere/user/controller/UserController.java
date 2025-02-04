@@ -130,5 +130,20 @@ public class UserController {
         userService.updatePassword(userDetails.getUsername(), request);
         return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, null));
     }
+
+    @Operation(summary = "회원 탈퇴 API", description = "현재 로그인한 사용자의 계정을 삭제합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "S000", description = "회원 탈퇴 성공",
+            content = @Content(schema = @Schema(implementation = ApiRes.class))),
+        @ApiResponse(responseCode = "U001", description = "유저를 찾을 수 없습니다.",
+            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    })
+    @DeleteMapping("/user")
+    public ResponseEntity<ApiRes<Void>> deleteAccount(
+        @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        userService.deleteAccount(userDetails.getUsername());
+        return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, null));
+    }
 }
 
