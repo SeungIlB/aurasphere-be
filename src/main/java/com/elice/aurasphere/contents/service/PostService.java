@@ -20,6 +20,9 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -216,6 +219,51 @@ public class PostService {
                 .postList(posts)
                 .post_cursor(lastCursor)
                 .hasNext(hasNext)
+                .build();
+    }
+
+    /*
+    *
+    * 테스트코드 사용 X
+    *
+    */
+    public PostListResDTO getTestPosts(String username, Pageable pageable){
+
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+
+        Page<Post> postList = postRepository.findByDeletedDateIsNull(pageable);
+
+        //리스트가 비어있는 경우 hasNext를 false로 반환하고 리턴
+        if(postList.isEmpty())
+            return PostListResDTO.builder().hasNext(false).build();
+
+        List<PostResDTO> posts = postList.stream().map(post -> {
+
+            List<FileDTO> urls = fileRepository.findFilesByPostId(post.getId());
+
+            Profile profile = profileRepository.findByUserId(post.getUser().getId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
+
+            return PostResDTO.builder()
+                    .id(post.getId())
+                    .nickname(profile.getNickname())
+                    .profileUrl(profile.getProfileUrl())
+                    .content(post.getContent())
+                    .likeCnt(likeService.getLikeCnt(post.getId()))
+                    .viewCnt(viewService.getViewCnt(post.getId()))
+                    .isLiked(!likeService.isNotAlreadyLike(user,post))
+                    .urls(urls)
+                    .createdAt(post.getCreatedAt())
+                    .updatedAt(post.getUpdatedAt())
+                    .build();
+        }).toList();
+
+
+        return PostListResDTO.builder()
+                .postList(posts)
                 .build();
     }
 
