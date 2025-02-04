@@ -147,4 +147,19 @@ public class UserService {
         user.updatePassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
     }
+
+    @Transactional
+    public void deleteAccount(String email) {
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // Refresh 토큰 삭제
+        refreshTokenRepository.deleteByUsername(email);
+
+        // 프로필 삭제
+        profileRepository.deleteByUserId(user.getId());
+
+        // 유저 삭제
+        userRepository.delete(user);
+    }
 }
