@@ -23,7 +23,6 @@ public class PostListResDTO {
     @Schema(description = "다음 데이터가 있는 지의 여부\n다음 데이터가 있는 경우 : true\n마지막 데이터까지 받은 경우 : false")
     private Boolean hasNext;
 
-
     @Builder
     public PostListResDTO(
             List<PostResDTO> postList,
@@ -36,5 +35,4 @@ public class PostListResDTO {
         this.filter_cursor = filter_cursor;
         this.hasNext = hasNext;
     }
-
 }
