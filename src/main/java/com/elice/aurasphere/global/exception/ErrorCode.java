@@ -38,6 +38,8 @@ public enum ErrorCode {
     EMAIL_ALREADY_EXISTS("U002", HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
     NICKNAME_ALREADY_EXISTS("U003", HttpStatus.CONFLICT, "이미 존재하는 닉네임입니다."),
     INVALID_PASSWORD("U004", HttpStatus.BAD_REQUEST, "잘못된 비밀번호입니다."),
+    CURRENT_PASSWORD_NOT_MATCH("U004", HttpStatus.BAD_REQUEST, "현재 비밀번호가 일치하지 않습니다."),
+    NEW_PASSWORD_NOT_MATCH("U005", HttpStatus.BAD_REQUEST, "새 비밀번호와 확인 비밀번호가 일치하지 않습니다."),
     INVALID_USER_REQUEST("U005", HttpStatus.BAD_REQUEST, "잘못된 사용자 요청입니다."),
     USER_NOT_MATCH("U006", HttpStatus.FORBIDDEN, "유저가 일치하지 않습니다."),
 

@@ -126,6 +126,18 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
                 .build();
     }
 
+    @Override
+    public Long countByUserIdAndDeletedDateIsNull(Long userId) {
+        return queryFactory
+            .select(post.count())
+            .from(post)
+            .where(
+                post.user.id.eq(userId)
+                    .and(post.deletedDate.isNull())
+            )
+            .fetchOne();
+    }
+
 
     private BooleanExpression checkCondition(Long cursor){
 
