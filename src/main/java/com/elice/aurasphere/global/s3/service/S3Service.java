@@ -59,7 +59,7 @@ public class S3Service {
         // 메타데이터 설정
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(file.getSize());
-        metadata.setContentType(file.getContentType());
+//        metadata.setContentType(file.getContentType());
 
         // S3에 파일 업로드
         amazonS3.putObject(bucket, fileName, inputStream, metadata);
