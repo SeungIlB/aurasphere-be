@@ -1,5 +1,6 @@
 package com.elice.aurasphere.user.entity;
 
+import com.elice.aurasphere.contents.entity.Post;
 import com.elice.aurasphere.global.audit.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -39,6 +40,9 @@ public class User extends BaseEntity {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Profile profile;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Post> posts = new HashSet<>();
 
     // 팔로워 목록 (나를 팔로우하는 사람들)
     @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true)
