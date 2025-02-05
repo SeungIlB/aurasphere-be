@@ -58,7 +58,10 @@ public enum ErrorCode {
     POST_SERVER_ERROR("P010", HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류로 게시글을 작성할 수 없습니다."),
     POST_ALREADY_DELETED("P011", HttpStatus.NOT_FOUND, "삭제된 게시물입니다."),
 
+    COMMENT_NOT_FOUND("C001", HttpStatus.NOT_FOUND, "해당 댓글을 찾을 수 없습니다."),
+
     IMAGE_NOT_FOUND("I001", HttpStatus.NOT_FOUND, "Key에 해당하는 이미지를 찾을 수 없습니다."),
+    TOO_MANY_FILES("I002", HttpStatus.BAD_REQUEST, "파일 개수를 초과했습니다. 5장 미만으로 등록해주세요."),
 
     // 팔로우 관련 에러
     CANNOT_FOLLOW_YOURSELF("F001", HttpStatus.BAD_REQUEST, "자기 자신을 팔로우할 수 없습니다."),

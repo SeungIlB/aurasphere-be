@@ -19,16 +19,12 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,7 +66,7 @@ public class PostController {
                     content = @Content(schema = @Schema(implementation = ResponseDto.class)))
     })
     @GetMapping("/posts")
-    public ApiResponseDto<PostListResDTO> readPostsByFilter(
+    public ApiResponseDto<PostListResponseDTO> readPostsByFilter(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(value = "size", defaultValue = "5") int size,
             @RequestParam(value = "post_cursor", defaultValue = "0") Long post_cursor,
@@ -78,11 +74,11 @@ public class PostController {
             @RequestParam(value = "filter") Optional<String> filter
     ){
 
-        PostListResDTO postListResDTO = postService.getFilteredPosts(
+        PostListResponseDTO postListResponseDTO = postService.getFilteredPosts(
                 userDetails.getUsername(), size, post_cursor, filter_cursor, filter
         );
 
-        return ApiResponseDto.from(postListResDTO);
+        return ApiResponseDto.from(postListResponseDTO);
     }
 
     /*
@@ -103,35 +99,35 @@ public class PostController {
                     content = @Content(schema = @Schema(implementation = ResponseDto.class)))
     })
     @GetMapping("/posts/me")
-    public ApiResponseDto<PostListResDTO> readPostsByUserId(
+    public ApiResponseDto<PostListResponseDTO> readPostsByUserId(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(value = "size", defaultValue = "5") int size,
             @RequestParam(value = "cursor", defaultValue = "0") Long cursor
     ){
 
-        PostListResDTO postListResDTO = postService.getMyPosts(userDetails.getUsername(), size, cursor);
+        PostListResponseDTO postListResponseDTO = postService.getMyPosts(userDetails.getUsername(), size, cursor);
 
-        return ApiResponseDto.from(postListResDTO);
+        return ApiResponseDto.from(postListResponseDTO);
     }
 
     /*
     페이지네이션 관련 테스트 코드
     */
-//    @Operation(
-//            summary = "테스트 API입니다. 사용 X",
-//            description = "현재 로그인되어 있는 유저가 작성한 게시글(내 게시글)들을 조회하는 API" +
-//                    "<br>페이지네이션 처리"
-//    )
-//    @GetMapping("/posts/test")
-//    public ApiResponseDto<PostListResDTO> paginationPost(
-//            @AuthenticationPrincipal CustomUserDetails userDetails,
-//            @PageableDefault(size = 5) Pageable pageable
-//    ){
-//
-//        PostListResDTO postListResDTO = postService.getTestPosts(userDetails.getUsername(), pageable);
-//
-//        return ApiResponseDto.from(postListResDTO);
-//    }
+    @Operation(
+            summary = "테스트 API입니다. 사용 X",
+            description = "현재 로그인되어 있는 유저가 작성한 게시글(내 게시글)들을 조회하는 API" +
+                    "<br>페이지네이션 처리"
+    )
+    @GetMapping("/posts/test")
+    public ApiResponseDto<PostListResponseDTO> paginationPost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PageableDefault(size = 5) Pageable pageable
+    ){
+
+        PostListResponseDTO postListResDTO = postService.getTestPosts(userDetails.getUsername(), pageable);
+
+        return ApiResponseDto.from(postListResDTO);
+    }
 
 
     /*
@@ -146,17 +142,17 @@ public class PostController {
                     content = @Content(schema = @Schema(implementation = ResponseDto.class)))
     })
     @GetMapping("/posts/{postId}")
-    public ApiResponseDto<PostResDTO> readPostByPostId(
+    public ApiResponseDto<PostResponseDTO> readPostByPostId(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("postId") Long postId,
             HttpServletRequest request,
             HttpServletResponse response
     ){
 
-        PostResDTO postResDTO = postService.getPost(userDetails.getUsername(), postId);
+        PostResponseDTO postResponseDTO = postService.getPost(userDetails.getUsername(), postId);
         postService.incrementViewCnt(userDetails.getUsername(), postId, request, response);
 
-        return ApiResponseDto.from(postResDTO);
+        return ApiResponseDto.from(postResponseDTO);
     }
 
     /*
@@ -171,7 +167,7 @@ public class PostController {
                     content = @Content(schema = @Schema(implementation = ResponseDto.class)))
     })
     @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponseDto<PostResDTO> createPost(
+    public ApiResponseDto<PostResponseDTO> createPost(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestPart(value = "content", required = false) Optional<String> content,
             @RequestPart(value = "files") List<MultipartFile> files
@@ -180,14 +176,14 @@ public class PostController {
 
         String postContent = content.orElse("");
 
-        PostResDTO postResDTO = postService.registerPost(
+        PostResponseDTO postResponseDTO = postService.registerPost(
                 userDetails.getUsername(),
                 postContent,
                 files);
 
-        log.info("postResDTO : {}", postResDTO);
+        log.info("postResDTO : {}", postResponseDTO);
 
-        return ApiResponseDto.from(postResDTO);
+        return ApiResponseDto.from(postResponseDTO);
     }
 
 
@@ -210,15 +206,15 @@ public class PostController {
                     content = @Content(schema = @Schema(implementation = ResponseDto.class)))
     })
     @PatchMapping("/posts/{postId}")
-    public ApiResponseDto<PostResDTO> updatePost(
+    public ApiResponseDto<PostResponseDTO> updatePost(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("postId") Long postId,
             @Valid @RequestBody PostUpdateDTO postUpdateDTO
     ){
 
-        PostResDTO postResDTO = postService.editPost(userDetails.getUsername(), postId, postUpdateDTO);
+        PostResponseDTO postResponseDTO = postService.editPost(userDetails.getUsername(), postId, postUpdateDTO);
 
-        return ApiResponseDto.from(postResDTO);
+        return ApiResponseDto.from(postResponseDTO);
     }
 
     /*
