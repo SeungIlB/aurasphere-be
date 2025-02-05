@@ -1,7 +1,7 @@
 package com.elice.aurasphere.contents.mapper;
 
 
-import com.elice.aurasphere.contents.dto.PostResDTO;
+import com.elice.aurasphere.contents.dto.PostResponseDTO;
 import com.elice.aurasphere.contents.dto.PostUpdateDTO;
 import com.elice.aurasphere.contents.entity.Post;
 import org.mapstruct.Mapper;
@@ -12,5 +12,5 @@ public interface PostMapper {
 
     Post PostUpdateDtoToPost(PostUpdateDTO postUpdateDTO);
 
-    PostResDTO postToPostResDto(Post post);
+    PostResponseDTO postToPostResDto(Post post);
 }

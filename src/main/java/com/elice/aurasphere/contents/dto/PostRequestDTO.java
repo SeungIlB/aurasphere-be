@@ -11,7 +11,7 @@ import java.util.List;
 
 @Schema(description = "게시글 요청 DTO")
 @Getter
-public class PostReqDTO {
+public class PostRequestDTO {
 
     @Size(max = 150, message = "게시글 내용은 150자 이하여야 합니다.")
     @Schema(description = "게시글 내용")

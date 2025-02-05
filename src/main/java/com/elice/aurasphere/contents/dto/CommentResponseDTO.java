@@ -4,13 +4,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Schema(description = "댓글 응답 DTO")
 @Builder
 @Getter
-public class CommentResDTO {
+public class CommentResponseDTO {
 
     @Schema(description = "유저 id")
     private Long id;
@@ -29,7 +28,7 @@ public class CommentResDTO {
 
 
     @Builder
-    public CommentResDTO(
+    public CommentResponseDTO(
             Long id,
             String nickname,
             String content,

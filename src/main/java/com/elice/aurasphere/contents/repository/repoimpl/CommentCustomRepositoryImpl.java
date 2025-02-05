@@ -27,17 +27,17 @@ public class CommentCustomRepositoryImpl implements CommentCustomRepository {
         return queryFactory
                 .selectFrom(comment)
                 .where(comment.post.id.eq(postId), checkCondition(cursor))
-                .orderBy(comment.id.desc())
+                .orderBy(comment.id.asc())
                 .limit(size)
                 .fetch();
     }
 
     private BooleanExpression checkCondition(Long cursor){
 
-        BooleanExpression condition = post.deletedDate.isNull();
+        BooleanExpression condition = comment.deletedDate.isNull();
 
         if (cursor != 0) {
-            condition = condition.and(post.id.lt(cursor));
+            condition = condition.and(comment.id.gt(cursor));
         }
 
         return condition;

@@ -1,10 +1,9 @@
 package com.elice.aurasphere.contents.service;
 
 
-import com.elice.aurasphere.contents.dto.CommentListResDTO;
-import com.elice.aurasphere.contents.dto.CommentReqDTO;
-import com.elice.aurasphere.contents.dto.CommentResDTO;
-import com.elice.aurasphere.contents.dto.PostReqDTO;
+import com.elice.aurasphere.contents.dto.CommentListResponseDTO;
+import com.elice.aurasphere.contents.dto.CommentRequestDTO;
+import com.elice.aurasphere.contents.dto.CommentResponseDTO;
 import com.elice.aurasphere.contents.entity.Comment;
 import com.elice.aurasphere.contents.entity.Post;
 import com.elice.aurasphere.contents.repository.CommentRepository;
@@ -39,7 +38,7 @@ public class CommentService {
         this.profileRepository = profileRepository;
     }
 
-    public CommentListResDTO getCommentList(String username, Long postId, int size, Long cursor) {
+    public CommentListResponseDTO getCommentList(String username, Long postId, int size, Long cursor) {
 
         User user = userRepository.findByEmail(username)
                 .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -50,15 +49,15 @@ public class CommentService {
         List<Comment> commentList = commentRepository.findCommentsByPostId(postId, size, cursor);
 
         if(commentList.isEmpty()){
-            return CommentListResDTO.builder().hasNext(false).build();
+            return CommentListResponseDTO.builder().hasNext(false).build();
         }
 
-        List<CommentResDTO> comments = commentList.stream().map(comment -> {
+        List<CommentResponseDTO> comments = commentList.stream().map(comment -> {
 
             Profile profile = profileRepository.findByUserId(user.getId())
                     .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
 
-            return CommentResDTO.builder()
+            return CommentResponseDTO.builder()
                     .id(comment.getId())
                     .nickname(profile.getNickname())
                     .content(comment.getContent())
@@ -70,7 +69,7 @@ public class CommentService {
         Long lastCursor = commentList.get(commentList.size() - 1).getId();
         boolean hasNext = commentList.size() >= size;
 
-        return CommentListResDTO.builder()
+        return CommentListResponseDTO.builder()
                 .commentList(comments)
                 .comment_cursor(lastCursor)
                 .hasNext(hasNext)
@@ -78,7 +77,7 @@ public class CommentService {
     }
 
 
-    public CommentResDTO createPostComment(String username, Long postId, CommentReqDTO postReqDTO) {
+    public CommentResponseDTO createPostComment(String username, Long postId, CommentRequestDTO postReqDTO) {
 
         User user = userRepository.findByEmail(username)
                 .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -97,12 +96,61 @@ public class CommentService {
 
         commentRepository.save(comment);
 
-        return CommentResDTO.builder()
+        return CommentResponseDTO.builder()
                 .id(comment.getId())
                .nickname(profile.getNickname())
                 .content(comment.getContent())
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())
                .build();
+    }
+
+    public CommentResponseDTO editPostComment(String username, Long postId, Long commentId, CommentRequestDTO commentReqDTO) {
+        User user = userRepository.findByEmail(username)
+               .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Post post = postRepository.findById(postId)
+               .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        Comment comment = commentRepository.findById(commentId)
+               .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if(!comment.getUser().getId().equals(user.getId())) {
+            throw new CustomException(ErrorCode.USER_NOT_MATCH);
+        }
+
+        comment.updateComment(commentReqDTO.getContent());
+        commentRepository.save(comment);
+
+        return CommentResponseDTO.builder()
+               .id(comment.getId())
+               .nickname(comment.getUser().getProfile().getNickname())
+               .content(comment.getContent())
+                .createdAt(comment.getCreatedAt())
+               .updatedAt(comment.getUpdatedAt())
+                .build();
+    }
+
+    public Long removeComment(String username, Long postId, Long commentId) {
+
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if(!comment.getUser().getId().equals(user.getId())) {
+            throw new CustomException(ErrorCode.USER_NOT_MATCH);
+        }
+
+        comment.removeComment();
+
+        commentRepository.save(comment);
+
+        return comment.getId();
+
     }
 }
