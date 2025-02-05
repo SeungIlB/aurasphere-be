@@ -3,10 +3,14 @@ package com.elice.aurasphere.global.s3.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Schema(description = "파일 업로드를 위한 presigned-url 요청 DTO입니다. \n 파일 이름이랑 파일형식을 맞게 넣어주세요.")
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class S3UploadReqDTO {
 
 

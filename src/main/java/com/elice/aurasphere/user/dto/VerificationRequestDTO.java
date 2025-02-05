@@ -1,5 +1,7 @@
 package com.elice.aurasphere.user.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.Email;
@@ -8,6 +10,8 @@ import jakarta.validation.constraints.Size;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class VerificationRequestDTO {
     @NotBlank(message = "인증 코드는 필수 입력사항입니다")
     @Size(min = 6, max = 6, message = "인증 코드는 6자리여야 합니다")
