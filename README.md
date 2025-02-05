@@ -37,8 +37,6 @@
 - 이메일 인증 기능
 
 
-## 💻 Getting Started
-
 
 ## 🔧 Stack
 - **Language**: Java 17
