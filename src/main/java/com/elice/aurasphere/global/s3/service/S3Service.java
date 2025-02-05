@@ -60,6 +60,7 @@ public class S3Service {
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(file.getSize());
 //        metadata.setContentType(file.getContentType());
+        metadata.setContentType("image/png");
 
         // S3에 파일 업로드
         amazonS3.putObject(bucket, fileName, inputStream, metadata);
