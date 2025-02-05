@@ -10,7 +10,7 @@ import java.util.List;
 
 @Schema(description = "게시글 응답 DTO")
 @Getter
-public class PostResDTO {
+public class PostResponseDTO {
 
     @Schema(description = "게시글 id")
     private Long id;
@@ -47,7 +47,7 @@ public class PostResDTO {
 
 
     @Builder
-    public PostResDTO(
+    public PostResponseDTO(
             Long id,
             String nickname,
             String profileUrl,

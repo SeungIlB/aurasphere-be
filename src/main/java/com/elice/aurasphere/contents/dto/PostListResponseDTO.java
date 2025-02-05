@@ -9,10 +9,10 @@ import java.util.List;
 
 @Schema(description = "게시글 리스트 응답 DTO")
 @Getter
-public class PostListResDTO {
+public class PostListResponseDTO {
 
     @Schema(description = "게시글 정보")
-    private List<PostResDTO> postList;
+    private List<PostResponseDTO> postList;
 
     @Schema(description = "마지막 게시글 번호")
     private Long post_cursor;
@@ -24,8 +24,8 @@ public class PostListResDTO {
     private Boolean hasNext;
 
     @Builder
-    public PostListResDTO(
-            List<PostResDTO> postList,
+    public PostListResponseDTO(
+            List<PostResponseDTO> postList,
             Long post_cursor,
             Long filter_cursor,
             Boolean hasNext
