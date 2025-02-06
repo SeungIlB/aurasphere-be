@@ -19,8 +19,8 @@ prebuild:
     paths:
       - build/libs/*.jar
       - ${ENV_COPY_PATH}
-  only:
-    - dev
+  rules:
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
 
 build_job:
   stage: build
@@ -35,8 +35,8 @@ build_job:
   artifacts:
     paths:
       - ${ENV_COPY_PATH}
-  only:
-    - dev
+  rules:
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
 
 deploy_job:
   stage: deploy
