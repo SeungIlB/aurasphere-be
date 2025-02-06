@@ -1,8 +1,10 @@
 package com.elice.aurasphere.contents.entity;
 
 import com.elice.aurasphere.global.audit.BaseEntity;
+import com.elice.aurasphere.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,12 +20,11 @@ public class Comment extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @ManyToOne
-//    @JoinColumn(name = "user_id", nullable = false)
-//    private User user;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private CommentStatus commentStatus;
 
     @ManyToOne
@@ -40,8 +41,28 @@ public class Comment extends BaseEntity {
     @Column
     private LocalDateTime deletedDate;
 
+
+    @Builder
+    public Comment(
+            User user,
+            CommentStatus commentStatus,
+            Post post,
+            Comment pComment,
+            String content
+    ){
+        this.user = user;
+        this.commentStatus = commentStatus;
+        this.post = post;
+        this.pComment = pComment;
+        this.content = content;
+    }
+
     public enum CommentStatus {
         COMMENT,
         REPLY
     }
+
+    public void updateComment(String content) { this.content = content; }
+
+    public void removeComment() { this.deletedDate = LocalDateTime.now(); }
 }

@@ -28,17 +28,17 @@ import java.util.List;
 
 @Tag(name = "Profile", description = "프로필 관련 API")
 @RestController
-@RequestMapping("/profile")
+@RequestMapping("/api/profile")
 @RequiredArgsConstructor
 @Slf4j
 public class ProfileController {
 
     private final ProfileService profileService;
 
-    @Operation(summary = "프로필 정보 조회", description = "현재 로그인한 사용자의 프로필 정보(닉네임, 프로필 이미지)를 조회합니다.")
+    @Operation(summary = "프로필 정보 조회", description = "현재 로그인한 사용자의 프로필 정보(닉네임, 프로필 이미지)및 게시글,팔로워,팔로잉 수를 조회합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "S000", description = "프로필 조회 성공",
-            content = @Content(schema = @Schema(implementation = ApiRes.class))),
+            content = @Content(schema = @Schema(implementation = ProfileResponseDTO.class))),
         @ApiResponse(responseCode = "U001", description = "유저를 찾을 수 없습니다.",
             content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
@@ -54,7 +54,7 @@ public class ProfileController {
     @Operation(summary = "프로필 수정", description = "프로필 정보(닉네임, 프로필 이미지)를 수정합니다. 닉네임과 이미지를 선택적으로 업데이트할 수 있습니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "S000", description = "프로필 수정 성공",
-                    content = @Content(schema = @Schema(implementation = ApiRes.class))),
+                    content = @Content(schema = @Schema(implementation = ProfileResponseDTO.class))),
             @ApiResponse(responseCode = "U001", description = "유저를 찾을 수 없습니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "U003", description = "이미 존재하는 닉네임입니다.",
@@ -74,7 +74,7 @@ public class ProfileController {
 //    @Operation(summary = "프로필 수정", description = "프로필 정보(닉네임, 프로필 이미지)를 수정합니다. 닉네임과 이미지를 선택적으로 업데이트할 수 있습니다.")
 //    @ApiResponses({
 //        @ApiResponse(responseCode = "S000", description = "프로필 수정 성공",
-//            content = @Content(schema = @Schema(implementation = ApiRes.class))),
+//            content = @Content(schema =   @Schema(implementation = ApiRes.class))),
 //        @ApiResponse(responseCode = "U001", description = "유저를 찾을 수 없습니다.",
 //            content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
 //        @ApiResponse(responseCode = "U003", description = "이미 존재하는 닉네임입니다.",
@@ -95,5 +95,4 @@ public class ProfileController {
 //        ProfileResponseDTO response = profileService.updateProfile(userDetails.getId(), request);
 //        return ResponseEntity.ok(ApiRes.successRes(HttpStatus.OK, response));
 //    }
-
 }
