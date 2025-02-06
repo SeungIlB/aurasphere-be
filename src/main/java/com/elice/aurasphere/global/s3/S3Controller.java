@@ -1,22 +1,8 @@
 package com.elice.aurasphere.global.s3;
 
 
-import com.elice.aurasphere.contents.dto.PostResDTO;
-import com.elice.aurasphere.global.s3.dto.S3UploadReqDTO;
-import com.elice.aurasphere.global.s3.dto.S3UrlDTO;
-import com.elice.aurasphere.global.common.ApiRes;
 import com.elice.aurasphere.global.s3.service.S3Service;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 @RequestMapping("/s3")

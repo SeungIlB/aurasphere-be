@@ -2,6 +2,8 @@ package com.elice.aurasphere.user.service;
 
 import com.elice.aurasphere.global.exception.CustomException;
 import com.elice.aurasphere.global.exception.ErrorCode;
+import com.elice.aurasphere.notification.dto.NotificationType;
+import com.elice.aurasphere.notification.service.NotificationService;
 import com.elice.aurasphere.user.dto.FollowUserResponseDTO;
 import com.elice.aurasphere.user.entity.Follow;
 import com.elice.aurasphere.user.entity.User;
@@ -22,6 +24,7 @@ public class FollowService {
 
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public void follow(String followerEmail, Long followingId) {
@@ -47,6 +50,8 @@ public class FollowService {
             .following(following)
             .build();
 
+        notificationService.createNotification(follower, following, NotificationType.FOLLOW);
+
         followRepository.save(follow);
     }
 
@@ -63,6 +68,21 @@ public class FollowService {
             .ifPresentOrElse(
                 followRepository::delete,
                 () -> log.info("User {} is not following user {}", followerEmail, followingId)
+            );
+    }
+
+    @Transactional
+    public void removeFollower(String followingEmail, Long followerId) {
+        User following = userRepository.findByEmail(followingEmail)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        User follower = userRepository.findById(followerId)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        followRepository.findByFollowerAndFollowing(follower, following)
+            .ifPresentOrElse(
+                followRepository::delete,
+                () -> log.info("User {} is not following user {}", followerId, followingEmail)
             );
     }
 

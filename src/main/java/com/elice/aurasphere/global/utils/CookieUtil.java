@@ -24,27 +24,29 @@ public class CookieUtil {
     private Cookie createCookie(String name, String value, long maxAge) {
         Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+        cookie.setSecure(false);
         cookie.setPath("/");
+        cookie.setAttribute("SameSite", "None");
         cookie.setMaxAge((int) (maxAge / 1000)); // milliseconds to seconds
         return cookie;
     }
 
     public void deleteAccessTokenCookie(HttpServletResponse response) {
         log.info("Deleting access token cookie");
-        Cookie cookie = new Cookie(ACCESS_TOKEN_COOKIE_NAME, null);
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-        response.addCookie(cookie);
+        response.addCookie(buildDeletedCookie(ACCESS_TOKEN_COOKIE_NAME));
         log.info("Access token cookie deletion completed");
     }
 
     public void deleteRefreshTokenCookie(HttpServletResponse response) {
         log.info("Deleting refresh token cookie");
-        Cookie cookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, null);
+        response.addCookie(buildDeletedCookie(REFRESH_TOKEN_COOKIE_NAME));
+        log.info("Refresh token cookie deletion completed");
+    }
+
+    private Cookie buildDeletedCookie(String name) {
+        Cookie cookie = new Cookie(name, null);
         cookie.setMaxAge(0);
         cookie.setPath("/");
-        response.addCookie(cookie);
-        log.info("Refresh token cookie deletion completed");
+        return cookie;
     }
 }

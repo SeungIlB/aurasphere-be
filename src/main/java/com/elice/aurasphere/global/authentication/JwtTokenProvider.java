@@ -8,6 +8,7 @@ import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,6 +22,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtTokenProvider {
     private final RefreshTokenRepository refreshTokenRepository;
     private final CustomUserDetailsService userDetailsService;
@@ -85,10 +87,16 @@ public class JwtTokenProvider {
     // 토큰에서 인증 정보 조회
     public Authentication getAuthentication(String token) {
         String userEmail = getUserEmail(token);
+        log.info("userEmail: {}", userEmail);
         UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
 
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
+
+//    public Authentication getAuthentication(String email) {
+//        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+//        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+//    }
 
     // 토큰에서 사용자 이메일 추출
     public String getUserEmail(String token) {
@@ -101,17 +109,18 @@ public class JwtTokenProvider {
     }
 
     // 토큰 유효성 검증
-    public boolean validateToken(String refreshToken) {
-        try {
-            Jws<Claims> claims = Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(refreshToken);
+    public boolean validateToken(String accessToken) {
+        log.info("bearerToken: {}", accessToken);
+        Jws<Claims> claims = Jwts.parserBuilder()
+            .setSigningKey(secretKey)
+            .build()
+            .parseClaimsJws(accessToken);
 
-            return !claims.getBody().getExpiration().before(new Date());
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
-        }
+        log.info("Token expiration date: {}", claims.getBody().getExpiration());
+        log.info("Current date: {}", new Date());
+        log.info("Is token expired: {}", claims.getBody().getExpiration().before(new Date()));
+
+        return !claims.getBody().getExpiration().before(new Date());
     }
 
     //토큰 재발급
