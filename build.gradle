@@ -66,9 +66,11 @@ dependencies {
 
 	// 이메일 전송을 위한 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
-
 	implementation 'io.github.cdimascio:dotenv-java:3.0.0'
 
+	// Apache HttpClient 의존성 추가
+	implementation 'org.apache.httpcomponents.client5:httpclient5:5.2.1'
+	testImplementation 'org.apache.httpcomponents.client5:httpclient5:5.2.1'
 }
 
 tasks.named('test') {
