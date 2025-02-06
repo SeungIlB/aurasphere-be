@@ -50,3 +50,5 @@ deploy_job:
     - docker compose --env-file ${ENV_COPY_PATH} up -d
   only:
     - dev
+  rules:
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
