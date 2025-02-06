@@ -115,7 +115,6 @@ src
 ![img_1.png](img_1.png)
 ## ⚒ CI/CD
 - GitLab Runner를 활용하여 지속적 통합 및 배포를 자동화함.
-- `feature` 브랜치에서 `dev`로 Merge Request를 보내면 CI가 동작하여 애플리케이션을 빌드하고 Docker Hub에 이미지를 푸시함.
 - `dev`에서 `master`로 Merge Request를 보내면 CI가 동작하며, Merge가 완료되면 운영 리소스(GCP VM)에 자동 배포됨.
 
 ### 🔄 **CI/CD 프로세스**
