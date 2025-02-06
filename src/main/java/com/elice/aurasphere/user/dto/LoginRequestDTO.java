@@ -1,6 +1,8 @@
 package com.elice.aurasphere.user.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.Email;
@@ -8,6 +10,8 @@ import jakarta.validation.constraints.NotBlank;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class LoginRequestDTO {
     @Schema(description = "사용자 이메일", example = "user@example.com")
     @NotBlank(message = "이메일은 필수 입력사항입니다")
