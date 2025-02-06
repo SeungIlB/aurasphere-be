@@ -71,6 +71,21 @@ public class FollowService {
             );
     }
 
+    @Transactional
+    public void removeFollower(String followingEmail, Long followerId) {
+        User following = userRepository.findByEmail(followingEmail)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        User follower = userRepository.findById(followerId)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        followRepository.findByFollowerAndFollowing(follower, following)
+            .ifPresentOrElse(
+                followRepository::delete,
+                () -> log.info("User {} is not following user {}", followerId, followingEmail)
+            );
+    }
+
     @Transactional(readOnly = true)
     public boolean isFollowing(String followerEmail, Long followingId) {
         User follower = userRepository.findByEmail(followerEmail)
