@@ -1,12 +1,16 @@
 package com.elice.aurasphere.user.service;
 
+import com.elice.aurasphere.contents.repository.PostRepository;
 import com.elice.aurasphere.global.s3.service.S3Service;
 import com.elice.aurasphere.global.exception.CustomException;
 import com.elice.aurasphere.global.exception.ErrorCode;
 import com.elice.aurasphere.user.dto.ProfileRequestDTO;
 import com.elice.aurasphere.user.dto.ProfileResponseDTO;
 import com.elice.aurasphere.user.entity.Profile;
+import com.elice.aurasphere.user.entity.User;
+import com.elice.aurasphere.user.repository.FollowRepository;
 import com.elice.aurasphere.user.repository.ProfileRepository;
+import com.elice.aurasphere.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,19 +27,32 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProfileService {
     private final ProfileRepository profileRepository;
+    private final PostRepository postRepository;
+    private final FollowRepository followRepository;
     private final S3Service s3Service;
     private static final String DEFAULT_PROFILE_URL = "DEFAULT";
 
+    @Transactional
     public ProfileResponseDTO getProfile(Long userId) {
         Profile profile = profileRepository.findByUserId(userId)
             .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
+        // 게시글 수 조회
+        Long postsCount = postRepository.countByUserIdAndDeletedDateIsNull(userId);
+
+        // 팔로워/팔로잉 수 조회
+        Long followerCount = followRepository.countByFollowing(profile.getUser());
+        Long followingCount = followRepository.countByFollower(profile.getUser());
+
+
         return ProfileResponseDTO.builder()
             .nickname(profile.getNickname())
             .profileUrl(profile.getProfileUrl())
+            .postsCount(postsCount)
+            .followerCount(followerCount)
+            .followingCount(followingCount)
             .build();
     }
-
 
     @Transactional
     public ProfileResponseDTO updateProfile(Long userId, String nickname, MultipartFile file) throws IOException {

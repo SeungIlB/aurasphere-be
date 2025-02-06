@@ -8,13 +8,13 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class FilterResDTO {
+public class FilterResponseDTO {
 
     private List<Post> postList;
     private Long filterCursor;
 
     @Builder
-    public FilterResDTO(List<Post> postList, Long filterCursor) {
+    public FilterResponseDTO(List<Post> postList, Long filterCursor) {
         this.postList = postList;
         this.filterCursor = filterCursor;
     }

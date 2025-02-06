@@ -8,9 +8,10 @@ import com.elice.aurasphere.global.authentication.JwtTokenProvider;
 import com.elice.aurasphere.global.filter.JwtAuthenticationFilter;
 import com.elice.aurasphere.global.filter.JwtExceptionFilter;
 import com.elice.aurasphere.global.oauth2.CustomOAuth2UserService;
-import com.elice.aurasphere.global.utils.CookieUtil;
+//import com.elice.aurasphere.global.utils.CookieUtil;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -32,13 +33,16 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
-    private final CookieUtil cookieUtil;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2AuthenticationSuccessHandler oauth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oauth2AuthenticationFailureHandler;
+
+    @Value("${cors.allowed-origins}")
+    private String[] allowedOrigins;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -68,12 +72,12 @@ public class SecurityConfig {
 
             .authorizeHttpRequests(authorize -> {
                 authorize
-                    .requestMatchers( "/api/login", "/api/signup", "/api/oauth2/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html",  "/api/user/checkNickname", "/api/email/verifyCode/send", "/api/email/verify").permitAll()
+                    .requestMatchers( "/api/login", "/api/signup", "/api/oauth2/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html",  "/api/users/nickname", "/api/users/email/verification_code", "/api/users/password/verification_code", "/api/users/email/verification", "/api/user/reset_password").permitAll()
                     .requestMatchers("/api/admin").hasRole("ADMIN")
                     .anyRequest().authenticated();
             })
 
-            .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, cookieUtil),
+            .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
                 UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(new JwtExceptionFilter(),
                 JwtAuthenticationFilter.class);
@@ -84,9 +88,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://34.64.75.50:5173", "http://localhost:8080")); // 프론트엔드 주소
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedOriginPatterns(Arrays.asList(allowedOrigins));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "Refresh-Token"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
