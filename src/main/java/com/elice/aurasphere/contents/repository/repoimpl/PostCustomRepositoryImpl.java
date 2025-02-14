@@ -1,18 +1,15 @@
 package com.elice.aurasphere.contents.repository.repoimpl;
 
-import com.elice.aurasphere.contents.dto.FilterResDTO;
+import com.elice.aurasphere.contents.dto.FilterResponseDTO;
 import com.elice.aurasphere.contents.entity.Post;
 import com.elice.aurasphere.contents.repository.PostCustomRepository;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.elice.aurasphere.contents.entity.QLike.like;
 import static com.elice.aurasphere.contents.entity.QPost.post;
@@ -30,7 +27,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
     }
 
     @Override
-    public FilterResDTO findAllPostsByAsc(Long userId, int size, Long postCursor) {
+    public FilterResponseDTO findAllPostsByAsc(Long userId, int size, Long postCursor) {
 
         List<Post> results = queryFactory
                 .selectFrom(post)
@@ -39,7 +36,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
                 .limit(size)
                 .fetch();
 
-        return FilterResDTO.builder()
+        return FilterResponseDTO.builder()
                 .postList(results)
                 .build();
     }
@@ -56,7 +53,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
     }
 
     @Override
-    public FilterResDTO findPostsByLikes(Long userId, int size, Long postCursor, Optional<Long> filterCursor) {
+    public FilterResponseDTO findPostsByLikes(Long userId, int size, Long postCursor, Optional<Long> filterCursor) {
 
         List<Tuple> results = queryFactory
                 .select(post, like.count().as("likeCnt"))
@@ -77,14 +74,14 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
         Long lastLike = results.isEmpty() ? 0L : results.get(results.size() - 1).get(1, Long.class);
 
 
-        return FilterResDTO.builder()
+        return FilterResponseDTO.builder()
                 .postList(postList)
                 .filterCursor(lastLike)
                 .build();
     }
 
     @Override
-    public FilterResDTO findAllPostsByViews(Long userId, int size, Long postCursor, Optional<Long> filterCursor) {
+    public FilterResponseDTO findAllPostsByViews(Long userId, int size, Long postCursor, Optional<Long> filterCursor) {
         List<Tuple> results = queryFactory
                 .select(post, view.viewCnt)
                 .from(post)
@@ -103,14 +100,14 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
         Long lastView = results.isEmpty() ? 0L : results.get(results.size() - 1).get(1, Long.class);
 
 
-        return FilterResDTO.builder()
+        return FilterResponseDTO.builder()
                 .postList(postList)
                 .filterCursor(lastView)
                 .build();
     }
 
     @Override
-    public FilterResDTO findAllPostsByFollowing(Long userId, int size, Long postCursor, Optional<Long> filterCursor) {
+    public FilterResponseDTO findAllPostsByFollowing(Long userId, int size, Long postCursor, Optional<Long> filterCursor) {
 
         List<Post> results = queryFactory
                 .selectFrom(post)
@@ -121,7 +118,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
                 .fetch();
 
 
-        return FilterResDTO.builder()
+        return FilterResponseDTO.builder()
                 .postList(results)
                 .build();
     }

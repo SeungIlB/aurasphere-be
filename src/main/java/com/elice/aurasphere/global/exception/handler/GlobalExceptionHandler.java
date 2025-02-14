@@ -83,13 +83,6 @@ public class GlobalExceptionHandler {
         return handleExceptionInternal(ex.getErrorCode());
     }
 
-//    @ExceptionHandler(MissingServletRequestPartException.class)
-//    public ResponseEntity<Object> handleMissingPartException(MissingServletRequestPartException ex) {
-//        String message = "필수 데이터를 포함해주세요 : " + ex.getRequestPartName();
-//        return handleExceptionInternal(ErrorCode.MISSING_PART, message);
-//    }
-
-
     //Valid Exception 처리
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleMethodArgumentNotValidException(

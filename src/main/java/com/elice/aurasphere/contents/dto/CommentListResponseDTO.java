@@ -8,10 +8,10 @@ import java.util.List;
 
 @Schema(description = "댓글 리스트 응답 DTO")
 @Getter
-public class CommentListResDTO {
+public class CommentListResponseDTO {
 
     @Schema(description = "댓글 리스트")
-    private List<CommentResDTO> commentList;
+    private List<CommentResponseDTO> commentList;
 
     @Schema(description = "마지막 댓글 번호")
     private Long comment_cursor;
@@ -20,8 +20,8 @@ public class CommentListResDTO {
     private Boolean hasNext;
 
     @Builder
-    public CommentListResDTO(
-            List<CommentResDTO> commentList,
+    public CommentListResponseDTO(
+            List<CommentResponseDTO> commentList,
             Long comment_cursor,
             Boolean hasNext
     ){

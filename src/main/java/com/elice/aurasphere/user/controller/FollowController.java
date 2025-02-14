@@ -53,6 +53,20 @@ public class FollowController {
         return ApiResponseDto.from(null);
     }
 
+    @Operation(summary = "팔로워 삭제 API", description = "나를 팔로우하는 특정 사용자를 삭제하는 API입니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "S000", description = "팔로워 삭제 성공"),
+        @ApiResponse(responseCode = "U001", description = "사용자를 찾을 수 없습니다.")
+    })
+    @DeleteMapping("/followers/{followerId}")
+    public ApiResponseDto<Void> removeFollower(
+        @AuthenticationPrincipal CustomUserDetails userDetails,
+        @PathVariable Long followerId
+    ) {
+        followService.removeFollower(userDetails.getUsername(), followerId);
+        return ApiResponseDto.from(null);
+    }
+
     @Operation(summary = "팔로우 상태 확인 API", description = "특정 사용자를 팔로우했는지 확인하는 API입니다.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "S000", description = "팔로우 상태 확인 성공")
@@ -76,7 +90,6 @@ public class FollowController {
         List<FollowUserResponseDTO> followers = followService.getFollowers(userDetails.getId());
         return ApiResponseDto.from(followers);
     }
-
 
     @Operation(summary = "팔로잉 목록 조회 API", description = "특정 사용자의 팔로잉 목록을 조회하는 API입니다.")
     @ApiResponses(value = {

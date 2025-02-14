@@ -118,14 +118,14 @@ public class PostService {
     }
 
 
-    public PostListResDTO getFilteredPosts(
+    public PostListResponseDTO getFilteredPosts(
             String username, int size, Long postCursor, Optional<Long> filterCursor, Optional<String> filter
     ){
 
         User user = userRepository.findByEmail(username)
                 .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        FilterResDTO results;
+        FilterResponseDTO results;
 
         if(filter.isPresent() && filter.get().equals("likes")){
             results = postRepository.findPostsByLikes(user.getId(), size, postCursor, filterCursor);
@@ -139,16 +139,16 @@ public class PostService {
 
         //리스트가 비어있는 경우 hasNext를 false로 반환하고 리턴
         if(results.getPostList().isEmpty())
-            return PostListResDTO.builder().hasNext(false).build();
+            return PostListResponseDTO.builder().hasNext(false).build();
 
-        List<PostResDTO> posts = results.getPostList().stream().map(post -> {
+        List<PostResponseDTO> posts = results.getPostList().stream().map(post -> {
 
             List<FileDTO> urls = fileRepository.findFilesByPostId(post.getId());
 
             Profile profile = profileRepository.findByUserId(post.getUser().getId())
                     .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
 
-            return PostResDTO.builder()
+            return PostResponseDTO.builder()
                     .id(post.getId())
                     .nickname(profile.getNickname())
                     .profileUrl(profile.getProfileUrl())
@@ -166,7 +166,7 @@ public class PostService {
         boolean hasNext = results.getPostList().size() >= size;
 
 
-        return PostListResDTO.builder()
+        return PostListResponseDTO.builder()
                 .postList(posts)
                 .post_cursor(lastCursor)
                 .filter_cursor(results.getFilterCursor())
@@ -179,7 +179,7 @@ public class PostService {
     /*
     내가 쓴 게시글 조회
     */
-    public PostListResDTO getMyPosts(String username, int size, Long cursor){
+    public PostListResponseDTO getMyPosts(String username, int size, Long cursor){
 
         User user = userRepository.findByEmail(username)
                 .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -188,16 +188,16 @@ public class PostService {
 
         //리스트가 비어있는 경우 hasNext를 false로 반환하고 리턴
         if(postList.isEmpty())
-            return PostListResDTO.builder().hasNext(false).build();
+            return PostListResponseDTO.builder().hasNext(false).build();
 
-        List<PostResDTO> posts = postList.stream().map(post -> {
+        List<PostResponseDTO> posts = postList.stream().map(post -> {
 
             List<FileDTO> urls = fileRepository.findFilesByPostId(post.getId());
 
             Profile profile = profileRepository.findByUserId(post.getUser().getId())
                     .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
 
-            return PostResDTO.builder()
+            return PostResponseDTO.builder()
                     .id(post.getId())
                     .nickname(profile.getNickname())
                     .profileUrl(profile.getProfileUrl())
@@ -215,7 +215,7 @@ public class PostService {
         boolean hasNext = postList.size() >= size;
 
 
-        return PostListResDTO.builder()
+        return PostListResponseDTO.builder()
                 .postList(posts)
                 .post_cursor(lastCursor)
                 .hasNext(hasNext)
@@ -227,27 +227,27 @@ public class PostService {
     * 테스트코드 사용 X
     *
     */
-    public PostListResDTO getTestPosts(String username, Pageable pageable){
+    public PostListResponseDTO getTestPosts(String username, Pageable pageable){
 
         User user = userRepository.findByEmail(username)
                 .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
 
-        Page<Post> postList = postRepository.findByDeletedDateIsNull(pageable);
+        Page<Post> postList = postRepository.findByDeletedDateIsNullOrderByCreatedAtDesc(pageable);
 
         //리스트가 비어있는 경우 hasNext를 false로 반환하고 리턴
         if(postList.isEmpty())
-            return PostListResDTO.builder().hasNext(false).build();
+            return PostListResponseDTO.builder().hasNext(false).build();
 
-        List<PostResDTO> posts = postList.stream().map(post -> {
+        List<PostResponseDTO> posts = postList.stream().map(post -> {
 
             List<FileDTO> urls = fileRepository.findFilesByPostId(post.getId());
 
             Profile profile = profileRepository.findByUserId(post.getUser().getId())
                     .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
 
-            return PostResDTO.builder()
+            return PostResponseDTO.builder()
                     .id(post.getId())
                     .nickname(profile.getNickname())
                     .profileUrl(profile.getProfileUrl())
@@ -262,13 +262,13 @@ public class PostService {
         }).toList();
 
 
-        return PostListResDTO.builder()
+        return PostListResponseDTO.builder()
                 .postList(posts)
                 .build();
     }
 
     //상세 게시글 조회
-    public PostResDTO getPost(String username, Long postId) {
+    public PostResponseDTO getPost(String username, Long postId) {
 
         User user = userRepository.findByEmail(username)
                 .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -285,7 +285,7 @@ public class PostService {
 
         List<FileDTO> urls = fileRepository.findFilesByPostId(post.getId());
 
-        return PostResDTO.builder()
+        return PostResponseDTO.builder()
                 .id(post.getId())
                 .nickname(profile.getNickname())
                 .profileUrl(profile.getProfileUrl())
@@ -302,11 +302,15 @@ public class PostService {
 
     @Transactional
     //게시글 생성
-    public PostResDTO registerPost(
+    public PostResponseDTO registerPost(
             String username,
             String content,
             List<MultipartFile> files
     ) throws IOException {
+
+        if(files.size() > 6){
+            throw new CustomException(ErrorCode.TOO_MANY_FILES);
+        }
 
         User user = userRepository.findByEmail(username)
                 .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -367,7 +371,7 @@ public class PostService {
         }
         fileRepository.saveAll(fileList); // 이미지 리스트 저장
 
-        return PostResDTO.builder()
+        return PostResponseDTO.builder()
                 .id(registeredPost.getId())
                 .nickname(profile.getNickname())
                 .profileUrl(profile.getProfileUrl())
@@ -382,7 +386,7 @@ public class PostService {
     }
 
     //게시글 수정
-    public PostResDTO editPost(String username, Long postId, PostUpdateDTO postUpdateDTO) {
+    public PostResponseDTO editPost(String username, Long postId, PostUpdateDTO postUpdateDTO) {
 
         //유저를 찾을 수 없는 경우
         User user = userRepository.findByEmail(username)
@@ -409,7 +413,7 @@ public class PostService {
 
                     List<FileDTO> urls = fileRepository.findFilesByPostId(savedPost.getId());
 
-                    return PostResDTO.builder()
+                    return PostResponseDTO.builder()
                             .id(savedPost.getId())
                             .nickname(profile.getNickname())
                             .profileUrl(profile.getProfileUrl())
