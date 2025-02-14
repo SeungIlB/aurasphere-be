@@ -59,10 +59,4 @@ public class NotificationController {
         notificationService.markAllNotificationsAsRead(userDetails);
         return ResponseEntity.noContent().build(); // 204 No Content 반환
     }
-
-//    @PostMapping("/test")
-//    public ResponseEntity<Notification> postNotification(@AuthenticationPrincipal CustomUserDetails userDetails) {
-//
-//        return ResponseEntity.ok(notificationService.postNotifications(userDetails));  // 서비스 메서드 호출
-//    }
 }

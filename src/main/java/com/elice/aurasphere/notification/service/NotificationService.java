@@ -77,43 +77,5 @@ public class NotificationService {
         notifications.forEach(Notification::markAsRead); // 각 알림을 읽음 처리
     }
 
-//    @Transactional
-//    public Notification postNotifications(CustomUserDetails customUserDetails) {
-//        // 'fromUser'는 댓글을 단 사용자 (예시로 임의의 사용자 ID와 이메일 설정)
-//        User fromUser = User.builder()
-//                .id(2L) // 댓글을 단 사용자 ID
-//                .email("fromUser@example.com") // 댓글을 단 사용자 이메일
-//                .password("password")
-//                .build();
-//
-//        // 'toUser'는 알림을 받는 사용자 (현재 로그인한 사용자)
-//        User toUser = User.builder()
-//                .id(customUserDetails.getId()) // 현재 로그인한 사용자 ID
-//                .email(customUserDetails.getUsername()) // 현재 로그인한 사용자 이메일
-//                .password(customUserDetails.getPassword()) // 비밀번호는 필요 없다면 생략 가능
-//                .build();
-//
-//        // 알림 타입 설정
-//        NotificationType notificationType = NotificationType.COMMENT;
-//
-//        // 'fromUser'와 'toUser'가 동일하지 않으면 알림을 생성
-//        if (!fromUser.getId().equals(toUser.getId())) {
-//            // Notification 엔티티 생성
-//            Notification notification = Notification.builder()
-//                    .user(toUser) // 알림을 받을 사용자
-//                    .fromUser(fromUser) // 댓글을 단 사용자
-//                    .type(notificationType)
-//                    .isRead(false)
-//                    .build();
-//
-//            // 알림 저장
-//            notificationRepository.save(notification);
-//
-//            return notification;
-//        } else {
-//            // 만약 'fromUser'와 'toUser'가 동일하다면 알림을 생성하지 않음
-//            return null;
-//        }
-//    }
 }
 
